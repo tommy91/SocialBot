@@ -91,6 +91,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 def tryConnectToRemoteServer():
 	"Look for the remote server"
+	write("Trying connecting to server online.. ")
 	post_data = {"action": "server_alive"}
 	resp = requests.post(PATH_TO_SERVER + '/Receiver.php', data = post_data)
 	print resp.content
@@ -100,4 +101,5 @@ if __name__ == '__main__':
 	os.system('clear')
 	checkInputParams()
 	printHello()
+	tryConnectToRemoteServer()
 
