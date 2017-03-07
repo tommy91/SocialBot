@@ -5,6 +5,8 @@ import datetime
 import threading
 import requests
 
+import Settings
+
 
 lock = threading.RLock()
 
@@ -13,6 +15,8 @@ sleepLineDefault = 0.3
 sleepChar = 0.02
 sleepLine = 0.3
 lastline = ""
+
+PATH_TO_SERVER = Settings.PATH_TO_SERVER
 
 
 def writeln(res):
@@ -87,7 +91,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 def tryConnectToRemoteServer():
 	"Look for the remote server"
-	
+	post_data = {"action": "server_alive"}
+	resp = requests.post(PATH_TO_SERVER + '/Receiver.php', data = post_data)
+	print resp.content
 
 
 if __name__ == '__main__':

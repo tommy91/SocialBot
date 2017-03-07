@@ -7,6 +7,7 @@ FILE='file.txt'
 ftp -n $HOST <<END_SCRIPT
 quote USER $USER
 quote PASS $PASSWD
+cd /path/to/correct/dir
 put $FILE
 quit
 END_SCRIPT
