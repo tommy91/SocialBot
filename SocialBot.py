@@ -7,6 +7,9 @@ import requests
 
 import Settings
 
+# Per debugging locale
+import local_settings as Settings
+
 
 lock = threading.RLock()
 
@@ -17,6 +20,7 @@ sleepLine = 0.3
 lastline = ""
 
 PATH_TO_SERVER = Settings.PATH_TO_SERVER
+RECEIVER = Settings.RECEIVER 
 
 
 def writeln(res):
@@ -93,7 +97,7 @@ def tryConnectToRemoteServer():
 	"Look for the remote server"
 	write("Trying connecting to server online.. ")
 	post_data = {"action": "server_alive"}
-	resp = requests.post(PATH_TO_SERVER + '/Receiver.php', data = post_data)
+	resp = requests.post(PATH_TO_SERVER + RECEIVER, data = post_data)
 	print resp.content
 
 
