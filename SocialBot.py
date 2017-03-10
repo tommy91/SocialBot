@@ -5,7 +5,7 @@ import datetime
 import threading
 import requests
 
-import Settings
+#import Settings
 
 # Per debugging locale
 import local_settings as Settings
