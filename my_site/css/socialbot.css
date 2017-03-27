@@ -1,0 +1,224 @@
+body {
+    background: black;
+    color: lawngreen;
+    text-align: center;
+}
+.hello {
+    float: left;
+    margin: 0;
+    padding: 0;
+}
+#username {
+    color: whitesmoke;
+}
+#logout {
+    float: right;
+}
+#logout:hover {
+    cursor: pointer;
+}
+#header {
+    width:100%;
+    height:40px;
+}
+.btn {
+    background: lawngreen;
+    color: black;
+    border: lawngreen;
+    border-radius: 3px;
+    font-size:17px;
+}
+.btn:hover {
+    font-size:18px;
+    cursor: pointer;
+}
+.btn:focus {
+    outline:none;
+}
+.btn-confirm {
+    background: black;
+    color: lawngreen;
+    border-color: lawngreen;
+    border-radius: 3px;
+}
+.btn-confirm:hover {
+    cursor: pointer;
+    background: lawngreen;
+    color: black;
+}
+#change-pw {
+    display: none;
+    width: 550px;
+    border: 1px solid gold;
+    border-radius: 3px;
+    margin: 0 auto;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+#modify-data-container {
+    display: none;
+    width: 550px;
+    border: 1px solid gold;
+    border-radius: 3px;
+    margin: 0 auto;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+#container {
+    width: 100%;
+}
+#program-stats-container {
+    display: inline-block;
+    margin-top: 15px;
+}
+.program_container {
+    float: left;
+    margin-right: 30px;
+}
+.tag_program {
+    display: inline;
+    margin-right: 5px;
+}
+.status_program {
+    display: inline;
+    width: 13px;
+    margin-right: 7px;
+}
+.div_program {
+    display: inline;
+    color: whitesmoke;
+}
+#account-container {
+    display: inline-block;
+    text-align: left;
+    margin-top: 15px;
+    width: 100%;
+}
+.ul_account {
+    list-style-type: none;
+    float: left;
+}
+.div_account {
+    display: inline;
+    color: whitesmoke;
+}
+.name_account {
+    color: gold;
+}
+.tag_account {
+    margin-right: 5px;
+    display: inline;
+}
+.href_account {
+    text-decoration: none;
+    color: gold;
+}
+.status_account {
+    display: inline;
+    width: 13px;
+    margin-left: 7px;
+}
+.status_account:hover {
+    cursor: pointer;
+    width: 14px;
+}
+.social_account {
+    display: inline;
+    height: 15px;
+    margin-left: 7px;
+}
+#modify-data-content {
+    margin-top: 20px;
+} 
+.select {
+    color: whitesmoke;
+    background: black;
+    border: lawngreen;
+}
+.select:hover {
+    cursor: pointer;
+    border: 2px solid lawngreen;
+}
+.select:focus {
+    outline: 0;
+}
+.inline {
+    display: inline;
+}
+.input {
+    background: black;
+    color: whitesmoke;
+    border: 0;
+    border-bottom: 1px solid lawngreen;
+    width: 300px;
+}
+.small-input {
+    background: black;
+    color: whitesmoke;
+    border: 0;
+    border-bottom: 1px solid lawngreen;
+    width: 60px;
+}
+.input:focus, .small-input:focus {
+    outline: 0;
+}
+.input:hover, .small-input:hover  {
+    border-bottom: 2px solid lawngreen;
+}
+#confirm-modify {
+    margin-top: 10px;
+}
+#div-app-account-modify, #div-xxd-modify, #div-xxt-modify {
+    margin-top: 10px;
+}
+.space {
+    margin-right: 15px;
+}
+#div-tags-blogs-modify {
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#div-tags-container-modify, #div-blogs-container-modify {
+    float: left;
+}
+.list {
+    border: 1px solid lawngreen;
+    border-radius: 2px;
+    height: 250px;
+    width: 150px;
+    margin: 0;
+    margin-right: 5px;
+    margin-left: 5px;
+    margin-top: 5px;
+    list-style-type: none;
+    padding: 0;
+    overflow: auto;
+}
+.both, .just-my {
+    display: none;
+}
+.li-input-tags-modify, .li-input-blogs-modify {
+    background: black;
+    color: whitesmoke;
+    text-align: center;
+    border: 0;
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.li-input-tags-modify:hover, .li-input-blogs-modify:hover {
+    color: lawngreen;
+}
+.li-input-tags-modify:focus, .li-input-blogs-modify:focus {
+    outline: 0;
+}
+.highlight {
+    background: lawngreen;
+    color: black;
+    border: 1px solid lawngreen;
+    border-radius: 3px;
+}

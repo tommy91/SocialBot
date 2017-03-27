@@ -2,7 +2,7 @@
 .DS_Store
 local_settings.py
 ftp.sh
-mysite/example_funzioni_mysql.php
+my_site/example_funzioni_mysql.php
 *.pyc
 *.db
 pytumblr/
