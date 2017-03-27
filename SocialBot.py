@@ -5,7 +5,6 @@ import random
 import datetime
 import threading
 import requests
-import readline
 from pprint import pprint
 import socket
 from httplib2 import ServerNotFoundError
