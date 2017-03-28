@@ -664,7 +664,7 @@ def updateBlogs():
     lock.release()
 
 
-def post(id_blog, blogname, num_posts=-1):
+def post(id_blog, blogname, num_posts=-1, isTest=False):
     global blogs, clients, lock
     lock.acquire()
     writeln("Posting " + blogname + ":\n")
@@ -677,9 +677,13 @@ def post(id_blog, blogname, num_posts=-1):
         write("Error: client for '" + blogname + "' not available! (" + str(msg) + ")\n")
         return
     posts = dbManager.getPosts(blogname,num_posts)
+    if isTest:
+        pprint(posts)
     counter = 0
     for post in posts:
         try:
+            if isTest:
+                pprint(post) 
             client.reblog(blogname, id=post['id'], reblog_key=post['reblogKey'], tags = blog["tags"], type = "photo", caption="")
             args = (post['id'],blogname)
             dbManager.delete("PostsLikes",args)
@@ -1277,7 +1281,10 @@ def copyBlog(blog_to_copy, my_blog, limitMax, counter):
 def testConnectedBlogs():
     global blogs,clients, followersList, followingList
     writeln("Test Connection to Blogs:\n")
-    # ...
+    # begin code to test
+    for key, blog in blogs:
+        post(blog['ID'], blog['data']['blogname'], 1, isTest=True)
+    # end code to test
     writeln("Text Connection to Blogs Complete!\n")
 
 
