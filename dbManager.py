@@ -139,11 +139,11 @@ def executeCount(query, silent, tableName):
 
 
 def getPosts(blogname, limit, silent=True):
-	return execute_get('SELECT * FROM PostsLikes WHERE myBlog = "' + blogname + '" GROUP BY id ORDER BY time LIMIT ' + limit, silent, "PostsLikes")
+	return execute_get('SELECT * FROM PostsLikes WHERE myBlog = "' + blogname + '" GROUP BY id ORDER BY time LIMIT ' + str(limit), silent, "PostsLikes")
 
 
 def getFollows(blogname, limit, silent=True):
-	return execute_get('SELECT * FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time LIMIT ' + limit, silent, "Follow")
+	return execute_get('SELECT * FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time LIMIT ' + str(limit), silent, "Follow")
 
 
 def execute_get(query, silent, tableName):
