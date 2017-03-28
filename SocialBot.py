@@ -458,7 +458,7 @@ def search_post(id_blog,blogname,following_blogs,num_post=-1):
     if follows <= (blog['num_follow_xt']/2):
         need_follow = True
     for following_blog in following_blogs:
-        following_blog = following_blog['Name']
+        # following_blog = following_blog['Name']
         counter = 0
         offset_posts = 0
         write("\t         post from " + following_blog + ".. ")
@@ -664,7 +664,7 @@ def updateBlogs():
     lock.release()
 
 
-def post(id_blog, blogname, num_posts=-1, isTest=False):
+def post(id_blog, blogname, num_posts=-1, isDump = False):
     global blogs, clients, lock
     lock.acquire()
     writeln("Posting " + blogname + ":\n")
@@ -677,20 +677,20 @@ def post(id_blog, blogname, num_posts=-1, isTest=False):
         write("Error: client for '" + blogname + "' not available! (" + str(msg) + ")\n")
         return
     posts = dbManager.getPosts(blogname,num_posts)
-    if isTest:
-        pprint(posts)
+    if isDump:
+        print posts 
     counter = 0
     for post in posts:
         try:
-            if isTest:
-                pprint(post) 
+            if isDump:
+                print post 
             client.reblog(blogname, id=post['id'], reblog_key=post['reblogKey'], tags = blog["tags"], type = "photo", caption="")
             args = (post['id'],blogname)
             dbManager.delete("PostsLikes",args)
             counter += 1
             write("\r\tposted " + str(counter) + "/" + str(num_posts))
         except Exception,msg:
-            write("\n\tError: exception on " + blogname + " reblogging\n")
+            write("\n\tError: exception on " + blogname + " reblogging\n" + str(msg) + "\n")
     write("\r\tposted " + str(counter) + " posts!\n")
     if not isTest:
         set_post_timer(id_blog)
@@ -701,7 +701,7 @@ def post(id_blog, blogname, num_posts=-1, isTest=False):
     lock.release()
 
 
-def follow(id_blog, blogname, num_follows=-1):
+def follow(id_blog, blogname, num_follows=-1, isDump = False):
     global blogs, clients, lock
     lock.acquire()
     writeln("Following " + blogname + ":\n")
@@ -719,9 +719,13 @@ def follow(id_blog, blogname, num_follows=-1):
         except Exception, msg:
             write("\n\tError: exception on " + blogname + " following\n")
     follows = dbManager.getFollows(blogname,num_follows/2)
+    if isDump:
+        print follows
     counter = 0
     for follow in follows:
         try:
+            if isDump:
+                print follow
             client.follow(follow['sourceBlog'])
             args = (follow['sourceBlog'],blogname)
             dbManager.delete("Follow",args)
@@ -730,8 +734,12 @@ def follow(id_blog, blogname, num_follows=-1):
         except Exception,msg:
             write("\n\tError: exception on " + blogname + " following\n")
     f4fs = dbManager.getFollows("f4f",num_follows/2)
+    if isDump:
+        print f4fs
     for f4f in f4fs:
         try:
+            if isDump:
+                print f4f
             client.follow(f4f['sourceBlog'])
             args = (f4f['sourceBlog'],"f4f")
             dbManager.delete("Follow",args)
@@ -996,12 +1004,26 @@ def addMyAccount(account,tags,otherAccounts):
     global followersList, followingList, blogs, matches # ,matchesBlogs
     setup_clients(account)
     cData = get_blog_info(str(account['ID']))
-    blogs[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account['Mail'], 'app_account': int(account['App_Account']), 'token': account['Token'], 'tokenSecret': account['Token_Secret'], 'data': cData, 'tags': tags, 'blogs': otherAccounts, 'num_post_xd': int(account['PostXD']), 'num_follow_xd': int(account['FollowXD']), 'num_like_xd': int(account['LikeXD']), 'num_post_xt': int(account['PostXT']), 'num_follow_xt': int(account['FollowXT']), 'num_like_xt': int(account['LikeXT']), 'status': STATUS_STOP}
+    blogs[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account['Mail'], 'app_account': int(account['App_Account']), 'token': account['Token'], 'tokenSecret': account['Token_Secret'], 'data': cData, 'tags': tags2list(tags), 'blogs': blogs2list(otherAccounts), 'num_post_xd': int(account['PostXD']), 'num_follow_xd': int(account['FollowXD']), 'num_like_xd': int(account['LikeXD']), 'num_post_xt': int(account['PostXT']), 'num_follow_xt': int(account['FollowXT']), 'num_like_xt': int(account['LikeXT']), 'status': STATUS_STOP}
     # matches[account['mail']] = counter
     if cData['blogname'] != "not available":
         matches[cData['blogname']] = account['ID']
         followersList[str(account['ID'])] = []
         followingList[str(account['ID'])] = []
+
+
+def tags2list(tags):
+    tagsList = []
+    for tag in tags:
+        tagsList.append(tag['Name'])
+    return tagsList
+
+
+def blogs2list(other_accounts):
+    oaList = []
+    for oa in other_accounts:
+        oaList.append(oa['Name'])
+    return oaList
 
 
 def setup_clients(account):
@@ -1154,10 +1176,10 @@ def updateAddOp(table, id_blog):
             runBlog(id_blog)
     elif table == "sb_other_accounts":
         newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-        blogs[str(id_blog)]['blogs'] = newBlogs
+        blogs[str(id_blog)]['blogs'] = blogs2list(newBlogs)
     elif table == "sb_tags":
         newTags = post_request({"action": "get_tags", "id": id_blog})
-        blogs[str(id_blog)]['tags'] = newTags
+        blogs[str(id_blog)]['tags'] = tags2list(newTags)
     else:
         write("\t\tError: '" + table + "' is no a valid table!")
 
@@ -1181,10 +1203,10 @@ def updateDelOp(table, id_blog):
         # cancellare tabelle db locale per account
     elif table == "sb_other_accounts":
         newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-        blogs[str(id_blog)]['blogs'] = newBlogs
+        blogs[str(id_blog)]['blogs'] = blogs2list(newBlogs)
     elif table == "sb_tags":
         newTags = post_request({"action": "get_tags", "id": id_blog})
-        blogs[str(id_blog)]['tags'] = newTags
+        blogs[str(id_blog)]['tags'] = tags2list(newTags)
     else:
         write("\t\tError: '" + table + "' is no a valid table!")
 
@@ -1280,12 +1302,15 @@ def copyBlog(blog_to_copy, my_blog, limitMax, counter):
 
 def testConnectedBlogs():
     global blogs,clients, followersList, followingList
-    writeln("Test Connection to Blogs:\n")
+    writeln("Begin testing code:\n")
     # begin code to test
-    for key, blog in blogs:
-        post(blog['ID'], blog['data']['blogname'], 1, isTest=True)
+    for key, blog in blogs.iteritems():
+        check_num_post_follow(blog['ID'])
+        post(blog['ID'], blog['data']['blogname'], 1)
+        like(blog['ID'], blog['data']['blogname'], 1)
+        follow(blog['ID'], blog['data']['blogname'], 2, isDump=True)
     # end code to test
-    writeln("Text Connection to Blogs Complete!\n")
+    writeln("End testing code!\n")
 
 
 if __name__ == '__main__':
