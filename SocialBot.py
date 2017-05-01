@@ -226,10 +226,16 @@ def newEntry():
             try:
                 if entry.split()[1] in ["all","All"]:
                     for key, blog in blogs.iteritems():
-                        if blog['data']['blogname'] != "not available":
-                            runBlog(blog['ID'])
+                        if blog['type'] == 1: 
+                            if blog['data']['blogname'] != "not available":
+                                runBlog(blog['ID'])
+                            else:
+                                write("Cannot run not available blog! (id: " + blog['strID'] + ")\n",True)
                         else:
-                            write("Cannot run not available blog! (id: " + blog['strID'] + ")\n",True)
+                            if blog['data']['name'] != "not available":
+                                runBlog(blog['ID'])
+                            else:
+                                write("Cannot run not available blog! (id: " + blog['strID'] + ")\n",True)
                 else:
                     try:
                         runBlog(matches[entry.split()[1]])
@@ -243,13 +249,17 @@ def newEntry():
             try:
                 if entry.split()[1] in ["all","All"]:
                     for kb,blog in blogs.iteritems():
-                        if blog['data']['blogname'] != "not available":
-                            stopBlog(blog['ID'])
+                        if blog['type'] == 1: 
+                            if blog['data']['blogname'] != "not available":
+                                stopBlog(blog['ID'])
+                        else:
+                            if blog['data']['name'] != "not available":
+                                stopBlog(blog['ID'])
                     timers["update"].cancel()
                     timers = {}
                 else: 
                     try:
-                        stopBlog(matchesBlogs[entry.split()[1]])
+                        stopBlog(matches[entry.split()[1]])
                     except KeyError, msg:
                         write(entry.split()[1] + " is not an existing blogname!\n",True)
             except IndexError, msg:
@@ -356,13 +366,19 @@ def runBlog(id_blog):
     blog = blogs[str(id_blog)]
     writeln("Run " + blog['data']['blogname'] + ":\n")
     calc_time_post_follow(id_blog)
-    check_num_post_follow(id_blog)
+    if blog['type'] == 1:
+        check_num_post_follow(id_blog)
+    else:
+        check_num_like_follow_insta(id_blog)
     if timers == {}:
         set_update_timer()
     set_post_timer(id_blog)
     set_follow_timer(id_blog)
     set_like_timer(id_blog)
-    write("\t" + blog['data']['blogname'] + " is running.\n")
+    if blog['type'] == 1:
+        write("\t" + blog['data']['blogname'] + " is running.\n")
+    else:
+        write("\t" + blog['data']['name'] + " is running.\n")
     blogs[str(id_blog)]['status'] = STATUS_RUN
     updateBlogData(id_blog)
     updateStatistics()
@@ -376,20 +392,23 @@ def stopBlog(id_blog):
     prevCanWrite = canWrite
     canWrite = True
     blog = blogs[str(id_blog)]
-    writeln("Stop " + blog['data']['blogname'] + ".. \n")
+    if blog['type'] == 1:
+        writeln("Stop " + blog['data']['blogname'] + ".. \n")
+    else:
+        writeln("Stop " + blog['data']['name'] + ".. \n")
     blogs[str(id_blog)]['status'] = STATUS_STOP
     updateBlogData(id_blog)
     timers[blog['strID'] + "-post"].cancel()
+    del timers[blog['strID'] + "-post"]
     timers[blog['strID'] + "-follow"].cancel()
+    del timers[blog['strID'] + "-follow"]
     timers[blog['strID'] + "-like"].cancel()
-    tbpname = blog['strID'] + "-post"
-    tbfname = blog['strID'] + "-follow"
-    tblname = blog['strID'] + "-like"
-    del timers[tbpname]
-    del timers[tbfname]
-    del timers[tblname]
+    del timers[blog['strID'] + "-like"]
     updateStatistics()
-    write("\t" + blog['data']['blogname'] + " stopped.\n")
+    if blog['type'] == 1:
+        write("\t" + blog['data']['blogname'] + " stopped.\n")
+    else:
+        write("\t" + blog['data']['name'] + " stopped.\n")
     canWrite = prevCanWrite
     lock.release()
 
@@ -397,7 +416,10 @@ def stopBlog(id_blog):
 def calc_time_post_follow(id_blog):
     global timers, blogs
     blog = blogs[str(id_blog)]
-    write("\tCalcule timers for " + blog['data']['blogname'] + ":\n")
+    if blog['type'] == 1:
+        write("\tCalcule timers for " + blog['data']['blogname'] + ":\n")
+    else:
+        write("\tCalcule timers for " + blog['data']['name'] + ":\n")
     blog['timer_post'] = int((24*60/(int(blog['num_post_xd'])/int(blog['num_post_xt'])))+0.5)
     write("\t\tpost every " + str(blog['timer_post']) + " minutes\n")
     blog['timer_follow'] = int((24*60/(int(blog['num_follow_xd'])/int(blog['num_follow_xt'])))+0.5)
@@ -409,31 +431,62 @@ def calc_time_post_follow(id_blog):
 def check_num_post_follow(id_blog):
     global timers, blogs
     blog = blogs[str(id_blog)]
-    if blog['data']['blogname'] != "not available":
-        write("\tCheck number posts in DB for " + blog['data']['blogname'] + ":\n")
-        posts = int(dbManager.countPost(blog['data']['blogname']))
+    bn = blog['data']['blogname']
+    if bn != "not available":
+        write("\tCheck number posts in DB for " + bn + ":\n")
+        posts = int(dbManager.countPost(bn))
         write("\t   #post: " + str(posts) + ".. ")
         if posts >= blog['num_post_xt']:
             write("ok\n")
         else:
             write("needed at least " + str(blog['num_post_xt']) + "\n")
-            search_post(id_blog,blog['data']['blogname'],blog['blogs'],num_post=(blog['num_post_xt']-posts))
-        follows = dbManager.countFollow(blog['data']['blogname'])
+            search_post(id_blog,bn,blog['blogs'],num_post=(blog['num_post_xt']-posts))
+        follows = dbManager.countFollow(bn)
         write("\t   #follow: " + str(follows) + ".. ")
         if follows >= (blog['num_follow_xt']/2):
             write("ok\n")
         else:
             write("needed at least " + str(blog['num_follow_xt']/2) + "\n")
-            search_by_tag(id_blog,blog['data']['blogname'],(blog['num_follow_xt']/2)-follows)
-        f4f = dbManager.countFollow("f4f")
-        write("\t   #f4f: " + str(f4f) + ".. ")
+            search_by_tag(id_blog,bn,(blog['num_follow_xt']/2)-follows)
+        f4f = dbManager.countFollow("f4f-tumblr")
+        write("\t   #f4f-tumblr: " + str(f4f) + ".. ")
         if f4f >= (blog['num_follow_xt']/2):
             write("ok\n")
         else:
             write("needed at least " + str(blog['num_follow_xt']/2) + "\n")
             tag = random_f4f()
-            searchTag(id_blog,"f4f",(blog['num_follow_xt']/2)-f4f,tag)
+            searchTag(id_blog,"f4f-tumblr",(blog['num_follow_xt']/2)-f4f,tag)
 
+
+def check_num_like_follow_insta(id_blog):
+    global timers, blogs
+    blog = blogs[str(id_blog)]
+    bn = blog['data']['name']
+    if bn != "not available":
+        write("\tCheck number follow & likes in DB for " + bn + ":\n")
+        follows = dbManager.countFollow(bn)
+        write("\t   #follow: " + str(follows) + ".. ")
+        if follows >= (blog['num_follow_xt']/2):
+            write("ok\n")
+        else:
+            write("needed at least " + str(blog['num_follow_xt']/2) + "\n")
+            search_by_tag_insta(id_blog,bn,(blog['num_follow_xt']/2)-follows)
+        f4f = dbManager.countFollow("f4f-insta")
+        write("\t   #f4f-insta: " + str(f4f) + ".. ")
+        if f4f >= (blog['num_follow_xt']/2):
+            write("ok\n")
+        else:
+            write("needed at least " + str(blog['num_follow_xt']/2) + "\n")
+            tag = random_f4f()
+            searchTagInsta(id_blog,"f4f-insta",(blog['num_follow_xt']/2)-f4f,tag)
+        l4l = dbManager.countLike("l4l-insta")
+        write("\t   #l4l-insta: " + str(like) + ".. ")
+        if l4l >= blog['num_like_xt']:
+            write("ok\n")
+        else:
+            write("needed at least " + str(blog['num_like_xt']) + "\n")
+            tag = random_l4l()
+            searchTagInsta(id_blog,"l4l-insta",blog['num_like_xt']-f4f,tag)
 
 def search_post(id_blog,blogname,following_blogs,num_post=-1):
     global blogs
@@ -521,6 +574,13 @@ def search_by_tag(id_blog,blogname,num_tags):
     searchTag(id_blog,blogname,num_tags,tag)
 
 
+def search_by_tag_insta(id_blog,blogname,num_tags):
+    global blogs
+    blog = blogs[str(id_blog)]
+    tag = random_tag(blog['blogs'])
+    searchTagInsta(id_blog,blogname,num_tags,tag)
+
+
 def searchTag(id_blog,blogname,num_tags,tag):
     try:
         client = clientsInfo[str(id_blog)]
@@ -557,19 +617,56 @@ def searchTag(id_blog,blogname,num_tags,tag):
     updateStatistics()
 
 
+def searchTagInsta(id_blog,blogname,num_tags,tag):
+    counter = 0
+    write("\t      Searching by tags..\n")
+    new_follows = []
+    write("\t         posts tagged " + tag + ".. ")
+    timestamp = int(time.time())
+    try:
+        while counter < num_tags:
+            # response = client.tagged(tag,before=timestamp)
+            # for post in response:
+            #     try:
+            #         if not post['followed']:
+            #             new_follows.append(post['blog_name'])
+            #             counter += 1
+            #             write("\r\t         posts tagged " + tag + ".. " + str(counter) + "/" + str(num_tags))
+            #         timestamp = post['timestamp']
+            #     except KeyError,msg:
+            #         write("\n\t         Error (keyerror) on search_by_tag: " + str(msg) + "\n")
+            #         counter += 1
+            #     if counter >= num_tags:
+            #         break
+            pass
+        for new_follow in new_follows:
+            args = (new_follow,blogname,int(time.time()))
+            dbManager.add("Follow",args)
+        write("\r\t         posts tagged " + tag + ".. Done! (" + str(counter) + " follow)\n")
+    except Exception,msg:
+        write("\n\t         Error Exception\n")
+    updateStatistics()
+
+
 def random_tag(tags):
     new_tags = []
     for tag in tags:
-        if not tag in ["follow4follow","follow","f4f","followback","Follow4Follow","Follow","F4F","FollowBack"]:
+        if not tag in ["follow4follow","follow","f4f","followback","Follow4Follow","Follow","F4F","FollowBack","like4like","like","likeback","l4l","Like4Like","Like","LikeBack","L4L"]:
             new_tags.append(tag)
     tag_pos = random.randint(0, len(new_tags)-1)
     return new_tags[tag_pos]
 
 
 def random_f4f():
-    f4fs = ["follow4follow","follow","followback"]
+    f4fs = ["follow4follow","follow","followback","f4f"]
     tag_pos = random.randint(0, len(f4fs)-1)
     return f4fs[tag_pos]
+
+
+def random_l4l():
+    l4ls = ["like4like","like","likeback","l4l"]
+    tag_pos = random.randint(0, len(l4ls)-1)
+    return l4ls[tag_pos]
 
 
 def set_update_timer():
@@ -698,6 +795,7 @@ def post(id_blog, blogname, num_posts=-1, isDump = False):
         if count_posts < num_posts:
             writeln(blogname + ": searching new posts!\n")
             search_post(id_blog,blogname,blog['blogs'],num_post=(num_posts-count_posts))
+    updateBlogData(id_blog)
     lock.release()
 
 
@@ -733,7 +831,7 @@ def follow(id_blog, blogname, num_follows=-1, isDump = False):
             write("\r\tfollowed " + str(counter) + "/" + str(num_follows))
         except Exception,msg:
             write("\n\tError: exception on " + blogname + " following\n")
-    f4fs = dbManager.getFollows("f4f",num_follows/2)
+    f4fs = dbManager.getFollows("f4f-tumblr",num_follows/2)
     if isDump:
         print f4fs
     for f4f in f4fs:
@@ -741,12 +839,12 @@ def follow(id_blog, blogname, num_follows=-1, isDump = False):
             if isDump:
                 print f4f
             client.follow(f4f['sourceBlog'])
-            args = (f4f['sourceBlog'],"f4f")
+            args = (f4f['sourceBlog'],"f4f-tumblr")
             dbManager.delete("Follow",args)
             counter += 1
             write("\r\tfollowed " + str(counter) + "/" + str(num_follows))
         except Exception,msg:
-            write("\n\tError: exception on f4f following\n")
+            write("\n\tError: exception on f4f-tumblr following\n")
     write("\r\tfollowed " + str(counter) + " blogs!\n")
     if not isTest:
         set_follow_timer(id_blog)
@@ -754,11 +852,12 @@ def follow(id_blog, blogname, num_follows=-1, isDump = False):
         if num_following_blogs < num_follows/2:
             writeln(blogname + ": searching new follows!\n")
             search_by_tag(id_blog,blogname,(num_follows/2)-num_following_blogs)
-        num_f4fs = dbManager.countFollow("f4f")
+        num_f4fs = dbManager.countFollow("f4f-tumblr")
         if num_f4fs < num_follows/2:
-            writeln("f4f: searching new follows!\n")
+            writeln("f4f-tumblr: searching new follows!\n")
             tag = random_f4f()
-            searchTag(id_blog,"f4f",(num_follows/2)-num_f4fs,tag)
+            searchTag(id_blog,"f4f-tumblr",(num_follows/2)-num_f4fs,tag)
+    updateBlogData(id_blog)
     lock.release()
 
 
@@ -827,6 +926,7 @@ def like(id_blog, blogname, num_likes=-1):
         write("Error Exception\n")
     if not isTest:
         set_like_timer(id_blog)
+    updateBlogData(id_blog)
     lock.release()
 
 def updateFollowers(id_blog, blogname):
@@ -997,19 +1097,27 @@ def initBOT():
 
 def addAppAccount(account):
     global appAccountList
-    appAccountList[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account["Mail"], 'token': account["Token"], 'tokenSecret': account["Token_Secret"]}
+    appAccountList[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account["Mail"], 'token': account["Token"], 'tokenSecret': account["Token_Secret"], 'type': int(account['Type'])}
 
 
 def addMyAccount(account,tags,otherAccounts):
-    global followersList, followingList, blogs, matches # ,matchesBlogs
-    setup_clients(account)
-    cData = get_blog_info(str(account['ID']))
-    blogs[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account['Mail'], 'app_account': int(account['App_Account']), 'token': account['Token'], 'tokenSecret': account['Token_Secret'], 'data': cData, 'tags': tags2list(tags), 'blogs': blogs2list(otherAccounts), 'num_post_xd': int(account['PostXD']), 'num_follow_xd': int(account['FollowXD']), 'num_like_xd': int(account['LikeXD']), 'num_post_xt': int(account['PostXT']), 'num_follow_xt': int(account['FollowXT']), 'num_like_xt': int(account['LikeXT']), 'status': STATUS_STOP}
-    # matches[account['mail']] = counter
-    if cData['blogname'] != "not available":
-        matches[cData['blogname']] = account['ID']
-        followersList[str(account['ID'])] = []
-        followingList[str(account['ID'])] = []
+    global followersList, followingList, blogs, matches
+    if int(account['Type']) == 1:    # tumblr
+        setup_clients(account)
+        cData = get_tumblr_blog_info(str(account['ID']))
+        blogs[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account['Mail'], 'type': int(account['Type']), 'app_account': int(account['App_Account']), 'token': account['Token'], 'tokenSecret': account['Token_Secret'], 'data': cData, 'tags': tags2list(tags), 'blogs': blogs2list(otherAccounts), 'num_post_xd': int(account['PostXD']), 'num_follow_xd': int(account['FollowXD']), 'num_like_xd': int(account['LikeXD']), 'num_post_xt': int(account['PostXT']), 'num_follow_xt': int(account['FollowXT']), 'num_like_xt': int(account['LikeXT']), 'status': STATUS_STOP}
+        if cData['blogname'] != "not available":
+            matches[cData['blogname']] = account['ID']
+            followersList[str(account['ID'])] = []
+            followingList[str(account['ID'])] = []
+    else:   # instagram
+        cData = get_insta_blog_info(account['Username'],account['Password'])
+        blogs[str(account['ID'])] = {'ID': int(account['ID']), 'strID': str(account['ID']), 'mail': account['Mail'], 'type': int(account['Type']), 'username': account['Username'], 'password': account['Password'], 'data': cData, 'tags': tags2list(tags), 'blogs': blogs2list(otherAccounts), 'num_post_xd': int(account['PostXD']), 'num_follow_xd': int(account['FollowXD']), 'num_like_xd': int(account['LikeXD']), 'num_post_xt': int(account['PostXT']), 'num_follow_xt': int(account['FollowXT']), 'num_like_xt': int(account['LikeXT']), 'status': STATUS_STOP}
+        if cData['name'] != "not available":
+            matches[account['Username']] = account['ID']
+            followersList[str(account['ID'])] = []
+            followingList[str(account['ID'])] = []
+
 
 
 def tags2list(tags):
@@ -1044,7 +1152,7 @@ def setup_clients(account):
     clients[str(account['ID'])] = clnt
 
 
-def get_blog_info(account_id):
+def get_tumblr_blog_info(account_id):
     global clients
     try:
         client = clients[account_id]
@@ -1081,6 +1189,28 @@ def get_blog_info(account_id):
     return cData
 
 
+def get_insta_blog_info(username,password):
+    ibi = post_request({'action': 'get_insta_blog_info', 'username': username, 'password': password})
+    if ibi != None:
+        return {'private': ibi['private'],
+                'following': ibi['following'],
+                'followers': ibi['follower'],
+                'messages': ibi['message'],
+                'name': ibi['name'],
+                'posts': ibi['post'],
+                'usertags': ibi['usertags']
+                }
+    else:
+        return {'private': "not available",
+                'following': "not available",
+                'followers': "not available",
+                'messages': "not available",
+                'name': "not available",
+                'posts': "not available",
+                'usertags': "not available"
+                }
+
+
 def checkResponse(res):
     "Check if there is an error in response"
     if "meta" in res:
@@ -1103,6 +1233,13 @@ def updateBlogsData(firstTime=False):
 def updateBlogData(id_blog):
     global blogs
     blog = blogs[str(id_blog)]
+    if blog['type'] == 1:   # tumblr
+        updateBlogDataTumblr(blog)
+    else:   # instagram
+        updateBlogDataInsta(blog)
+
+
+def updateBlogDataTumblr(blog):
     write("\tUpdate " + blog['data']['blogname'] + ".. ")
     post_data_up = {"action": "update_blog_data", 
         "ID": blog['ID'],
@@ -1123,7 +1260,31 @@ def updateBlogData(id_blog):
         post_data_up["Deadline_Like"] = timersTime[blog['strID'] + "-like"]
     up_res = post_request(post_data_up)
     if up_res != None:
-        updateStatus(id_blog)
+        updateStatus(blog['ID'])
+        write("end of update.\n")
+
+
+def updateBlogDataInsta(blog):
+    write("\tUpdate " + blog['data']['name'] + ".. ")
+    post_data_up = {"action": "update_blog_data_insta", 
+        "ID": blog['ID'],
+        "Following": blog['data']['following'],
+        "Followers": blog['data']['followers'],
+        "Posts": blog['data']['posts'],
+        "Messages": blog['data']['messages'],
+        "Name": blog['data']['name'],
+        "Private": blog['data']['private'],
+        "Usertags": blog['data']['usertags']
+        }
+    if (blog['strID'] + "-post") in timersTime:
+        post_data_up["Deadline_Post"] = timersTime[blog['strID'] + "-post"]
+    if (blog['strID'] + "-follow") in timersTime:
+        post_data_up["Deadline_Follow"] = timersTime[blog['strID'] + "-follow"]
+    if (blog['strID'] + "-like") in timersTime:
+        post_data_up["Deadline_Like"] = timersTime[blog['strID'] + "-like"]
+    up_res = post_request(post_data_up)
+    if up_res != None:
+        updateStatus(blog['ID'])
         write("end of update.\n")
 
 
@@ -1145,7 +1306,7 @@ def synchOperations(firstTime=False):
     synch_req = post_request({'action': "synch_operations"})
     if len(synch_req) > 0:
         write("\n")
-        for ku, up_row in synch_req:
+        for up_row in synch_req:
             updateData(up_row)
     else:
         write("already synch!\n")
@@ -1196,11 +1357,15 @@ def updateDelOp(table, id_blog):
     elif table == "sb_my_accounts":
         if blogs[str(id_blog)]['status'] == STATUS_RUN:
             stopBlog(id_blog)
-        del matches[blogs[str(id_blog)]['data']['blogname']]
-        del blogs[str(id_blog)]
-        del clients[str(id_blog)]
-        del clientsInfo[str(id_blog)]
-        # cancellare tabelle db locale per account
+        if blogs[str(id_blog)]['type'] == 1:    # tumblr
+            del matches[blogs[str(id_blog)]['data']['blogname']]
+            del blogs[str(id_blog)]
+            del clients[str(id_blog)]
+            del clientsInfo[str(id_blog)]
+        else:   # instagram
+            del matches[blogs[str(id_blog)]['data']['name']]
+            del blogs[str(id_blog)]
+        # todo cancellare tabelle db locale per account
     elif table == "sb_other_accounts":
         newBlogs = post_request({"action": "get_blogs", "id": id_blog})
         blogs[str(id_blog)]['blogs'] = blogs2list(newBlogs)
@@ -1220,11 +1385,15 @@ def updateUpOp(table, id_blog):
         oldMyAccount = blogs[str(id_blog)]
         newMyAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
         blogs[str(id_blog)]['mail'] = newMyAccount['Mail']
-        blogs[str(id_blog)]['app_account'] = newMyAccount['App_Account']
-        blogs[str(id_blog)]['token'] = newMyAccount['Token']
-        blogs[str(id_blog)]['tokenSecret'] = newMyAccount['Token_Secret']
-        if (oldMyAccount['app_account'] != newMyAccount['App_Account']) or (oldMyAccount['token'] != newMyAccount['Token']) or (oldMyAccount['tokenSecret'] != newMyAccount['Token_Secret']):
-            setup_clients(id_blog)
+        if newMyAccount['Type'] == 1:   # tumblr
+            blogs[str(id_blog)]['app_account'] = newMyAccount['App_Account']
+            blogs[str(id_blog)]['token'] = newMyAccount['Token']
+            blogs[str(id_blog)]['tokenSecret'] = newMyAccount['Token_Secret']
+            if (oldMyAccount['app_account'] != newMyAccount['App_Account']) or (oldMyAccount['token'] != newMyAccount['Token']) or (oldMyAccount['tokenSecret'] != newMyAccount['Token_Secret']):
+                setup_clients(newMyAccount)
+        else:   # instagram
+            blogs[str(id_blog)]['username'] = newMyAccount['Username']
+            blogs[str(id_blog)]['password'] = newMyAccount['Password']
         blogs[str(id_blog)]['num_post_xd'] = int(newMyAccount['PostXD'])
         blogs[str(id_blog)]['num_follow_xd'] = int(newMyAccount['FollowXD'])
         blogs[str(id_blog)]['num_like_xd'] = int(newMyAccount['LikeXD'])
@@ -1304,11 +1473,28 @@ def testConnectedBlogs():
     global blogs,clients, followersList, followingList
     writeln("Begin testing code:\n")
     # begin code to test
-    for key, blog in blogs.iteritems():
-        check_num_post_follow(blog['ID'])
-        post(blog['ID'], blog['data']['blogname'], 1)
-        like(blog['ID'], blog['data']['blogname'], 1)
-        follow(blog['ID'], blog['data']['blogname'], 2, isDump=True)
+
+    # for key, blog in blogs.iteritems():
+    #     check_num_post_follow(blog['ID'])
+    #     post(blog['ID'], blog['data']['blogname'], 1)
+    #     like(blog['ID'], blog['data']['blogname'], 1)
+    #     follow(blog['ID'], blog['data']['blogname'], 2, isDump=True)
+
+    posts = post_request({'action': 'search_tag', 'username': 'tommy__91', 'password': 'Thebest91', 'tag': 'picoftheday', 'num_posts': 10})
+    for key, post in posts.iteritems():
+        print key
+    print posts['num_results']
+    pprint(posts['items'][0])
+    print "\n\n\n"
+    pprint(posts['ranked_items'][0])
+    # for post in posts:
+    #     print post
+    #     print str(post)
+    #     likers = post_request({'action': 'get_likers', 'username': 'tommy__91', 'password': 'Thebest91', 'mediaID': str(post)})
+    #     if likers != None:
+    #         pprint(likers)
+    #         break
+
     # end code to test
     writeln("End testing code!\n")
 

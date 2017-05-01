@@ -6,3 +6,5 @@ my_site/example_funzioni_mysql.php
 *.pyc
 *.db
 pytumblr/
+my_site/vendor/
+my_site/composer.*

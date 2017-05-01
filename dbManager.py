@@ -112,6 +112,9 @@ def count(tableName,silent=False):
 def countPost(blogname,silent=True):
 	return executeCount('SELECT * FROM PostsLikes WHERE myBlog = "' + blogname + '" GROUP BY id', silent, "PostsLikes")
 
+def countLike(blogname,silent=True):
+	return countPost(blogname,silent)
+
 
 def countFollow(blogname,silent=True):
 	return executeCount('SELECT * FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog', silent, "Follow")
