@@ -1,8 +1,10 @@
 <?php
 
 // per debug locale
-require_once 'example_funzioni_mysql.php'
+require_once 'example_funzioni_mysql.php';
 //require_once 'funzioni_mysql.php';
+
+require_once 'insta.php';
 
 $data = new MysqlClass(); 
 $data->connetti();
@@ -48,6 +50,15 @@ function fetchUpDelAndReturn($auth) {
     }
     else {
         return array('Result' => $auth['Result']);
+    }
+}
+
+function fetchIstaResult($res) {
+    if (array_key_exists('Error', $res)) {
+        return $res;
+    }
+    else {
+        return array('Result' => $res);
     }
 }
 
@@ -119,6 +130,33 @@ if (isset($_POST['action'])) {
         else
             echo json_encode($fetch_result);
 	}
+
+    if ($request == "update_blog_data_insta") {
+        $id = intval($_POST['ID']);
+        $following = intval($_POST['Following']);
+        $followers = intval($_POST['Followers']);
+        $posts = intval($_POST['Posts']);
+        $messages = intval($_POST['Messages']);
+        $name = $_POST['Name'];
+        $private = $_POST['Private'];
+        $usertags = $_POST['Usertags'];
+
+        $query = "";
+        if(isset($_POST['Deadline_Post']))
+            $query = "UPDATE sb_my_accounts SET Name='".$name."', Following=".$following.", Followers=".$followers.", Posts=".$posts.", Messages=".$messages.", Private=".$private.", Usertags=".$usertags.", Deadline_Post='".$_POST['Deadline_Post']."', Deadline_Like='".$_POST['Deadline_Like']."', Deadline_Follow='".$_POST['Deadline_Follow']."' WHERE ID=".$id;
+        else    
+            $query = "UPDATE sb_my_accounts SET Name='".$name."', Following=".$following.", Followers=".$followers.", Posts=".$posts.", Messages=".$messages.", Private=".$private.", Usertags=".$usertags." WHERE ID=".$id;
+        $result = $data->query($query);
+        $fetch_result = fetchUpDelAndReturn($result);
+        if(!array_key_exists('Error', $fetch_result)) {
+            if(op2register(1, "sb_my_accounts", $id, 2))
+                echo json_encode($fetch_result);
+            else
+                echo json_encode(array('Error' => " Error on saving to register for blog ".$id."."));
+        }
+        else
+            echo json_encode($fetch_result);
+    }
 
     if ($request == "synch_operations") {
         $q = 'SELECT max(ID) as max FROM sb_register WHERE Who=0';
@@ -325,9 +363,6 @@ if (isset($_POST['action'])) {
     if ($request == "add_my_accounts"){
         $type = intval($_POST['type']);
         $mail = $_POST['mail'];
-        $token = $_POST['token'];
-        $token_secret = $_POST['token_secret'];
-        $app_account = intval($_POST['app_account']);
         $name = $_POST['name'];
         $url = $_POST['url'];
         $postxd = intval($_POST['postxd']);
@@ -338,8 +373,21 @@ if (isset($_POST['action'])) {
         $likext = intval($_POST['likext']);
 
         $t = "sb_my_accounts";
-        $v = array ($type, $mail, $token, $token_secret, $app_account, $name, $url, $postxd, $followxd, $likexd, $postxt, $followxt, $likext);
-        $r = "Type, Mail, Token, Token_Secret, App_Account, Name, Url, PostXD, FollowXD, LikeXD, PostXT, FollowXT, LikeXT";
+
+        if ($type == 1) {   // tumblr
+            $token = $_POST['token'];
+            $token_secret = $_POST['token_secret'];
+            $app_account = intval($_POST['app_account']);
+            $v = array ($type, $mail, $token, $token_secret, $app_account, $name, $url, $postxd, $followxd, $likexd, $postxt, $followxt, $likext);
+            $r = "Type, Mail, Token, Token_Secret, App_Account, Name, Url, PostXD, FollowXD, LikeXD, PostXT, FollowXT, LikeXT";
+        }
+        else {
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            $v = array ($type, $mail, $username, $password, $name, $url, $postxd, $followxd, $likexd, $postxt, $followxt, $likext);
+            $r = "Type, Mail, Username, Password, Name, Url, PostXD, FollowXD, LikeXD, PostXT, FollowXT, LikeXT";
+        }
+        
 
         $result = $data->inserisci($t,$v,$r);
 
@@ -454,9 +502,6 @@ if (isset($_POST['action'])) {
         $id = intval($_POST['id']);
         $type = intval($_POST['type']);
         $mail = $_POST['mail'];
-        $token = $_POST['token'];
-        $token_secret = $_POST['token_secret'];
-        $app_account = intval($_POST['app_account']);
         $name = $_POST['name'];
         $url = $_POST['url'];
         $postxd = intval($_POST['postxd']);
@@ -466,7 +511,18 @@ if (isset($_POST['action'])) {
         $followxt = intval($_POST['followxt']);
         $likext = intval($_POST['likext']);
 
-        $query = 'UPDATE sb_my_accounts SET Type='.$type.', Mail="'.$mail.'", Token="'.$token.'", Token_Secret="'.$token_secret.'", App_Account='.$app_account.', Name="'.$name.'", Url="'.$url.'", FollowXT='.$followxt.', PostXT='.$postxt.', LikeXT='.$likext.', FollowXD='.$followxd.', PostXD='.$postxd.', LikeXD='.$likexd.' WHERE ID='.$id;
+        if ($type == 1) {   // tumblr
+            $token = $_POST['token'];
+            $token_secret = $_POST['token_secret'];
+            $app_account = intval($_POST['app_account']);
+            $query = 'UPDATE sb_my_accounts SET Type='.$type.', Mail="'.$mail.'", Token="'.$token.'", Token_Secret="'.$token_secret.'", App_Account='.$app_account.', Name="'.$name.'", Url="'.$url.'", FollowXT='.$followxt.', PostXT='.$postxt.', LikeXT='.$likext.', FollowXD='.$followxd.', PostXD='.$postxd.', LikeXD='.$likexd.' WHERE ID='.$id;
+        }
+        else {  // instagram
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            $query = 'UPDATE sb_my_accounts SET Type='.$type.', Mail="'.$mail.'", Username="'.$username.'", Password="'.$password.'", Name="'.$name.'", Url="'.$url.'", FollowXT='.$followxt.', PostXT='.$postxt.', LikeXT='.$likext.', FollowXD='.$followxd.', PostXD='.$postxd.', LikeXD='.$likexd.' WHERE ID='.$id;
+        }
+
         $result = $data->query($query);
         $fetch_result = fetchUpDelAndReturn($result);
         if(!array_key_exists('Error', $fetch_result)) {
@@ -508,6 +564,27 @@ if (isset($_POST['action'])) {
         }
         else
             echo json_encode($fetch_result);
+    }
+
+    if($request == "get_insta_blog_info") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        echo json_encode(fetchIstaResult(get_user_info($username,$password)));
+    }
+
+    if($request == "search_tag") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $tag = $_POST['tag'];
+        $num_posts = $_POST['num_posts'];
+        echo json_encode(fetchIstaResult(search_tag($username,$password,$tag,$num_posts)));
+    }
+
+    if($request == "get_likers") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $mediaID = $_POST['mediaID'];
+        echo json_encode(fetchIstaResult(get_likers($username,$password,$mediaID)));
     }
 
 

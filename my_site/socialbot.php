@@ -1,6 +1,10 @@
 <?php
 session_start();
-require_once 'funzioni_mysql.php';
+
+// per debug locale
+require_once 'example_funzioni_mysql.php';
+
+//require_once 'funzioni_mysql.php';
 
 if(isset($_GET['logout'])) {
     if(isset($_SESSION['username'])){
@@ -20,7 +24,7 @@ $data = new MysqlClass();
 $data->connetti();
 
 function setError($error_msg){
-    setcookie('error_msg', $error_msg, time() + (60), "/");
+    setcookie('error_msg', $error_msg + $_POST["username"], time() + (60), "/");
     header('Location: socialbot_login.php');
     exit;
 }
@@ -34,14 +38,17 @@ if(!isset($_SESSION["username"])){
 
     $q = 'SELECT Hash FROM sb_users WHERE Username="'.$username.'"';
     $auth = $data->query($q);
-    $auth_length = mysql_num_rows($auth);
+    if($auth == False) {
+        setError("5");
+    }
+    $auth_length = mysql_num_rows($auth['Result']);
     if($auth_length == 0){
         setError("1");
     }
     if($auth_length > 1){
         setError("2");
     }
-    $response = mysql_fetch_row($auth);
+    $response = mysql_fetch_row($auth['Result']);
     $hash = $response[0];
 
     if (!password_verify($password, $hash)){
@@ -95,39 +102,47 @@ else{
                 <select id="select-third-option" class="select"></select>
             </div>
             <div id="modify-data-content">
-                <div id="modify-account" class="both">
-                    <div id="div-type-modify" class="both">
+                <div id="modify-account" class="modify">
+                    <div id="div-type-modify" class="modify maa mmat mmai">
                         <div id="tag-type-modify" class="inline">Type: </div>
                         <select id="select-type-modify" class="inline select">
                             <option value="1">Tumblr</option>
                             <option value="2">Instagram</option>
                         </select>
                     </div>
-                    <div id="div-mail-modify" class="both">
+                    <div id="div-mail-modify" class="modify maa mmat mmai">
                         <div id="tag-mail-modify" class="inline">Mail: </div>
                         <input id="input-mail-modify" class="inline input"></input>
                     </div>
-                    <div id="div-token-modify" class="both">
+                    <div id="div-token-modify" class="modify maa mmat">
                         <div id="tag-token-modify" class="inline">Token: </div>
                         <input id="input-token-modify" class="inline input"></input>
                     </div>
-                    <div id="div-token-secret-modify" class="both">
+                    <div id="div-token-secret-modify" class="modify maa mmat">
                         <div id="tag-token-secret-modify" class="inline">Token Secret: </div>
                         <input id="input-token-secret-modify" class="inline input"></input>
                     </div>
-                    <div id="div-app-account-modify" class="just-my">
+                    <div id="div-username-modify" class="modify mmai">
+                        <div id="tag-username-modify" class="inline">Username: </div>
+                        <input id="input-username-modify" class="inline input"></input>
+                    </div>
+                    <div id="div-password-modify" class="modify mmai">
+                        <div id="tag-password-modify" class="inline">Password: </div>
+                        <input id="input-password-modify" class="inline input"></input>
+                    </div>
+                    <div id="div-app-account-modify" class="modify mmat">
                         <div id="tag-app-account-modify" class="inline">App Account: </div>
                         <select id="select-app-account-modify" class="inline select"></select>
                     </div>
-                    <div id="div-name-modify" class="just-my">
+                    <div id="div-name-modify" class="modify mmat mmai">
                         <div id="tag-name-modify" class="inline">Name: </div>
                         <input id="input-name-modify" class="inline input"></input>
                     </div>
-                    <div id="div-url-modify" class="just-my">
+                    <div id="div-url-modify" class="modify mmat mmai">
                         <div id="tag-url-modify" class="inline">Url: </div>
                         <input id="input-url-modify" class="inline input"></input>
                     </div>
-                    <div id="div-xxd-modify" class="just-my">
+                    <div id="div-xxd-modify" class="modify mmat mmai">
                         <div id="tag-postxd-modify" class="inline">PostXD: </div>
                         <input id="input-postxd-modify" class="inline small-input space"></input>
                         <div id="tag-likexd-modify" class="inline">LikeXD: </div>
@@ -135,7 +150,7 @@ else{
                         <div id="tag-followxd-modify" class="inline">FollowXD: </div>
                         <input id="input-followxd-modify" class="inline small-input"></input>
                     </div>
-                    <div id="div-xxt-modify" class="just-my">
+                    <div id="div-xxt-modify" class="modify mmat mmai">
                         <div id="tag-postxt-modify" class="inline">PostXT: </div>
                         <input id="input-postxt-modify" class="inline small-input space"></input>
                         <div id="tag-likext-modify" class="inline">LikeXT: </div>
@@ -143,18 +158,18 @@ else{
                         <div id="tag-followxt-modify" class="inline">FollowXT: </div>
                         <input id="input-followxt-modify" class="inline small-input"></input>
                     </div>
-                    <div id="div-tags-blogs-modify" class="just-my">
-                        <div id="div-tags-container-modify" class="just-my">
+                    <div id="div-tags-blogs-modify" class="modify mmat mmai">
+                        <div id="div-tags-container-modify">
                             <div id="tag-tags-modify">Tags:</div>
                             <ul id="div-tags-modify" class="list"></ul>
                         </div>
-                        <div id="div-blogs-container-modify" class="just-my">
-                            <div id="tag-blogs-modify">Blogs:</div>
+                        <div id="div-blogs-container-modify">
+                            <div id="tag-blogs-modify">Search:</div>
                             <ul id="div-blogs-modify" class="list"></ul> 
                         </div>
                     </div>
                 </div>
-                <div id="confirm-buttons" class="both">
+                <div id="confirm-buttons" class="modify">
                     <button id="reset-modify" class="btn-confirm inline">RESET</button>
                     <button id="confirm-modify" class="btn-confirm inline">CONFIRM</button>
                 </div>

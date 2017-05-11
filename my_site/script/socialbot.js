@@ -27,10 +27,6 @@ function poll() {
             for (var k in resp) {
                 if('blog' in resp[k]) {
                     var id_blog = resp[k]['blog']['ID'];
-                    if($('#' + id_blog + '_likes').text() != resp[k]['blog']['Likes']) {
-                        $('#' + id_blog + '_likes').html(resp[k]['blog']['Likes']);
-                        highlightUpdate($('#' + id_blog + '_likes'));
-                    }
                     if($('#' + id_blog + '_following').text() != resp[k]['blog']['Following']) {
                         $('#' + id_blog + '_following').html(resp[k]['blog']['Following']);
                         highlightUpdate($('#' + id_blog + '_following'));
@@ -47,9 +43,25 @@ function poll() {
                         $('#' + id_blog + '_msg').html(resp[k]['blog']['Messages']);
                         highlightUpdate($('#' + id_blog + '_msg'));
                     }
-                    if($('#' + id_blog + '_queue').text() != resp[k]['blog']['Queue']) {
-                        $('#' + id_blog + '_queue').html(resp[k]['blog']['Queue']);
-                        highlightUpdate($('#' + id_blog + '_queue'));
+                    if(resp[k]['blog']['Type'] == "1") {
+                        if($('#' + id_blog + '_likes').text() != resp[k]['blog']['Likes']) {
+                            $('#' + id_blog + '_likes').html(resp[k]['blog']['Likes']);
+                            highlightUpdate($('#' + id_blog + '_likes'));
+                        }
+                        if($('#' + id_blog + '_queue').text() != resp[k]['blog']['Queue']) {
+                            $('#' + id_blog + '_queue').html(resp[k]['blog']['Queue']);
+                            highlightUpdate($('#' + id_blog + '_queue'));
+                        }
+                    }
+                    else {
+                        if($('#' + id_blog + '_private').text() != resp[k]['blog']['Private']) {
+                            $('#' + id_blog + '_private').html(resp[k]['blog']['Private']);
+                            highlightUpdate($('#' + id_blog + '_private'));
+                        }
+                        if($('#' + id_blog + '_usertags').text() != resp[k]['blog']['Usertags']) {
+                            $('#' + id_blog + '_usertags').html(resp[k]['blog']['Usertags']);
+                            highlightUpdate($('#' + id_blog + '_usertags'));
+                        }
                     }
                     if($('#' + id_blog + '_dp').text() != resp[k]['blog']['Deadline_Post']) {
                         $('#' + id_blog + '_dp').html(resp[k]['blog']['Deadline_Post']);
@@ -63,8 +75,8 @@ function poll() {
                         $('#' + id_blog + '_dl').html(resp[k]['blog']['Deadline_Like']);
                         highlightUpdate($('#' + id_blog + '_dl'));
                     }
-                    if(status2int($('#' + id_blog + '_status').attr('status')) != resp[k]['blog']['Status']) {
-                        setNewStatus($('#' + id_blog + '_status'),resp[k]['blog']['Status']);
+                    if(status2int($('#' + id_blog + '_status').attr('status')) != resp[k]['blog']['State']) {
+                        setNewStatus($('#' + id_blog + '_status'),resp[k]['blog']['State']);
                         highlightUpdate($('#' + id_blog + '_status'));
                     }
                 }
@@ -158,25 +170,36 @@ function setAccountStatus() {
             ad = ad['Result'];
             for (var k in ad) {
             	var text = '<ul id="ul_' + ad[k]['ID'] + '" class="ul_account">'
-            		+ '<li class="li_account"><div id="' + ad[k]['ID'] + '_name" class="div_account name_account">'
-            		+ '<a href="' + ad[k]['Url'] + '" target="_blank" id="' + ad[k]['ID'] + '_url" class="href_account"> + ' + ad[k]['Name'] + '</a></div>';
-            	if (parseInt(ad[k]['Status']) == 0)
+            		+ '<li class="li_account"><div id="' + ad[k]['ID'] + '_name" class="div_account name_account">';
+                if (ad[k]['Type'] == "1") {
+                    text += '<a href="' + ad[k]['Url'] + '" target="_blank" id="' + ad[k]['ID'] + '_url" class="href_account"> + ' + ad[k]['Name'] + '</a></div>';
+                }
+                else {
+                    text += '<a href="https://www.instagram.com/' + ad[k]['Username'] + '/" target="_blank" id="' + ad[k]['ID'] + '_url" class="href_account"> + ' + ad[k]['Name'] + '</a></div>';
+                } 
+            	if (parseInt(ad[k]['State']) == 0)
             		text = text + '<img src="img/red_status.png" id="' + ad[k]['ID'] + '_status" class="status_account" idb="' + ad[k]['ID'] + '" status="red" alt="Red Status"/>';
-            	if (parseInt(ad[k]['Status']) == 1)
+            	if (parseInt(ad[k]['State']) == 1)
             		text = text + '<img src="img/green_status.png" id="' + ad[k]['ID'] + '_status" class="status_account" idb="' + ad[k]['ID'] + '" status="green" alt="Green Status"/>';
-            	if (parseInt(ad[k]['Status']) > 1)
+            	if (parseInt(ad[k]['State']) > 1)
             		text = text + '<img src="img/yellow_status.png" id="' + ad[k]['ID'] + '_status" class="status_account" idb="' + ad[k]['ID'] + '" status="yellow" alt="Yellow Status"/>';
                 if (parseInt(ad[k]['Type']) == 1)
                     text = text + '<img src="img/tumblr.png" class="social_account" alt="Tumblr Account"/>';
                 if (parseInt(ad[k]['Type']) == 2)
                     text = text + '<img src="img/insta.png" class="social_account" alt="Insta Account"/>';
             	text = text	+ '</li>'
-            		+ '<li class="li_account"><div class="tag_account">Likes:</div><div id="' + ad[k]['ID'] + '_likes" class="div_account">' + ad[k]['Likes'] + '</div></li>'
             		+ '<li class="li_account"><div class="tag_account">Following:</div><div id="' + ad[k]['ID'] + '_following" class="div_account">' + ad[k]['Following'] + '</div></li>'
             		+ '<li class="li_account"><div class="tag_account">Followers:</div><div id="' + ad[k]['ID'] + '_followers" class="div_account">' + ad[k]['Followers'] + '</div></li>'
-            		+ '<li class="li_account"><div class="tag_account">Posts:</div><div id="' + ad[k]['ID'] + '_posts" class="div_account">' + ad[k]['Posts'] + '</div></li>'
-            		+ '<li class="li_account"><div class="tag_account">Messages:</div><div id="' + ad[k]['ID'] + '_msg" class="div_account">' + ad[k]['Messages'] + '</div></li>'
-            		+ '<li class="li_account"><div class="tag_account">Queue:</div><div id="' + ad[k]['ID'] + '_queue" class="div_account">' + ad[k]['Queue'] + '</div></li>'
+            		+ '<li class="li_account"><div class="tag_account">Posts:</div><div id="' + ad[k]['ID'] + '_posts" class="div_account">' + ad[k]['Posts'] + '</div></li>';
+            	if (ad[k]['Type'] == "1") {
+                    text += '<li class="li_account"><div class="tag_account">Likes:</div><div id="' + ad[k]['ID'] + '_likes" class="div_account">' + ad[k]['Likes'] + '</div></li>'
+                        + '<li class="li_account"><div class="tag_account">Queue:</div><div id="' + ad[k]['ID'] + '_queue" class="div_account">' + ad[k]['Queue'] + '</div></li>';
+                }
+                else {
+                    text += '<li class="li_account"><div class="tag_account">Private:</div><div id="' + ad[k]['ID'] + '_private" class="div_account">' + ad[k]['Private'] + '</div></li>'
+                        + '<li class="li_account"><div class="tag_account">Usertags:</div><div id="' + ad[k]['ID'] + '_usertags" class="div_account">' + ad[k]['Usertags'] + '</div></li>';
+                }
+                text += '<li class="li_account"><div class="tag_account">Messages:</div><div id="' + ad[k]['ID'] + '_msg" class="div_account">' + ad[k]['Messages'] + '</div></li>'
             		+ '<li class="li_account"><div class="tag_account">Deadline Post:</div><div id="' + ad[k]['ID'] + '_dp" class="div_account">' + ad[k]['Deadline_Post'] + '</div></li>'
             		+ '<li class="li_account"><div class="tag_account">Deadline Follow:</div><div id="' + ad[k]['ID'] + '_df" class="div_account">' + ad[k]['Deadline_Follow'] + '</div></li>'
             		+ '<li class="li_account"><div class="tag_account">Deadline Like:</div><div id="' + ad[k]['ID'] + '_dl" class="div_account">' + ad[k]['Deadline_Like'] + '</div></li>'
@@ -251,12 +274,30 @@ function str2date(s) {
 
 function showCorrectTableFields(table) {
     if (table == "app_accounts") {
-        $('.just-my').hide();
-        $('.both').show();
+        $('.modify').show();
+        $('.mmat').hide();
+        $('.mmai').hide();
+        $('.maa').show();
     }
     else {
-        $('.both').show();
-        $('.just-my').show();
+        $('.modify').show();
+        $('.maa').hide();
+        var type = $('#select-type-modify').val();
+        showCorrectTypeFields(type,table);
+    }
+}
+
+
+function showCorrectTypeFields(type,table) {
+    if (table == "my_accounts") {
+        if (type == 1) {    // tumblr
+            $('.mmai').hide();
+            $('.mmat').show();
+        }
+        else {  //instagram
+            $('.mmat').hide();
+            $('.mmai').show();
+        }
     }
 }
 
@@ -295,11 +336,20 @@ function fill_account_data(table, blog) {
             $('#select-type-modify').attr('old_value',ad[0]['Type']);
             $('#input-mail-modify').val(ad[0]['Mail']);
             $('#input-mail-modify').attr('old_value',ad[0]['Mail']);
-            $('#input-token-modify').val(ad[0]['Token']);
-            $('#input-token-modify').attr('old_value',ad[0]['Token']);
-            $('#input-token-secret-modify').val(ad[0]['Token_Secret']);
-            $('#input-token-secret-modify').attr('old_value',ad[0]['Token_Secret']);
+            if (ad[0]['Type'] == 1) {  // tumblr
+                $('#input-token-modify').val(ad[0]['Token']);
+                $('#input-token-modify').attr('old_value',ad[0]['Token']);
+                $('#input-token-secret-modify').val(ad[0]['Token_Secret']);
+                $('#input-token-secret-modify').attr('old_value',ad[0]['Token_Secret']);
+            }
+            else {  // instagram
+                $('#input-username-modify').val(ad[0]['Username']);
+                $('#input-username-modify').attr('old_value',ad[0]['Username']);
+                $('#input-password-modify').val(ad[0]['Password']);
+                $('#input-password-modify').attr('old_value',ad[0]['Password']);
+            }
             if (table.toLowerCase() == 'my_accounts') {
+                showCorrectTypeFields(ad[0]['Type'], table);
                 $('#input-name-modify').val(ad[0]['Name']);
                 $('#input-name-modify').attr('old_value',ad[0]['Name']);
                 $('#input-url-modify').val(ad[0]['Url']);
@@ -318,56 +368,58 @@ function fill_account_data(table, blog) {
                 $('#input-followxt-modify').attr('old_value',ad[0]['FollowXT']);
                 $.post("Receiver.php",
                 {
-                    action: "get_app_accounts"
+                    action: "get_tags",
+                    ID: ad[0]['ID']
                 },
-                function(app_accounts, status) {
-                    var aa = JSON.parse(app_accounts);
-                    if (checkResponse(aa)) {
-                        aa = aa['Result'];
-                        for (var ka in aa) {
-                            $('#select-app-account-modify').append('<option value="' + aa[ka]['ID'] + '">' + aa[ka]['Mail'] + '</option>');
+                function(json_tags, status) {
+                    var tags = JSON.parse(json_tags);
+                    if (checkResponse(tags)) {
+                        tags = tags['Result'];
+                        for (var kt in tags) {
+                            $('#div-tags-modify').append('<li class="li-modify"><input class="li-input-tags-modify" value="' + tags[kt]['Name'] + '" old_value="' + tags[kt]['Name'] + '" new_tag="false"></input></li>');
                         }
-                        $('#select-app-account-modify').val(ad[0]['App_Account']);
-                        $('#select-app-account-modify').attr('old_value',ad[0]['App_Account']);
+                        $('#div-tags-modify').prepend('<li class="li-modify"><input class="li-input-tags-modify" value="..." old_value="..." new_tag="true"></input></li>');
+                        deleted_tags = [];
                         $.post("Receiver.php",
                         {
-                            action: "get_tags",
+                            action: "get_blogs",
                             ID: ad[0]['ID']
                         },
-                        function(json_tags, status) {
-                            var tags = JSON.parse(json_tags);
-                            if (checkResponse(tags)) {
-                                tags = tags['Result'];
-                                for (var kt in tags) {
-                                    $('#div-tags-modify').append('<li class="li-modify"><input class="li-input-tags-modify" value="' + tags[kt]['Name'] + '" old_value="' + tags[kt]['Name'] + '" new_tag="false"></input></li>');
+                        function(json_blogs, status) {
+                            var blogs = JSON.parse(json_blogs);
+                            if (checkResponse(blogs)) {
+                                blogs = blogs['Result'];
+                                for (var kb in blogs) {
+                                    $('#div-blogs-modify').append('<li class="li-modify"><input class="li-input-blogs-modify" value="' + blogs[kb]['Name'] + '" old_value="' + blogs[kb]['Name'] + '" new_blog="false"></inpu></li>');
                                 }
-                                $('#div-tags-modify').prepend('<li class="li-modify"><input class="li-input-tags-modify" value="..." old_value="..." new_tag="true"></input></li>');
-                                deleted_tags = [];
-                                $.post("Receiver.php",
-                                {
-                                    action: "get_blogs",
-                                    ID: ad[0]['ID']
-                                },
-                                function(json_blogs, status) {
-                                    var blogs = JSON.parse(json_blogs);
-                                    if (checkResponse(blogs)) {
-                                        blogs = blogs['Result'];
-                                        for (var kb in blogs) {
-                                            $('#div-blogs-modify').append('<li class="li-modify"><input class="li-input-blogs-modify" value="' + blogs[kb]['Name'] + '" old_value="' + blogs[kb]['Name'] + '" new_blog="false"></inpu></li>');
+                                $('#div-blogs-modify').prepend('<li class="li-modify"><input class="li-input-blogs-modify" value="..." old_value="..." new_blog="true"></input></li>');
+                                deleted_blogs = [];
+                                if (ad[0]['Type'] == 1) {   // tumbrl
+                                    $.post("Receiver.php",
+                                    {
+                                        action: "get_app_accounts"
+                                    },
+                                    function(app_accounts, status) {
+                                        var aa = JSON.parse(app_accounts);
+                                        if (checkResponse(aa)) {
+                                            aa = aa['Result'];
+                                            for (var ka in aa) {
+                                                $('#select-app-account-modify').append('<option value="' + aa[ka]['ID'] + '">' + aa[ka]['Mail'] + '</option>');
+                                            }
+                                            $('#select-app-account-modify').val(ad[0]['App_Account']);
+                                            $('#select-app-account-modify').attr('old_value',ad[0]['App_Account']);
                                         }
-                                        $('#div-blogs-modify').prepend('<li class="li-modify"><input class="li-input-blogs-modify" value="..." old_value="..." new_blog="true"></input></li>');
-                                        deleted_blogs = [];
-                                    }
-                                    else
-                                        console.log(blogs['Error']);
-                                });
+                                        else
+                                            console.log(aa['Error']);
+                                    });
+                                }
                             }
                             else
-                                console.log(tags['Error']);
+                                console.log(blogs['Error']);
                         });
                     }
                     else
-                        console.log(aa['Error']);
+                        console.log(tags['Error']);
                 });
             }
         }
@@ -424,14 +476,22 @@ function deleteAccount(table, blog) {
 
 
 function addAccount(table) {
+    var type = $('#select-type-modify').val();
     var data_to_pass = { action: "add_" + table.toLowerCase(),
-                         type: $('#select-type-modify').val(),
-                         mail: $('#input-mail-modify').val(),
-                         token: $('#input-token-modify').val(),
-                         token_secret: $('#input-token-secret-modify').val() 
+                         type: type,
+                         mail: $('#input-mail-modify').val() 
                         };
+    if (type == 1) {    // tumblr
+        data_to_pass['token'] = $('#input-token-modify').val();
+        data_to_pass['token_secret'] = $('#input-token-secret-modify').val();
+    }
+    else {  // instagram
+        data_to_pass['username'] = $('#input-username-modify').val();
+        data_to_pass['password'] = $('#input-password-modify').val();
+    }
     if (table.toLowerCase() == 'my_accounts') {
-        data_to_pass['app_account'] = $('#select-app-account-modify').val();
+        if (type == 1)
+            data_to_pass['app_account'] = $('#select-app-account-modify').val();
         data_to_pass['name'] = $('#input-name-modify').val();
         data_to_pass['url'] = $('#input-url-modify').val();
         data_to_pass['postxd'] = $('#input-postxd-modify').val();
@@ -509,15 +569,23 @@ function addAccount(table) {
 
 
 function updateAccount(table, id_blog) {
+    var type = $('#select-type-modify').val()
     var data_to_pass = { action: "update_" + table.toLowerCase(),
                          id: $('#select-third-option').val(),
-                         type: $('#select-type-modify').val(),
-                         mail: $('#input-mail-modify').val(),
-                         token: $('#input-token-modify').val(),
-                         token_secret: $('#input-token-secret-modify').val() 
+                         type: type,
+                         mail: $('#input-mail-modify').val()
                         };
+    if (type == 1) {    // tumblr
+        data_to_pass['token'] = $('#input-token-modify').val();
+        data_to_pass['token_secret'] = $('#input-token-secret-modify').val();
+    }
+    else {  // instagram
+        data_to_pass['username'] = $('#input-username-modify').val();
+        data_to_pass['password'] = $('#input-password-modify').val();
+    }
     if (table.toLowerCase() == 'my_accounts') {
-        data_to_pass['app_account'] = $('#select-app-account-modify').val();
+        if (type == 1)
+            data_to_pass['app_account'] = $('#select-app-account-modify').val();
         data_to_pass['name'] = $('#input-name-modify').val();
         data_to_pass['url'] = $('#input-url-modify').val();
         data_to_pass['postxd'] = $('#input-postxd-modify').val();
@@ -729,12 +797,13 @@ $(document).ready(function() {
                 pw: new_pw
             },
             function(data, status) {
-                if (data.length<=2) { 
+                data = JSON.parse(data);
+                if (data['Result']) { 
                     window.alert("Password modified with success!");
                     $("#input-new-pw").val("");
                     $("#input-new-pw2").val("");
                 }
-                if (data.length > 2) {
+                else {
                     window.alert("Password NOT modified, some error occur!");
                     $("#input-new-pw").val("");
                     $("#input-new-pw2").val("");
@@ -755,8 +824,7 @@ $(document).ready(function() {
         $('#select-app-account-modify').empty();
         var table = $('#select-table').val();
         if (table == "0") {
-            $('.both').hide();
-            $('.just-my').hide();
+            $('.modify').hide();
         }
         else {
             var action = $('#select-action').val();
@@ -766,8 +834,7 @@ $(document).ready(function() {
                 addAppAccount2Selector();
             }
             if ((action == '3') || (action == '2')) {
-                $('.both').hide();
-                $('.just-my').hide();
+                $('.modify').hide();
                 fill_account_names(table);
             }
         }         
@@ -783,8 +850,7 @@ $(document).ready(function() {
         var table = $('#select-table').val();
         if (table != '0') {
             if (action == '0') {
-                $('.both').hide();
-                $('.just-my').hide();
+                $('.modify').hide();
             }
             if (action == '1') {
                 addEmptyEntryList();
@@ -792,8 +858,7 @@ $(document).ready(function() {
                 addAppAccount2Selector();
             }
             if ((action == '3') || (action == '2')) {
-                $('.both').hide();
-                $('.just-my').hide();
+                $('.modify').hide();
                 fill_account_names(table); 
             }
         }
@@ -825,8 +890,7 @@ $(document).ready(function() {
             $('#select-app-account-modify').empty();
             $('#select-action').val("0");
             $('#select-table').val("0");
-            $('.both').hide();
-            $('.just-my').hide();
+            $('.modify').hide();
         }
     });
 
@@ -847,6 +911,12 @@ $(document).ready(function() {
             }
         }
     }); 
+
+    $('#select-type-modify').on('change', function() {
+        var table = $('#select-table').val();
+        var type = $('#select-type-modify').val();
+        showCorrectTypeFields(type,table);
+    });
 
     $(document.body).on('change', '.li-input-tags-modify', function() {
         if($(this).val() == "") {

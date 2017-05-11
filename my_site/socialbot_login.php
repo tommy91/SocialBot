@@ -18,13 +18,17 @@
             <?php 
             if(isset($_COOKIE["error_msg"])){
                 $error_msg = $_COOKIE["error_msg"];
-                setcookie('error_msg', null, 0, '/');
+                setcookie('error_msg', null, -1, '/');
                 if($error_msg == "1")
-                    echo '<div id="error-msg">Username non corretto..</div><br>';
+                    echo '<div id="error-msg">Username wrong..</div><br>';
                 if($error_msg == "2")
                     echo '<div id="error-msg">WTF R U DOING?!?!</div><br>';
                 if($error_msg == "3")
-                    echo '<div id="error-msg">Password non corretta..</div><br>';
+                    echo '<div id="error-msg">Password wrong..</div><br>';
+                if($error_msg == "4")
+                    echo '<div id="error-msg">Missing post data..</div><br>';
+                if($error_msg == "5")
+                    echo '<div id="error-msg">Connection error..</div><br>';
             }
             ?>
             <input id="input-username" type="text" name="username" placeholder="Username" autocomplete="off" required/><br><br>
