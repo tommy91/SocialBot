@@ -28,21 +28,21 @@ class SBProg:
 
 
 	def runProgram(self):
-		try:
-			self.output = Output(sleepChar=self.sleepChar, sleepLine=self.sleepLine)
-			self.write = self.output.write
-			self.writeln = self.output.writeln
-			self.canWrite = self.output.canWrite
-			self.printHello()
-			if not self.tryConnectToRemoteServer():
-				print "Closing.. bye."
-			self.dbManager = DbManager(self.output)
-			self.tryConnectDB()
-			self.mainBOT()
-			self.newEntry()
-		except Exception, e:
-			print "Global Error."
-			print e
+		# try:
+		self.output = Output(sleepChar=self.sleepChar, sleepLine=self.sleepLine)
+		self.write = self.output.write
+		self.writeln = self.output.writeln
+		self.canWrite = self.output.canWrite
+		self.printHello()
+		if not self.tryConnectToRemoteServer():
+			print "Closing.. bye."
+		self.dbManager = DbManager(self.output)
+		self.tryConnectDB()
+		self.mainBOT()
+		self.newEntry()
+		# except Exception, e:
+		# 	print "Global Error."
+		# 	print e
 
 
 	def printHello(self):
