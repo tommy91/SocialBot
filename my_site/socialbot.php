@@ -1,10 +1,7 @@
 <?php
 session_start();
 
-// per debug locale
-require_once 'example_funzioni_mysql.php';
-
-//require_once 'funzioni_mysql.php';
+require_once 'funzioni_mysql.php';
 
 if(isset($_GET['logout'])) {
     if(isset($_SESSION['username'])){
