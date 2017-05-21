@@ -1,7 +1,7 @@
 import pickle
 from Account import *
 
-class InstagramAccount(Account.Account):
+class InstagramAccount(Account):
 
 	percF4F = 1/2
 	percNotF4F = 1/2

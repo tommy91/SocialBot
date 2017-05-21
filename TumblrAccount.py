@@ -1,7 +1,7 @@
 import pytumblr
 from Account import *
 
-class TumblrAppAccount(Account.Account):
+class TumblrAppAccount(Account):
 
 
 	def __init__(self, accounts, account):
@@ -11,7 +11,7 @@ class TumblrAppAccount(Account.Account):
 
 
 
-class TumbrlAccount(Account.Account):
+class TumbrlAccount(Account):
 
 
 	client = None
