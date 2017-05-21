@@ -18,11 +18,11 @@ class Output:
 		if sleepChar != None:
 			self.sleepChar = sleepChar
 		else:
-			self.sleepChar = sleepCharDefault
+			self.sleepChar = self.sleepCharDefault
 		if sleepLine != None:
 			self.sleepLine = sleepLine
 		else:
-			self.sleepLine = sleepLineDefault
+			self.sleepLine = self.sleepLineDefault
 		self.lock = threading.RLock()
 
 
