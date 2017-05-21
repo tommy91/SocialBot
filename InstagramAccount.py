@@ -82,7 +82,7 @@ class InstagramAccount(Account.Account):
 			fstats = self.dbManager.getFstats(bn,follow)
 			if fstats != []:
 				for fstat in fstats:
-					if fstat['action'][0] = 'f':
+					if fstat['action'][0] == 'f':
 						self.updateMatchStatistics('timer_follow', fstat['action'])
 					else:
 						self.updateMatchStatistics('timer_follow', fstat['action'])
