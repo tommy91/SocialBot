@@ -1,4 +1,4 @@
-import SBProg
+from SBProg import SBProg
 # import os
 # import sys
 # import time
