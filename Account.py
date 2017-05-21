@@ -19,7 +19,7 @@ class Account:
 	FOLLOWERS_UPDATE_TIME = 60*60*24		# 1 giorno
 
 	followersList = []
-    followingList = []
+	followingList = []
 
 
 	def __init__(self, accounts, account_id, mail, account_type):
@@ -40,214 +40,214 @@ class Account:
 
 
 	def updateStatus(self):
-	    post_data_up = {"action": "get_my_accounts_ID", "id": self.account_id}
-	    status_res = post_request(post_data_up)
-	    if status_res != None:
-	        if (status_res[0]['State'] <= STATUS_RUN) and (self.status != status_res[0]['State']):
-	            post_request({"action": "set_status", "id": self.account_id, "status": self.status})
+		post_data_up = {"action": "get_my_accounts_ID", "id": self.account_id}
+		status_res = post_request(post_data_up)
+		if status_res != None:
+			if (status_res[0]['State'] <= STATUS_RUN) and (self.status != status_res[0]['State']):
+				post_request({"action": "set_status", "id": self.account_id, "status": self.status})
 
 
 	def updateUpOp(self, newAccount):
 		self.num_post_xd = int(newAccount['PostXD'])
-        self.num_follow_xd = int(newAccount['FollowXD'])
-        self.num_like_xd = int(newAccount['LikeXD'])
-        self.num_post_xt = int(newAccount['PostXT'])
-        self.num_follow_xt = int(newAccount['FollowXT'])
-        self.num_like_xt = int(newAccount['LikeXT'])
-        self.mail = newAccount['Mail']
-        self.calc_time_post_follow()
-        if int(newAccount['Status']) > self.STATUS_RUN:
-            if self.status == self.STATUS_STOP:
-                post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
-                self.runBlog()
-            elif self.status == self.STATUS_RUN:
-                post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
-                self.stopBlog()
+		self.num_follow_xd = int(newAccount['FollowXD'])
+		self.num_like_xd = int(newAccount['LikeXD'])
+		self.num_post_xt = int(newAccount['PostXT'])
+		self.num_follow_xt = int(newAccount['FollowXT'])
+		self.num_like_xt = int(newAccount['LikeXT'])
+		self.mail = newAccount['Mail']
+		self.calc_time_post_follow()
+		if int(newAccount['Status']) > self.STATUS_RUN:
+			if self.status == self.STATUS_STOP:
+				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
+				self.runBlog()
+			elif self.status == self.STATUS_RUN:
+				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
+				self.stopBlog()
 
 
 	def runBlog(self):
-	    self.lock.acquire()
-	    prevCanWrite = self.canWrite
-	    self.canWrite = True
-	    self.writeln("Run " + self.getAccountName() + ":\n")
-	    self.calc_time_post_follow()
-	    self.checkData()
-	    self.updateBlog()
-	    if self.timers == {}:
-	        self.accounts.setUpdateTimer()
-	    self.initFollowers()
-	    self.initFollowings()
-	    self.set_post_timer()
-	    self.set_follow_timer()
-	    self.set_like_timer()
-	    self.write("\t" + self.getAccountName() + " is running.\n")
-	    self.status = self.STATUS_RUN
-	    self.updateBlogData()
-	    self.updateStatistics()
-	    self.canWrite = prevCanWrite
-	    self.lock.release()
+		self.lock.acquire()
+		prevCanWrite = self.canWrite
+		self.canWrite = True
+		self.writeln("Run " + self.getAccountName() + ":\n")
+		self.calc_time_post_follow()
+		self.checkData()
+		self.updateBlog()
+		if self.timers == {}:
+			self.accounts.setUpdateTimer()
+		self.initFollowers()
+		self.initFollowings()
+		self.set_post_timer()
+		self.set_follow_timer()
+		self.set_like_timer()
+		self.write("\t" + self.getAccountName() + " is running.\n")
+		self.status = self.STATUS_RUN
+		self.updateBlogData()
+		self.updateStatistics()
+		self.canWrite = prevCanWrite
+		self.lock.release()
 
 
 	def stopBlog(self):
-	    self.lock.acquire()
-	    prevCanWrite = self.canWrite
-	    self.canWrite = True
-	    self.writeln("Stop " + self.getAccountName() + ".. \n")
-	    self.status = self.STATUS_STOP
-	    self.updateBlogData()
-	    self.timers[self.strID + "-post"].cancel()
-	    del self.timers[self.strID + "-post"]
-	    self.timers[self.strID + "-follow"].cancel()
-	    del self.timers[self.strID + "-follow"]
-	    self.timers[self.strID + "-like"].cancel()
-	    del self.timers[self.strID + "-like"]
-	    self.updateStatistics()
-	    self.write("\t" + self.getAccountName() + " stopped.\n")
-	    self.canWrite = prevCanWrite
-	    self.lock.release()
+		self.lock.acquire()
+		prevCanWrite = self.canWrite
+		self.canWrite = True
+		self.writeln("Stop " + self.getAccountName() + ".. \n")
+		self.status = self.STATUS_STOP
+		self.updateBlogData()
+		self.timers[self.strID + "-post"].cancel()
+		del self.timers[self.strID + "-post"]
+		self.timers[self.strID + "-follow"].cancel()
+		del self.timers[self.strID + "-follow"]
+		self.timers[self.strID + "-like"].cancel()
+		del self.timers[self.strID + "-like"]
+		self.updateStatistics()
+		self.write("\t" + self.getAccountName() + " stopped.\n")
+		self.canWrite = prevCanWrite
+		self.lock.release()
 
 
 	def randomTag(self):
-	    new_tags = []
-	    for tag in self.tags:
-	        if not tag in ["follow4follow","follow","f4f","followback","Follow4Follow","Follow","F4F","FollowBack","like4like","like","likeback","l4l","Like4Like","Like","LikeBack","L4L"]:
-	            new_tags.append(tag)
-	    tag_pos = random.randint(0, len(new_tags)-1)
-	    return new_tags[tag_pos]
+		new_tags = []
+		for tag in self.tags:
+			if not tag in ["follow4follow","follow","f4f","followback","Follow4Follow","Follow","F4F","FollowBack","like4like","like","likeback","l4l","Like4Like","Like","LikeBack","L4L"]:
+				new_tags.append(tag)
+		tag_pos = random.randint(0, len(new_tags)-1)
+		return new_tags[tag_pos]
 
 
 	def randomF4F(self):
-	    f4fs = ["follow4follow","follow","followback","f4f"]
-	    tag_pos = random.randint(0, len(f4fs)-1)
-	    return f4fs[tag_pos]
+		f4fs = ["follow4follow","follow","followback","f4f"]
+		tag_pos = random.randint(0, len(f4fs)-1)
+		return f4fs[tag_pos]
 
 
 	def randomL4L(self):
-	    l4ls = ["like4like","like","likeback","l4l"]
-	    tag_pos = random.randint(0, len(l4ls)-1)
-	    return l4ls[tag_pos]
+		l4ls = ["like4like","like","likeback","l4l"]
+		tag_pos = random.randint(0, len(l4ls)-1)
+		return l4ls[tag_pos]
 
 
 	def set_post_timer(self):
-	    timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
-	    tp = threading.Timer(timer_post, self.post) # in seconds
-	    tp.start() 
-	    self.timers[self.strID + "-post"] = tp
-	    deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
-	    self.timersTime[self.strID + "-post"] = deadline
-	    self.write("\tcreated new thread for post after " + seconds2timeStr(timer_post) + "\n")
-	    self.updateStatistics()
+		timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
+		tp = threading.Timer(timer_post, self.post) # in seconds
+		tp.start() 
+		self.timers[self.strID + "-post"] = tp
+		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
+		self.timersTime[self.strID + "-post"] = deadline
+		self.write("\tcreated new thread for post after " + seconds2timeStr(timer_post) + "\n")
+		self.updateStatistics()
 
 
 	def set_like_timer(self):
-	    timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
-	    tl = threading.Timer(timer_like, self.like) # in seconds
-	    tl.start() 
-	    self.timers[self.strID + "-like"] = tl
-	    deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
-	    self.timersTime[self.strID + "-like"] = deadline
-	    self.write("\tcreated new thread for like after " + seconds2timeStr(timer_like) + "\n")
-	    self.updateStatistics()
+		timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
+		tl = threading.Timer(timer_like, self.like) # in seconds
+		tl.start() 
+		self.timers[self.strID + "-like"] = tl
+		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
+		self.timersTime[self.strID + "-like"] = deadline
+		self.write("\tcreated new thread for like after " + seconds2timeStr(timer_like) + "\n")
+		self.updateStatistics()
 
 
 	def set_follow_timer(self):
-	    timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
-	    tf = threading.Timer(timer_follow, self.follow) # in seconds
-	    tf.start() 
-	    self.timers[self.strID + "-follow"] = tf
-	    deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
-	    self.timersTime[self.strID + "-follow"] = deadline
-	    self.write("\tcreated new thread for follow after " + seconds2timeStr(timer_follow) + "\n")
-	    self.updateStatistics()
+		timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
+		tf = threading.Timer(timer_follow, self.follow) # in seconds
+		tf.start() 
+		self.timers[self.strID + "-follow"] = tf
+		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
+		self.timersTime[self.strID + "-follow"] = deadline
+		self.write("\tcreated new thread for follow after " + seconds2timeStr(timer_follow) + "\n")
+		self.updateStatistics()
 
 
 	def checkData(self):
-	    bn = self.getAccountName()
-	    if bn != "not available":
-	        self.write("\tCheck data in DB for " + bn + ":\n")
-	        self.checkNeedNewPosts()
-	        self.checkNeedNewFollows()
+		bn = self.getAccountName()
+		if bn != "not available":
+			self.write("\tCheck data in DB for " + bn + ":\n")
+			self.checkNeedNewPosts()
+			self.checkNeedNewFollows()
 
 
 	def checkNeedNewPosts(self):
 		bn = self.getAccountName()
 		# Check num Post
-        posts = self.dbManager.countPost(bn)
-        self.write("\t   check #post.. ")
-        if posts >= self.num_post_xt:
-            self.write("found " + str(posts) + ", ok\n")
-        else:
-            self.write("found " + str(posts) + ", needed at least " + str(self.num_post_xt) + "\n")
-            self.search_post(num_post=(self.num_post_xt-posts))  
+		posts = self.dbManager.countPost(bn)
+		self.write("\t   check #post.. ")
+		if posts >= self.num_post_xt:
+			self.write("found " + str(posts) + ", ok\n")
+		else:
+			self.write("found " + str(posts) + ", needed at least " + str(self.num_post_xt) + "\n")
+			self.search_post(num_post=(self.num_post_xt-posts))  
 
 
 	def post(self, num_posts=-1, isDump = False):
-	    self.lock.acquire()
-	    blogname = self.getAccountName()
-	    self.writeln("Posting " + blogname + ":\n")
-	    if num_posts == -1:
-	        num_posts = self.num_post_xt
-	    posts = self.dbManager.getPosts(blogname,num_posts)
-	    if isDump:
-	        print posts 
-	    counter = 0
-	    for post in posts:
-	        try:
-	            if isDump:
-	                print post 
-	            self.postSocial(post)
-	            args = (post['id'],blogname)
-	            self.dbManager.delete("PostsLikes",args)
-	            counter += 1
-	            self.write("\r\tposted " + str(counter) + "/" + str(num_posts))
-	        except Exception,msg:
-	            self.write("\n\tError: exception on " + blogname + " reblogging\n" + str(msg) + "\n")
-	    self.write("\r\tposted " + str(counter) + " posts!\n")
-	    if not self.isTest:
-	        self.set_post_timer()
-	        self.checkNeedNewPosts()
-	    self.updateBlogData()
-	    self.lock.release()
+		self.lock.acquire()
+		blogname = self.getAccountName()
+		self.writeln("Posting " + blogname + ":\n")
+		if num_posts == -1:
+			num_posts = self.num_post_xt
+		posts = self.dbManager.getPosts(blogname,num_posts)
+		if isDump:
+			print posts 
+		counter = 0
+		for post in posts:
+			try:
+				if isDump:
+					print post 
+				self.postSocial(post)
+				args = (post['id'],blogname)
+				self.dbManager.delete("PostsLikes",args)
+				counter += 1
+				self.write("\r\tposted " + str(counter) + "/" + str(num_posts))
+			except Exception,msg:
+				self.write("\n\tError: exception on " + blogname + " reblogging\n" + str(msg) + "\n")
+		self.write("\r\tposted " + str(counter) + " posts!\n")
+		if not self.isTest:
+			self.set_post_timer()
+			self.checkNeedNewPosts()
+		self.updateBlogData()
+		self.lock.release()
 
 
 	def follow(self, num_follows=-1, isDump = False):
-	    self.lock.acquire()
-	    blogname = self.getAccountName()
-	    self.writeln("Following " + blogname + ":\n")
-	    if num_follows == -1:
-	        num_follows = self.num_follow_xt
-	    # Check if need to update following
-	    self.checkFollowingStatus()
-	    self.followSocial(num_follows, isDump)
-	    if not self.accouns.sbprog.isTest:
-	        self.set_follow_timer()
-	        self.checkNeedNewFollows()
-	    self.updateBlogData()
-	    self.lock.release()
+		self.lock.acquire()
+		blogname = self.getAccountName()
+		self.writeln("Following " + blogname + ":\n")
+		if num_follows == -1:
+			num_follows = self.num_follow_xt
+		# Check if need to update following
+		self.checkFollowingStatus()
+		self.followSocial(num_follows, isDump)
+		if not self.accouns.sbprog.isTest:
+			self.set_follow_timer()
+			self.checkNeedNewFollows()
+		self.updateBlogData()
+		self.lock.release()
 
 
 	def unfollow(self):
 		blogname = self.getAccountName()
-	    self.writeln("Unfollowing " + blogname + ":\n")
-	    self.updateFollowers()
-	    counterUnfollow = 0
-	    while counterUnfollow <= self.num_follow_xt:
-	        try:
-	        	# pop the first
-	            blog_name_unfollow = self.followingList.pop(0)
-	            if self.canUnfollow(blog_name_unfollow):
-	            	# if can unfollow then unfollow
-	            	self.unfollowSocial(blog_name_unfollow)
-	            	args = (blogname, blog_name_unfollow)
+		self.writeln("Unfollowing " + blogname + ":\n")
+		self.updateFollowers()
+		counterUnfollow = 0
+		while counterUnfollow <= self.num_follow_xt:
+			try:
+				# pop the first
+				blog_name_unfollow = self.followingList.pop(0)
+				if self.canUnfollow(blog_name_unfollow):
+					# if can unfollow then unfollow
+					self.unfollowSocial(blog_name_unfollow)
+					args = (blogname, blog_name_unfollow)
 					self.dbManager.delete("Following",args)
-	                counterUnfollow += 1
-	                self.write("\r\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
-	            else:
-	            	# else re-append at the end
-	            	self.followingList.append(blog_name_unfollow)
-	        except IndexError, msg:
-	            self.write("Error: " + str(msg))
-	    self.write("\r\tUnfollowed " + str(counterUnfollow) + " blogs.\n")
+					counterUnfollow += 1
+					self.write("\r\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
+				else:
+					# else re-append at the end
+					self.followingList.append(blog_name_unfollow)
+			except IndexError, msg:
+				self.write("Error: " + str(msg))
+		self.write("\r\tUnfollowed " + str(counterUnfollow) + " blogs.\n")
 
 
 	def canUnfollow(self):
@@ -256,15 +256,15 @@ class Account:
 
 	def like(self, num_likes=-1):
 		blogname = self.getAccountName()
-	    self.lock.acquire()
-	    self.writeln("Liking " + blogname + ":\n")
-	    if num_likes == -1:
-	        num_likes = self.num_like_xt
-	    self.likeSocial(num_likes)
-	    if not isTest:
-	        self.set_like_timer()
-	    self.updateBlogData()
-	    self.lock.release()
+		self.lock.acquire()
+		self.writeln("Liking " + blogname + ":\n")
+		if num_likes == -1:
+			num_likes = self.num_like_xt
+		self.likeSocial(num_likes)
+		if not isTest:
+			self.set_like_timer()
+		self.updateBlogData()
+		self.lock.release()
 
 
 	def checkFollowingStatus(self):
@@ -295,14 +295,14 @@ class Account:
 					self.dbManager.delete("Following",args)
 					counterUnfollowed += 1
 				except Exception, msg:
-	            	self.write("\n\tError: exception on " + blogname + " unfollow for time!\n")
-	        self.write("unfollowed " + str(counterUnfollowed) + ".\n")
+					self.write("\n\tError: exception on " + blogname + " unfollow for time!\n")
+			self.write("unfollowed " + str(counterUnfollowed) + ".\n")
 		# Check if too many follow and unfollow in that case
-	    if len(self.followingList) >= self.LIMITFOLLOW:
-	        try:
-	            self.unfollow()
-	        except Exception, msg:
-	            self.write("\n\tError: exception on " + blogname + " unfollow!\n")
+		if len(self.followingList) >= self.LIMITFOLLOW:
+			try:
+				self.unfollow()
+			except Exception, msg:
+				self.write("\n\tError: exception on " + blogname + " unfollow!\n")
 
 
 	def initFollowings(self):
@@ -326,23 +326,23 @@ class Account:
 
 
 	def getFollowers(self):
-	    self.write("\tGet Followers List.. ")
-	    self.followersList = self.getFollowersSocial()
-	    self.updateFollowersTime = time.time() + self.FOLLOWERS_UPDATE_TIME
+		self.write("\tGet Followers List.. ")
+		self.followersList = self.getFollowersSocial()
+		self.updateFollowersTime = time.time() + self.FOLLOWERS_UPDATE_TIME
 
 
 	def getFollowing(self):
-	    self.write("\tGet Following List.. ")
-	    self.followingList = []
-	    following = self.getFollowingsSocial()
-	    while following != []:
-	    	follow = following.pop()
-	    	if follow in followersList:
-            	args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
-            else:
-            	args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
-            self.dbManager.add("Following", args)
-	    self.followingList = self.dbManager.getFollowing(blogname)
+		self.write("\tGet Following List.. ")
+		self.followingList = []
+		following = self.getFollowingsSocial()
+		while following != []:
+			follow = following.pop()
+			if follow in followersList:
+				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
+			else:
+				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
+			self.dbManager.add("Following", args)
+		self.followingList = self.dbManager.getFollowing(blogname)
 
 
 	def clearDB(self):

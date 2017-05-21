@@ -5,14 +5,14 @@ import sqlite3
 class DbManager:
 
 
- 	dbName = "SocialDB.db"
+	dbName = "SocialDB.db"
 
 
- 	def __init__(self, output, dbName=None):
- 		self.write = output.write
+	def __init__(self, output, dbName=None):
+		self.write = output.write
 		self.writeln = output.writeln
 		if dbName != None:
- 			self.dbName = dbName
+			self.dbName = dbName
 
 
 	def connectDB(self, silent=False):
@@ -38,10 +38,10 @@ class DbManager:
 
 	def createTable(self, db, q):
 		try:
-		    db.execute(q)
+			db.execute(q)
 		except sqlite3.OperationalError, msg:
-		    self.write("Error: " + str(msg))
-		    return False
+			self.write("Error: " + str(msg))
+			return False
 		else:
 			self.write("Done.\n")
 			return True
@@ -62,7 +62,7 @@ class DbManager:
 		if not self.createTable(db, "CREATE table if not exists Fstats (myBlog text, followedBlog text, action text, time time)"):
 			return False
 		self.write("\tSetup Tables Complete!\n\n")
-  		
+		
 
 	def add(self, table, args, silent=True):
 		db = self.connectDB(silent)
@@ -77,7 +77,7 @@ class DbManager:
 			elif table == "Fstats":
 				c.execute('INSERT INTO Fstats VALUES (?,?,?,?)',args)
 		except sqlite3.IntegrityError, msg:
-		    self.write("   Error" + str(msg) + "\n")	
+			self.write("   Error" + str(msg) + "\n")	
 		else: 
 			if not silent:
 				self.write("   Created new entry in " + table + " table.\n")
@@ -98,7 +98,7 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ? AND followedBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-		    self.write("\tError" + str(msg) + "\n")
+			self.write("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
@@ -122,7 +122,7 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-		    self.write("\tError" + str(msg) + "\n")
+			self.write("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
@@ -139,7 +139,7 @@ class DbManager:
 		try:
 			rows = c.execute('DELETE FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time).rowcount
 		except sqlite3.IntegrityError, msg:
-		    self.write("\tError" + str(msg) + "\n")
+			self.write("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
@@ -163,7 +163,7 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-		    self.write("\tError" + str(msg) + "\n")
+			self.write("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
@@ -187,7 +187,7 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-		    self.write("\tError" + str(msg) + "\n")
+			self.write("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:

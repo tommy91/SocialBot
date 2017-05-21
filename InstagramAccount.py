@@ -2,17 +2,17 @@ import pickle
 
 class InstagramAccount(Account):
 
-    percF4F = 1/2
-    percNotF4F = 1/2
+	percF4F = 1/2
+	percNotF4F = 1/2
 
-    MAX_RETRIEVED_MEDIA = 10
-    MAX_RETRIEVED_LIKE = 10
-    MAX_RETRIEVED_COMMENTS = 10
+	MAX_RETRIEVED_MEDIA = 10
+	MAX_RETRIEVED_LIKE = 10
+	MAX_RETRIEVED_COMMENTS = 10
 
-    FSTATS_TRASH_TIME = 60*60*24*20		# 20 days
+	FSTATS_TRASH_TIME = 60*60*24*20		# 20 days
 
-    MIN_TIME_BETWEEN_ACTIONS = 30		# seconds
-    MAX_TIME_BETWEEN_ACTIONS = 40		# seconds 
+	MIN_TIME_BETWEEN_ACTIONS = 30		# seconds
+	MAX_TIME_BETWEEN_ACTIONS = 40		# seconds 
 
 
 	def __init__(self, accounts, account, tags, blogs):
@@ -76,7 +76,7 @@ class InstagramAccount(Account):
 
 
 	def updateMatchesStatistics(self):
-    	bn = self.getAccountName()
+		bn = self.getAccountName()
 		for follow in self.followersList:
 			fstats = self.dbManager.getFstats(bn,follow)
 			if fstats != []:
@@ -116,7 +116,7 @@ class InstagramAccount(Account):
 			group = 'timer_like'
 		self.updateTotStatistics(group, action)
 		args = (self.getAccountName(), followedBlog, action, int(time.time() * self.TIME_FACTOR))
-	    self.dbManager.add("Fstats",args)
+		self.dbManager.add("Fstats",args)
 
 
 	def post_insta_request(self, post_data):
@@ -126,99 +126,99 @@ class InstagramAccount(Account):
 
 
 	def initData(self):
-	    return {'private': "not available",
-                'following': "not available",
-                'followers': "not available",
-                'messages': "not available",
-                'name': "not available",
-                'posts': "not available",
-                'usertags': "not available"
-                }
+		return {'private': "not available",
+				'following': "not available",
+				'followers': "not available",
+				'messages': "not available",
+				'name': "not available",
+				'posts': "not available",
+				'usertags': "not available"
+				}
 
 
-    def checkResponse(self, res):
-	    "Check if there is an error in response"
-	    if res != None:
-	        return True
-	    else:
-	        return False
+	def checkResponse(self, res):
+		"Check if there is an error in response"
+		if res != None:
+			return True
+		else:
+			return False
 
 
 	def updateBlog(self):
 		try:
-		    ibi = self.post_insta_request({'action': 'get_insta_blog_self_info'})
-		    if self.checkResponse(ibi):
-		        self.data['private'] = ibi['private']
-		        self.data['following'] = ibi['following']
-		        self.data['followers'] = ibi['follower']
-		        self.data['messages'] = ibi['message']
-		        self.data['name'] = ibi['name']
-		        self.data['posts'] = ibi['post']
-		        self.data['usertags'] = ibi['usertags']
-		    else:
-            	self.write("Error: cannot update " + self.getAccountName() + ".\n")
-        except Exception, msg:
-        	self.write("\tUpdate Error on get_insta_blog_self_info: " + str(msg) + "\n")
-		                
+			ibi = self.post_insta_request({'action': 'get_insta_blog_self_info'})
+			if self.checkResponse(ibi):
+				self.data['private'] = ibi['private']
+				self.data['following'] = ibi['following']
+				self.data['followers'] = ibi['follower']
+				self.data['messages'] = ibi['message']
+				self.data['name'] = ibi['name']
+				self.data['posts'] = ibi['post']
+				self.data['usertags'] = ibi['usertags']
+			else:
+				self.write("Error: cannot update " + self.getAccountName() + ".\n")
+		except Exception, msg:
+			self.write("\tUpdate Error on get_insta_blog_self_info: " + str(msg) + "\n")
+						
 
 
 	def updateBlogData(self, timersTime):
-	    self.write("\tUpdate " + self.data['name'] + ".. ")
-	    post_data_up = {"action": "update_blog_data_insta", 
-	        "ID": self.account_id,
-	        "Following": self.data['following'],
-	        "Followers": self.data['followers'],
-	        "Posts": self.data['posts'],
-	        "Messages": self.data['messages'],
-	        "Name": self.data['name'],
-	        "Private": self.data['private'],
-	        "Usertags": self.data['usertags']
-	        }
-	    if (self.strID + "-post") in self.timersTime:
-	        post_data_up["Deadline_Post"] = self.timersTime[self.strID + "-post"]
-	    if (self.strID + "-follow") in self.timersTime:
-	        post_data_up["Deadline_Follow"] = self.timersTime[self.strID + "-follow"]
-	    if (self.strID + "-like") in self.timersTime:
-	        post_data_up["Deadline_Like"] = self.timersTime[self.strID + "-like"]
-	    up_res = post_request(post_data_up)
-	    if up_res != None:
-	        self.updateStatus()
-	        self.write("end of update.\n")
+		self.write("\tUpdate " + self.data['name'] + ".. ")
+		post_data_up = {"action": "update_blog_data_insta", 
+			"ID": self.account_id,
+			"Following": self.data['following'],
+			"Followers": self.data['followers'],
+			"Posts": self.data['posts'],
+			"Messages": self.data['messages'],
+			"Name": self.data['name'],
+			"Private": self.data['private'],
+			"Usertags": self.data['usertags']
+			}
+		if (self.strID + "-post") in self.timersTime:
+			post_data_up["Deadline_Post"] = self.timersTime[self.strID + "-post"]
+		if (self.strID + "-follow") in self.timersTime:
+			post_data_up["Deadline_Follow"] = self.timersTime[self.strID + "-follow"]
+		if (self.strID + "-like") in self.timersTime:
+			post_data_up["Deadline_Like"] = self.timersTime[self.strID + "-like"]
+		up_res = post_request(post_data_up)
+		if up_res != None:
+			self.updateStatus()
+			self.write("end of update.\n")
 
 
 	def updateUpOp(self, newAccount):
-        self.username = newAccount['Username']
-        self.password = newAccount['Password']
-        super().updateUpOp(newAccount)
+		self.username = newAccount['Username']
+		self.password = newAccount['Password']
+		super().updateUpOp(newAccount)
 
 
-    def copyBlog(self, blog_to_copy, limitMax, counter):
-    	self.write("Method 'copyBlog' not implemented for Instagram account!\n")
+	def copyBlog(self, blog_to_copy, limitMax, counter):
+		self.write("Method 'copyBlog' not implemented for Instagram account!\n")
 
 
-    def waitInsta(self, little=False):
-    	if little:
-    		secs = random.randint(1, 4)
-    	else:
-    		secs = random.randint(self.MIN_TIME_BETWEEN_ACTIONS, self.MAX_TIME_BETWEEN_ACTIONS)
-    	time.sleep(secs)
+	def waitInsta(self, little=False):
+		if little:
+			secs = random.randint(1, 4)
+		else:
+			secs = random.randint(self.MIN_TIME_BETWEEN_ACTIONS, self.MAX_TIME_BETWEEN_ACTIONS)
+		time.sleep(secs)
 
 
-    def calc_time_post_follow(self):
-    	f_tf, l_tf = self.calc_expected_FL_TF()
-    	f_tl, l_tl = self.calc_expected_FL_TL()
+	def calc_time_post_follow(self):
+		f_tf, l_tf = self.calc_expected_FL_TF()
+		f_tl, l_tl = self.calc_expected_FL_TL()
 
-    	nl = ((self.num_like_xd * f_tf) - (self.num_follow_xd * l_tf)) / float(self.num_like_xt * ((l_tl * f_tf) - (f_tl * l_tf)))
-    	nf = (self.num_like_xd - (nl * self.num_like_xt * l_tl)) / float(self.num_follow_xt * l_tf)
+		nl = ((self.num_like_xd * f_tf) - (self.num_follow_xd * l_tf)) / float(self.num_like_xt * ((l_tl * f_tf) - (f_tl * l_tf)))
+		nf = (self.num_like_xd - (nl * self.num_like_xt * l_tl)) / float(self.num_follow_xt * l_tf)
 
-	    self.write("\tCalcule timers for " + self.getAccountName() + ":\n")
-	    # self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
-	    # self.write("\t\tpost every " + seconds2timeStr(self.timer_post) + "\n")
-	    self.write("\t\tnever post\n")
-	    self.timer_follow = int((24*60*60/nf)+0.5)
-	    self.write("\t\tfollow every " + seconds2timeStr(self.timer_follow) + "\n")
-	    self.timer_like = int((24*60*60/nl)+0.5)
-	    self.write("\t\tlike every " + seconds2timeStr(self.timer_like) + "\n")
+		self.write("\tCalcule timers for " + self.getAccountName() + ":\n")
+		# self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
+		# self.write("\t\tpost every " + seconds2timeStr(self.timer_post) + "\n")
+		self.write("\t\tnever post\n")
+		self.timer_follow = int((24*60*60/nf)+0.5)
+		self.write("\t\tfollow every " + seconds2timeStr(self.timer_follow) + "\n")
+		self.timer_like = int((24*60*60/nl)+0.5)
+		self.write("\t\tlike every " + seconds2timeStr(self.timer_like) + "\n")
 
 
 	def calc_expected_FL_TF(self):
@@ -236,40 +236,40 @@ class InstagramAccount(Account):
 	def checkNeedNewFollows(self):
 		bn = self.getAccountName()
 		# Check num Follows
-        follows = self.dbManager.countFollow(bn)
-        self.write("\t   check #follow.. ")
-        if follows >= self.num_follow_xt:
-            self.write("found " + str(follows) + ", ok\n")
-        else:
-            self.write("found " + str(follows) + ", needed at least " + str(self.num_follow_xt) + "\n")
-            self.searchNewFollows(self.num_follow_xt-follows)
+		follows = self.dbManager.countFollow(bn)
+		self.write("\t   check #follow.. ")
+		if follows >= self.num_follow_xt:
+			self.write("found " + str(follows) + ", ok\n")
+		else:
+			self.write("found " + str(follows) + ", needed at least " + str(self.num_follow_xt) + "\n")
+			self.searchNewFollows(self.num_follow_xt-follows)
 
 
-    def searchNewFollows(self, num_follows):
-    	num_following_blogs = len(self.blogs)
-	    if num_following_blogs >= num_follows:
-	        followXblog = 1
-	    else:
-	        followXblog = int(num_follows/num_following_blogs)+1
-	    self.write("\t      Getting follows..\n")
-	    for blog in self.blogs:
-	    	counter = 0
-	    	blog_id = getIdByUsernameInsta(blog)
-	    	followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
-	    	for follow in followers:
-	    		if (not follow in self.followersList) and (not follow in self.followingList):
-	    			self.addFollowToDB(follow)
-	    			counter += 1
-	    			self.write("\r\t         from " + blog + ".. " + str(counter))
-	    	print ""
-	    	self.waitInsta(little=True)
-	    tag = self.randomTag()
-	    if self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE >= num_follows:
-	    	popularPosts = 1
-	    else:
-	    	popularPosts = int(num_follows/(self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE))+1
-	    counterMedia = 0
-	    counterLikers = 0
+	def searchNewFollows(self, num_follows):
+		num_following_blogs = len(self.blogs)
+		if num_following_blogs >= num_follows:
+			followXblog = 1
+		else:
+			followXblog = int(num_follows/num_following_blogs)+1
+		self.write("\t      Getting follows..\n")
+		for blog in self.blogs:
+			counter = 0
+			blog_id = getIdByUsernameInsta(blog)
+			followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
+			for follow in followers:
+				if (not follow in self.followersList) and (not follow in self.followingList):
+					self.addFollowToDB(follow)
+					counter += 1
+					self.write("\r\t         from " + blog + ".. " + str(counter))
+			print ""
+			self.waitInsta(little=True)
+		tag = self.randomTag()
+		if self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE >= num_follows:
+			popularPosts = 1
+		else:
+			popularPosts = int(num_follows/(self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE))+1
+		counterMedia = 0
+		counterLikers = 0
 		counterComments = 0
 		media = self.getTaggedPopularInsta(tag, popularPosts)
 		for post in media:
@@ -295,80 +295,80 @@ class InstagramAccount(Account):
 		print ""
 
 
-    def postSocial(self, post):
-    	self.write("Method 'post' not implemented for Instagram account!\n")
+	def postSocial(self, post):
+		self.write("Method 'post' not implemented for Instagram account!\n")
 
 
-    def followSocial(self, num_follows, isDump):
-    	blogname = self.getAccountName()
-    	alreadyFollowed = []
-    	num_f = 0
-    	num_f4f = 0
-    	num_frl = 0
-    	num_f4frl = 0
-    	for counter in range(0,num_follows):
-    		seed = random.random()
-    		tfp = self.statistics['timer_follow_prob']
-    		if seed <= (tfp['f+rl'] + tfp['f']):
-    			follow = self.getNewFollowFromDB(alreadyFollowed)
-    			alreadyFollowed.append(follow)
-    			if seed <= tfp['f+rl']:
-    				self.followAndRandomLike(follow, isDump)
-    			else:
-    				self.justFollow(follow, isDump)
-    		else:
-    			follow = self.getNewFollowFromSearch(alreadyFollowed)
-    			alreadyFollowed.append(follow)
-    			if seed <= (tfp['f+rl'] + tfp['f'] + tfp['f4f']):
-    				self.justFollow(follow, isDump, isF4F = True)
-    			else:
-    				self.followAndRandomLike(follow, isDump, isF4F = True)
-    		self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows))
+	def followSocial(self, num_follows, isDump):
+		blogname = self.getAccountName()
+		alreadyFollowed = []
+		num_f = 0
+		num_f4f = 0
+		num_frl = 0
+		num_f4frl = 0
+		for counter in range(0,num_follows):
+			seed = random.random()
+			tfp = self.statistics['timer_follow_prob']
+			if seed <= (tfp['f+rl'] + tfp['f']):
+				follow = self.getNewFollowFromDB(alreadyFollowed)
+				alreadyFollowed.append(follow)
+				if seed <= tfp['f+rl']:
+					self.followAndRandomLike(follow, isDump)
+				else:
+					self.justFollow(follow, isDump)
+			else:
+				follow = self.getNewFollowFromSearch(alreadyFollowed)
+				alreadyFollowed.append(follow)
+				if seed <= (tfp['f+rl'] + tfp['f'] + tfp['f4f']):
+					self.justFollow(follow, isDump, isF4F = True)
+				else:
+					self.followAndRandomLike(follow, isDump, isF4F = True)
+			self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows))
 
 
-   	def getNewFollowFromDB(self, alreadyFollowed):
-   		max_errors = 10
-   		num_errors = 0
-   		while True:
-   			follow = self.dbManager.getFollows(blogname,1)
-   			if not follow in alreadyFollowed:
-   				return follow
-   			else:
-   				args = (follow,blogname)
-	            self.dbManager.delete("Follow",args)
-	            num_errors += 1
-	            if num_errors >= max_errors:
-	            	self.write("Error: max num errors reached for getNewFollowFromDB for '" + blogname + "'\n")
-	            	break
+	def getNewFollowFromDB(self, alreadyFollowed):
+		max_errors = 10
+		num_errors = 0
+		while True:
+			follow = self.dbManager.getFollows(blogname,1)
+			if not follow in alreadyFollowed:
+				return follow
+			else:
+				args = (follow,blogname)
+				self.dbManager.delete("Follow",args)
+				num_errors += 1
+				if num_errors >= max_errors:
+					self.write("Error: max num errors reached for getNewFollowFromDB for '" + blogname + "'\n")
+					break
 
 
 	def deleteFollowFromDB(self, follow):
 		blogname = self.getAccountName()
 		args = (follow,blogname)
-	    self.dbManager.delete("Follow",args)
+		self.dbManager.delete("Follow",args)
 
 
 	def addFollowToDB(self, follow):
 		blogname = self.getAccountName()
 		args = (follow,blogname,int(time.time()))
-	    self.dbManager.add("Follow",args)
+		self.dbManager.add("Follow",args)
 
 
 	def getNewFollowFromSearch(self, alreadyFollowed):
 		max_errors = 10
-   		num_errors = 0
+		num_errors = 0
 		while True:
 			tag = self.randomF4F()
-   			follow = self.getTaggedRecentInsta(tag, 1)
-   			if not follow['userID'] in alreadyFollowed:
-   				return follow['userID']
-   			else:
-   				num_errors += 1
-	            if num_errors >= max_errors:
-	            	self.write("Error: max num errors reached for getNewFollowFromDB for '" + blogname + "'\n")
-	            	break
-	            else:
-	            	self.waitInsta(little=True)
+			follow = self.getTaggedRecentInsta(tag, 1)
+			if not follow['userID'] in alreadyFollowed:
+				return follow['userID']
+			else:
+				num_errors += 1
+				if num_errors >= max_errors:
+					self.write("Error: max num errors reached for getNewFollowFromDB for '" + blogname + "'\n")
+					break
+				else:
+					self.waitInsta(little=True)
 
 
 
@@ -385,7 +385,7 @@ class InstagramAccount(Account):
 			self.addStatistics(follow, 'f4f+rl')
 		else:
 			self.deleteFollowFromDB(follow)
-	    	self.addStatistics(follow, 'f+rl')
+			self.addStatistics(follow, 'f+rl')
 
 
 	def justFollow(self, follow, isDump, isF4F = False):
@@ -400,7 +400,7 @@ class InstagramAccount(Account):
 			self.addStatistics(follow, 'f4f')
 		else:
 			self.deleteFollowFromDB(follow)
-		    self.addStatistics(follow, 'f')
+			self.addStatistics(follow, 'f')
 
 
 	def followInsta(self, blog2follow):
@@ -410,55 +410,55 @@ class InstagramAccount(Account):
 
 
 	def unfollowSocial(self, blog2unfollow):
-	    self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
-	    self.waitInsta()
+		self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
+		self.waitInsta()
 
 
 	def likeSocial(self, num_likes):
 		blogname = self.getAccountName()
-    	num_l4l = 0
-    	num_l4lf = 0
-    	num_l4lrl = 0
-    	num_l4lfrl = 0
-    	num_lfrl = 0
-    	num_lf = 0
-    	num_lrl = 0
-    	num_l = 0
-    	num_rl = 0
-    	for counter in range(0,num_follows):
-    		seed = random.random()
-    		tfl = self.statistics['timer_like_prob']
-    		if seed <= (tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl'] + tfl['l4l+f+rl']):
-    			tag = self.randomL4L()
-    			media = self.getTaggedRecentInsta(tag,1)
-    			if seed <= tfl['l4l']:
-    				self.justLike(media, isL4L = True)
-    			elif seed <= tfl['l4l'] + tfl['l4l+f']:
-    				self.likeAndFollow(media, isL4L = True)
-    			elif seed <= tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl']:
-    				self.likeAndRandomLike(media, isL4L = True)
-    			else:
-    				self.likeFollowAndRandomLike(media, isL4L = True)
-    		elif seed <= (1 - tfl['rl']):
-    			seed -= (tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl'] + tfl['l4l+f+rl'])
-    			tag = self.randomTag()
-    			media = self.getTaggedRecentInsta()
-    			if seed <= tfl['l+f+rl']:
-    				self.likeFollowAndRandomLike(media)
-    			elif seed <= tfl['l+f+rl'] + tfl['l+f']:
-    				self.likeAndFollow(media)
-    			elif seed <= tfl['l+f+rl'] + tfl['l+f'] + tfl['l+rl']:
-    				self.likeAndRandomLike(media)
-    			else:
-    				self.justLike(media)
-    		else:
-    			user = self.getNewFollowFromDB([])
-    			self.randomLike(user)
-    		self.write("\r\t" + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl of " + str(num_follows))
+		num_l4l = 0
+		num_l4lf = 0
+		num_l4lrl = 0
+		num_l4lfrl = 0
+		num_lfrl = 0
+		num_lf = 0
+		num_lrl = 0
+		num_l = 0
+		num_rl = 0
+		for counter in range(0,num_follows):
+			seed = random.random()
+			tfl = self.statistics['timer_like_prob']
+			if seed <= (tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl'] + tfl['l4l+f+rl']):
+				tag = self.randomL4L()
+				media = self.getTaggedRecentInsta(tag,1)
+				if seed <= tfl['l4l']:
+					self.justLike(media, isL4L = True)
+				elif seed <= tfl['l4l'] + tfl['l4l+f']:
+					self.likeAndFollow(media, isL4L = True)
+				elif seed <= tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl']:
+					self.likeAndRandomLike(media, isL4L = True)
+				else:
+					self.likeFollowAndRandomLike(media, isL4L = True)
+			elif seed <= (1 - tfl['rl']):
+				seed -= (tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl'] + tfl['l4l+f+rl'])
+				tag = self.randomTag()
+				media = self.getTaggedRecentInsta()
+				if seed <= tfl['l+f+rl']:
+					self.likeFollowAndRandomLike(media)
+				elif seed <= tfl['l+f+rl'] + tfl['l+f']:
+					self.likeAndFollow(media)
+				elif seed <= tfl['l+f+rl'] + tfl['l+f'] + tfl['l+rl']:
+					self.likeAndRandomLike(media)
+				else:
+					self.justLike(media)
+			else:
+				user = self.getNewFollowFromDB([])
+				self.randomLike(user)
+			self.write("\r\t" + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl of " + str(num_follows))
 
 
-    def justLike(self, media, isL4L = False):
-    	self.likeInsta(media['mediaID'])
+	def justLike(self, media, isL4L = False):
+		self.likeInsta(media['mediaID'])
 		if isL4L:
 			self.addStatistics(media['userID'], 'l4l')
 		else:
@@ -510,16 +510,16 @@ class InstagramAccount(Account):
 		if user != None:
 			params['userID'] = str(user)
 		if maxNum != None:
-	    	params['maxNum'] = maxNum
-	    return self.post_insta_request(params)
+			params['maxNum'] = maxNum
+		return self.post_insta_request(params)
 
 
 	def getFollowingsSocial(self, user=None):
 		""" must return a list with ID for each user """
-	    if user == None:
-	    	return self.post_insta_request({'action': 'get_followings_insta'})
-	    else:
-	    	return self.post_insta_request({'action': 'get_followings_insta', 'userID': str(user)})
+		if user == None:
+			return self.post_insta_request({'action': 'get_followings_insta'})
+		else:
+			return self.post_insta_request({'action': 'get_followings_insta', 'userID': str(user)})
 
 
 	def getTaggedPopularInsta(self, tag, maxNum):
