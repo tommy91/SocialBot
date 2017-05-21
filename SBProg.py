@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import socket
 import datetime
 import threading
@@ -20,13 +21,15 @@ class SBProg:
 	PATH_TO_SERVER = Settings.PATH_TO_SERVER
 	RECEIVER = Settings.RECEIVER 
 
-	def __init__(self, isTest = False):
+	def __init__(self, sleepChar=None, sleepLine=None, isTest = False):
 		self.isTest = isTest
+		self.sleepChar = sleepChar
+		self.sleepLine = sleepLine
 
 
 	def runProgram(self):
 		try:
-			self.output = Output()
+			self.output = Output(sleepChar=self.sleepChar, sleepLine=self.sleepLine)
 			self.write = self.output.write
 			self.writeln = self.output.writeln
 			self.canWrite = self.output.canWrite

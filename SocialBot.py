@@ -1,3 +1,5 @@
+import sys
+
 from SBProg import SBProg
 # import os
 # import sys
@@ -1515,6 +1517,21 @@ from SBProg import SBProg
 #         print e
 
 if __name__ == '__main__':
-    program = SBProg()
+    lp = len(sys.argv)
+    if lp > 2:
+        print("\n\tError: " + str(lp-1) + " params, admitted only 1! Ignored all.\n")
+    elif lp > 1:
+        if(sys.argv[1]=='-f'):
+            print("\n\tFast Mode On.\n\tNo sleep char/line.\n")
+            program = SBProg(sleepChar=0.0, sleepLine=0.0)
+        elif(sys.argv[1]=='-t'):
+            print("\n\tTest Mode On.\n")
+            program = SBProg(isTest=True)
+        elif(sys.argv[1] in ['-ft','-tf']):
+            print("\n\tFast Mode On.\n\tNo sleep char/line.\n\n\tTest Mode On.\n")
+            program = SBProg(isTest=True, sleepChar=0.0, sleepLine=0.0)
+        else:
+            print("\n\tError: unknown command '" + sys.argv[1] + "', ignored.\n")
+            program = SBProg()
     program.runProgram()
 
