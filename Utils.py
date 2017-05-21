@@ -2,10 +2,38 @@ import requests
 from httplib2 import ServerNotFoundError
 from requests.exceptions import ConnectionError, Timeout, HTTPError
 
-#import Settings
+import Settings
 
-# Per debugging locale
-import local_settings as Settings
+
+def seconds2timeStr(secs):
+    seconds = secs % 60
+    minutes = (secs / 60) % 60
+    hours = (secs / (60*60)) % 24
+    days = (secs / (60*60*24))
+    time = []
+    if days > 1:
+        time.append(str(days) + " days")
+    elif days == 1:
+        time.append("1 day")
+    if hours > 1:
+        time.append(str(hours) + " hours")
+    elif hours == 1:
+        time.append("1 hour")
+    if minutes > 1:
+        time.append(str(minutes) + " minutes")
+    elif minutes == 1:
+        time.append("1 minute")
+    if seconds > 1:
+        time.append(str(seconds) + " seconds")
+    elif seconds == 1:
+        time.append("1 second")
+    if time != []:
+        last = time.pop()
+        if time != []:
+            return ', '.join(time) + " and " + last
+        else:
+            return last
+
 
 def date2string(d):
 	    day = date2str(d.day)

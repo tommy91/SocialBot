@@ -1,10 +1,7 @@
 # Ignore Mac DS_Store files
 .DS_Store
-local_settings.py
-ftp.sh
-my_site/example_funzioni_mysql.php
 *.pyc
 *.db
 pytumblr/
 my_site/vendor/
-my_site/composer.*
+my_site/composer.lock

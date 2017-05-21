@@ -1,5 +1,9 @@
 import Utils
 
+import Account
+import TumblrAccount
+import InstagramAccount
+
 class Accounts:
 
 	TYPE_TUMBLR = 1
@@ -9,11 +13,15 @@ class Accounts:
 		self.app_accounts = {}
 		self.accounts = {}
 		self.matches = {}
-		self.timersTime = {}
-		self.output = output
-		self.write = self.sbprog.output.write
-		self.writeln = self.sbprog.output.writeln
+		self.timersTime = sbprog.timersTime
+		self.timers = sbprog.timers
+		self.write = sbprog.output.write
+		self.writeln = sbprog.output.writeln
+		self.canWrite = sbprog.output.canWrite
+		self.lock = sbprog.output.lock
+		self.updateStatistics = sbprog.updateStatistics
 		self.initAccounts()
+		self.updateBlogs()
 		self.updateBlogsData(firstTime=True)
 		self.synchOperations(firstTime=True)
 
@@ -62,14 +70,14 @@ class Accounts:
 
 
 	def addAppAccount(self, account):
-		self.app_accounts{str(account['ID']): TumblrAppAccount(account)}
+		self.app_accounts{str(account['ID']): TumblrAppAccount(self, account)}
 
 
 	def addAccount(self, account, tags, blogs):
 		if account['Type'] == self.TYPE_TUMBLR:
-			new_account = TumblrAccount(account, tags, blogs, self.app_accounts) 
+			new_account = TumblrAccount(self, account, tags, blogs) 
 		elif account['Type'] == self.TYPE_INSTAGRAM:
-			new_account = InstagramAccount(account, tags, blogs)
+			new_account = InstagramAccount(self, account, tags, blogs)
 		else:
 			self.write("Error at addAccount for account " + str(account['Mail']))
 			return
@@ -145,9 +153,9 @@ class Accounts:
 	    elif table == "sb_my_accounts":
 	        if self.accounts[str(id_blog)].status == self.STATUS_RUN:
 	            self.accounts[str(id_blog)].stopBlog()
+	            self.accounts[str(id_blog)].clearDB()
 	        del self.matches[self.accounts[str(id_blog)].getAccountName()]
 	        del self.accounts[str(id_blog)]
-	        # todo cancellare tabelle db locale per account
 	    elif table == "sb_other_accounts":
 	        newBlogs = post_request({"action": "get_blogs", "id": id_blog})
 	        self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
@@ -164,9 +172,73 @@ class Accounts:
 	        self.addAppAccount(newAppAccount)
 	    elif table == "sb_my_accounts":
 	    	newAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
-	    	self.accounts[str(id_blog)].updateUpOp(newAccount, app_accounts)
+	    	self.accounts[str(id_blog)].updateUpOp(newAccount)
 	    elif (table == "sb_other_accounts") or (table == "sb_tags"):
 	        self.write("\t\tOperation not permitted!!! WTF is happening???")
 	    else:
 	        self.write("\t\tError: '" + table + "' is no a valid table!")
+
+
+	def runBlogs(self, entry):
+		try:
+            if entry.split()[1] in ["all","All"]:
+                for key, blog in self.accounts.iteritems():
+                    if blog.getAccountName() != "not available":
+                        blog.runBlog()
+                    else:
+                        self.write("Cannot run not available blog! (id: " + blog.strID + ")\n",True)
+            else:
+                try:
+                    self.accounts[matches[entry.split()[1]]].runBlog()
+                except KeyError, msg:
+                    self.write(entry.split()[1] + " is not an existing account!\n",True)
+            if self.canWrite:
+                self.logResults()
+        except IndexError, msg:
+            self.write("   Syntax error: 'run all' or 'run _blogname_'\n",True)
+
+
+    def stopBlogs(self, entry):
+    	try:
+            if entry.split()[1] in ["all","All"]:
+                for kb,blog in self.accounts.iteritems():
+                    if blog.getAccountName() != "not available":
+                        blog.stopBlog()
+                self.timers["update"].cancel()
+                self.timers = {}
+            else: 
+                try:
+                    self.accounts[matches[entry.split()[1]]].stopBlog()
+                except KeyError, msg:
+                    self.write(entry.split()[1] + " is not an existing blogname!\n",True)
+        except IndexError, msg:
+            self.write("   Syntax error: 'stop all' or 'stop _blogname_'\n",True)
+
+
+    def setUpdateTimer(self):
+	    fiveMin = 60*5
+	    tup = threading.Timer(fiveMin, self.updateBlogs)
+	    tup.start()
+	    self.timers["update"] = tup
+	    deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + fiveMin)).strftime('%H:%M:%S %d/%m')
+	    self.timersTime["update"] = deadline
+
+
+	def updateBlogs(self):
+	    self.lock.acquire()
+	    self.writeln("Update blogs info.\n")
+	    for kb,blog in self.accounts.iteritems():
+	    	blog.updateBlog()
+	    self.updateBlogsData()
+	    self.synchOperations()
+	    self.updateStatistics()
+	    if not self.isTest:
+	        self.setUpdateTimer()
+	    self.lock.release()
+
+
+	def closingOperations(self):
+		for key, blog in self.accounts.iteritems():
+	        if blog.status == blog.STATUS_RUN:
+	            blog.stopBlog()
 

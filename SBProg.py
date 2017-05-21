@@ -2,16 +2,17 @@ import os
 import sys
 import socket
 import datetime
+import threading
 
+import Utils
 import dbManager
-#import Settings
+import Output
+import Accounts
+import Settings
 
-# Per debugging locale
-import local_settings as Settings
 
 class SBProg:
 
-	isTest = False
 	timers = {}
 	timersTime = {}
 	startSessionTime = ""
@@ -19,17 +20,23 @@ class SBProg:
 	PATH_TO_SERVER = Settings.PATH_TO_SERVER
 	RECEIVER = Settings.RECEIVER 
 
-	def __init__(self):
+	def __init__(self, isTest = False):
+		self.isTest = isTest
+
+
+	def runProgram(self):
 		try:
 			self.output = Output()
 			self.write = self.output.write
 			self.writeln = self.output.writeln
+			self.canWrite = self.output.canWrite
 	        self.printHello()
 	        if not self.tryConnectToRemoteServer():
 	            print "Closing.. bye."
+	        self.dbManager = DbManager(self.output)
 	        self.tryConnectDB()
-	        mainBOT()
-	        newEntry()
+	        self.mainBOT()
+	        self.newEntry()
 	    except Exception, e:
 	        print "Global Error."
 	        print e
@@ -60,6 +67,7 @@ class SBProg:
 	        dbManager.initDB()
 	    else:
 	        self.write("already in path!\n")
+	        dbManager.initDB()
 
 
 	def mainBOT(self):
@@ -68,123 +76,108 @@ class SBProg:
 	    self.write("Get data from online server:\n")
 	  	self.accounts = Accounts(self)
 	    self.write("Get data from online server complete!\n")
-	    updateStatistics(firstTime=True)
-	    if isTest:
-	        testConnectedBlogs()
-	    write("Initialization finished! Run the blogs!\n")
+	    self.updateStatistics(firstTime=True)
+	    if self.isTest:
+	        self.testConnectedBlogs()
+	    self.write("Initialization finished! Run the blogs!\n")
 
 
 	def newEntry():
-	    global timers, canWrite
 	    while True:
-	        entry = raw_input("\n" + startSimble)
+	        entry = raw_input("\n" + self.output.startSimble)
 	        if entry in ["quit","exit"]:
-	            canWrite = True
-	            closing_operations()
+	            self.closing_operations()
 	            break
 	        elif entry in ["log"]:
-	            canWrite = True
-	            logResults()
+	            self.logResults()
 	        elif entry in ["help","info"]:
-	            prevCanWrite = canWrite
-	            canWrite = True
-	            printHelpCmd()
-	            prevCanWrite = canWrite
-	    #     elif entry in ["dbmanager","dbm","dbManager","DBM"]:
-	    #         write_console(myConsole.console, "Opening DB Manager Console.. ")
-	    #         dBMConsole()
+	            self.printHelpCmd()
 	        elif (entry != "") and (entry.split()[0] in ["changeSpeed","speed","cs"]):
-	            changeSpeed(entry)
+	            self.output.changeSpeed(entry)
 	        elif (entry != "") and (entry.split()[0] in ["run","Run"]):
-	            try:
-	                if entry.split()[1] in ["all","All"]:
-	                    for key, blog in blogs.iteritems():
-	                        if blog['type'] == 1: 
-	                            if blog['data']['blogname'] != "not available":
-	                                runBlog(blog['ID'])
-	                            else:
-	                                write("Cannot run not available blog! (id: " + blog['strID'] + ")\n",True)
-	                        else:
-	                            if blog['data']['name'] != "not available":
-	                                runBlog(blog['ID'])
-	                            else:
-	                                write("Cannot run not available blog! (id: " + blog['strID'] + ")\n",True)
-	                else:
-	                    try:
-	                        runBlog(matches[entry.split()[1]])
-	                    except KeyError, msg:
-	                        write(entry.split()[1] + " is not an existing blogname!\n",True)
-	                if canWrite:
-	                    logResults()
-	            except IndexError, msg:
-	                write("   Syntax error: 'run all' or 'run _blogname_'\n",True)
+	        	self.accounts.runBlogs(entry)
 	        elif (entry != "") and (entry.split()[0] in ["stop","Stop"]):
-	            try:
-	                if entry.split()[1] in ["all","All"]:
-	                    for kb,blog in blogs.iteritems():
-	                        if blog['type'] == 1: 
-	                            if blog['data']['blogname'] != "not available":
-	                                stopBlog(blog['ID'])
-	                        else:
-	                            if blog['data']['name'] != "not available":
-	                                stopBlog(blog['ID'])
-	                    timers["update"].cancel()
-	                    timers = {}
-	                else: 
-	                    try:
-	                        stopBlog(matches[entry.split()[1]])
-	                    except KeyError, msg:
-	                        write(entry.split()[1] + " is not an existing blogname!\n",True)
-	            except IndexError, msg:
-	                write("   Syntax error: 'stop all' or 'stop _blogname_'\n",True)
+	        	self.accounts.stopBlogs(entry)
 	        elif (entry != "") and (entry.split()[0] == "copy"):
-	            prevCanWrite = canWrite
-	            canWrite = True
-	            try:
-	                blog_to_copy = entry.split()[1]
-	                my_blog = entry.split()[2]
-	                limit = int(entry.split()[3])
-	                counter = int(entry.split()[4])
-	                write("Creating new thread for copy the blog.. ",True)
-	                t = threading.Thread(target=copyBlog, args=(blog_to_copy,my_blog,limit,counter)).start()
-	                updateStatistics()
-	                canWrite = prevCanWrite
-	            except IndexError, msg:
-	                write("   Syntax error: 'copy source myblog limit counter'\n",True)
-	                canWrite = prevCanWrite
+	        	self.copyBlog(entry)
+	    	else:
+	    		self.write("Unknown command '" + entry + "'\n",True)
 
 
-	def logResults():
-	    global canWrite
-	    write("Logging results..\n")
+	def logResults(self):
+		self.canWrite = True
+	    self.write("Logging results..\n")
 	    while not raw_input() in ['q','Q']:
 	        pass
-	    canWrite = False
+	    self.canWrite = False
 
 
-	def printHelpCmd():
+	def printHelpCmd(self):
 	    "Print list of available commands"
-	    write("List of commands:\n",True)
-	    write("   - 'help': for list of instructions\n",True)
-	    write("   - 'changeSpeed': for changing printing text speed\n",True)
-	    write("   - 'copy blog_to_copy my_blog': for copy an entire blog\n",True)
-	    write("   - 'dbm': for open database manager console\n",True)
-	    write("   - 'run': for run a/all blog(s)\n",True)
-	    write("   - 'stop': for stop a/all blog(s)\n",True)
-	    write("   - 'quit': for quit\n",True)
+	    prevCanWrite = self.canWrite
+        self.canWrite = True
+        self.write("List of commands:\n",True)
+	    self.write("   - 'help': for list of instructions\n",True)
+	    self.write("   - 'changeSpeed': for changing printing text speed\n",True)
+	    self.write("   - 'copy blog_to_copy my_blog': for copy an entire blog\n",True)
+	    self.write("   - 'dbm': for open database manager console\n",True)
+	    self.write("   - 'run': for run a/all blog(s)\n",True)
+	    self.write("   - 'stop': for stop a/all blog(s)\n",True)
+	    self.write("   - 'quit': for quit\n",True)
+	    prevCanWrite = self.canWrite
 
 
-	def closing_operations():
-	    global timers, blogs
-	    write("Terminating program.\n")
-	    for key, blog in blogs.iteritems():
-	        if blog['status'] == STATUS_RUN:
-	            stopBlog(blog['ID'])
+	def closing_operations(self):
+	    self.canWrite = True
+	    self.write("Terminating program.\n")
+	    self.accounts.closingOperations()
 	    try:
-	        timers["update"].cancel()
+	        self.timers["update"].cancel()
 	    except KeyError, msg:
 	        pass
-	    updateStatistics()
+	    self.updateStatistics()
 	    resp = post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
-	    write("   Bye!\n\n")
+	    self.write("   Bye!\n\n")
+
+
+	def updateStatistics(self, firstTime=False):
+	    try:
+	        if firstTime:
+	            self.write("Update stats.. ")
+	        else:
+	            self.write("\tUpdate stats.. ")
+	        post_data_stats = {"action": "update_statistics",
+	            "Session_Start": self.startSessionTime,
+	            "Num_Threads": threading.activeCount(),
+	            "Num_Post_Like": dbManager.countAllPost(),
+	            "Num_Follow": dbManager.countAllFollow()}
+	        if "update" in self.timersTime:
+	            post_data_stats["Deadline_Update"] = self.timersTime["update"]
+	        up_stat = post_request(post_data_stats)
+	        if up_stat != None:
+	            self.write("ok\n")
+	    except KeyError, msg:
+	        print "KeyError:"
+	        print str(msg)
+
+
+	def copyBlog(self, entry):
+		prevCanWrite = self.canWrite
+        self.canWrite = True
+        try:
+            blog_to_copy = entry.split()[1]
+            my_blog = self.accounts[matches[entry.split()[2]]]
+            limit = int(entry.split()[3])
+            counter = int(entry.split()[4])
+            self.write("Creating new thread for copy the blog.. ",True)
+            t = threading.Thread(target=my_blog.copyBlog, args=(blog_to_copy,limit,counter)).start()
+            self.updateStatistics()
+            self.canWrite = prevCanWrite
+        except IndexError, msg:
+            self.write("   Syntax error: 'copy source myblog limit counter'\n",True)
+            self.canWrite = prevCanWrite
+
+
+	def testConnectedBlogs(self):
+		pass
 
