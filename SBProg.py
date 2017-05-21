@@ -61,13 +61,13 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 	def tryConnectDB(self):
 		"Look for database"
-		self.write("Look for database (" + dbManager.dbName + ").. ")
-		if (not os.path.exists(dbManager.dbName)):
+		self.write("Look for database (" + self.dbManager.dbName + ").. ")
+		if (not os.path.exists(self.dbManager.dbName)):
 			self.write("not in path\n")
-			dbManager.initDB()
+			self.dbManager.initDB()
 		else:
 			self.write("already in path!\n")
-			dbManager.initDB()
+			self.dbManager.initDB()
 
 
 	def mainBOT(self):
@@ -149,8 +149,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			post_data_stats = {"action": "update_statistics",
 				"Session_Start": self.startSessionTime,
 				"Num_Threads": threading.activeCount(),
-				"Num_Post_Like": dbManager.countAllPost(),
-				"Num_Follow": dbManager.countAllFollow()}
+				"Num_Post_Like": self.dbManager.countAllPost(),
+				"Num_Follow": self.dbManager.countAllFollow()}
 			if "update" in self.timersTime:
 				post_data_stats["Deadline_Update"] = self.timersTime["update"]
 			up_stat = post_request(post_data_stats)
