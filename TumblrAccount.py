@@ -1,5 +1,5 @@
 import pytumblr
-import Account
+from Account import *
 
 class TumblrAppAccount(Account.Account):
 

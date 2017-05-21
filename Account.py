@@ -5,7 +5,7 @@ import threading
 import socket
 from httplib2 import ServerNotFoundError
 
-import Utils
+from Utils import *
 
 class Account:
 

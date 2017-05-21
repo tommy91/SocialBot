@@ -3,7 +3,7 @@ import time
 import datetime
 import threading
 
-import Utils
+from Utils import *
 
 
 class Output:

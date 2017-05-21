@@ -1,5 +1,5 @@
 import pickle
-import Account
+from Account import *
 
 class InstagramAccount(Account.Account):
 
