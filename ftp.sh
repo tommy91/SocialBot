@@ -96,5 +96,4 @@ function ftp_upload {
 }
 
 ftp_upload 'my_site' false
-ftp_upload 'vendor' true
 
