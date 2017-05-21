@@ -5,7 +5,7 @@ class TumblrAppAccount(Account):
 
 
 	def __init__(self, accounts, account):
-		super().__init__(accounts, account['ID'], account['Mail'], account['Type'])
+		super(TumblrAppAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.token = account['Token']
 		self.token_secret = account['Token_Secret']
 
@@ -21,7 +21,7 @@ class TumbrlAccount(Account):
 
 
 	def __init__(self, accounts, account, tags, blogs):
-		super().__init__(accounts, account['ID'], account['Mail'], account['Type'])
+		super(TumbrlAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.token = account['Token']
 		self.token_secret = account['Token_Secret']
 		self.app_account = accounts.app_accounts[str(account['App_Account'])]

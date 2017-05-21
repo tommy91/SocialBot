@@ -17,7 +17,7 @@ class InstagramAccount(Account):
 
 
 	def __init__(self, accounts, account, tags, blogs):
-		super().__init__(accounts, account['ID'], account['Mail'], account['Type'])
+		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.username = account['Username']
 		self.password = account['Password']
 		self.tags = tags2list(tags)
