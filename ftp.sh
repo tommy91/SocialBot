@@ -34,7 +34,7 @@ function ftpMPut {
   ftp -n -v $HOST <<END_SCRIPT
   quote USER $USER
   quote PASS $PASSWD
-  cd $BASEDIR/$1
+  cd $BASEDIR/$3
   prompt off
   lcd $1
   mput *
@@ -46,7 +46,7 @@ function ftpPut {
   ftp -n -v $HOST <<END_SCRIPT
   quote USER $USER
   quote PASS $PASSWD
-  cd $BASEDIR/$1
+  cd $BASEDIR/$3
   prompt off
   lcd $1
   put $2
@@ -54,14 +54,19 @@ function ftpPut {
 END_SCRIPT
 }
 
+function cutPath {
+  return $(echo "$1" | cut -d/ -f 2-)
+}
+
 function explore {
   if $2; then 
-    if ftpCheckDirExists $1 | grep -q "$FTP_ERROR_MSG"; then
+    if ftpCheckDirExists (cutPath $1) | grep -q "$FTP_ERROR_MSG"; then
       echo "$1 -> NOT found!"
-      if ftpMakeDir $1 | grep -q "$FTP_CREATED_MSG"; then
+      if ftpMakeDir (cutPath $1) | grep -q "$FTP_CREATED_MSG"; then
         echo "$1 -> Created."
       else
         echo "$1 -> Error!"
+        exit 1
       fi
     else
       echo "$1 -> Ok."
@@ -71,10 +76,11 @@ function explore {
     do
       if [ -f "$file" ]; then
         filename=$(basename "$file")
-        if ftpPut $1 $filename | grep -q "$FTP_TRASFERRED_MSG"; then
+        if ftpPut $1 $filename (cutPath $1) | grep -q "$FTP_TRASFERRED_MSG"; then
           echo "$file -> Ok."
         else
           echo "$file -> Error!"
+          exit 1
         fi
       fi
     done
