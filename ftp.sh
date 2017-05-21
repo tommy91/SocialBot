@@ -60,23 +60,25 @@ function cutPath {
 
 function explore {
   if $2; then 
-    if ftpCheckDirExists (cutPath $1) | grep -q "$FTP_ERROR_MSG"; then
-      echo "$1 -> NOT found!"
-      if ftpMakeDir (cutPath $1) | grep -q "$FTP_CREATED_MSG"; then
-        echo "$1 -> Created."
+    p=$(cutPath $1)
+    if ftpCheckDirExists $p | grep -q "$FTP_ERROR_MSG"; then
+      echo "$p -> NOT found!"
+      if ftpMakeDir $p | grep -q "$FTP_CREATED_MSG"; then
+        echo "$p -> Created."
       else
-        echo "$1 -> Error!"
+        echo "$p -> Error!"
         exit 1
       fi
     else
-      echo "$1 -> Ok."
+      echo "$p -> Ok."
     fi
   fi
   for file in "$1"/*
     do
       if [ -f "$file" ]; then
         filename=$(basename "$file")
-        if ftpPut $1 $filename (cutPath $1) | grep -q "$FTP_TRASFERRED_MSG"; then
+        p=$(cutPath $1)
+        if ftpPut $1 $filename $p | grep -q "$FTP_TRASFERRED_MSG"; then
           echo "$file -> Ok."
         else
           echo "$file -> Error!"
