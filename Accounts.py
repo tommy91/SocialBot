@@ -70,7 +70,7 @@ class Accounts:
 
 
 	def addAppAccount(self, account):
-		self.app_accounts{str(account['ID']): TumblrAppAccount(self, account)}
+		self.app_accounts[str(account['ID'])] = TumblrAppAccount(self, account)
 
 
 	def addAccount(self, account, tags, blogs):
@@ -81,10 +81,10 @@ class Accounts:
 		else:
 			self.write("Error at addAccount for account " + str(account['Mail']))
 			return
-		self.accounts{str(account['ID']): new_account}
+		self.accounts[str(account['ID'])] = new_account
 		account_name = new_account.getAccountName()
 		if account_name != "not available":
-			self.matches[account_name] = account['ID']}
+			self.matches[account_name] = account['ID']
 
 
 	def updateBlogsData(self, firstTime=False):
