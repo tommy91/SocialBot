@@ -1,4 +1,5 @@
 import pickle
+import Account
 
 class InstagramAccount(Account):
 
