@@ -1,8 +1,8 @@
 from Utils import *
 
-from Account import Account
-from TumblrAccount import TumblrAccount
-from InstagramAccount import InstagramAccount
+from Account import *
+from TumblrAccount import *
+from InstagramAccount import *
 
 class Accounts:
 
