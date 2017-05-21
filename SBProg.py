@@ -5,7 +5,7 @@ import datetime
 import threading
 
 import Utils
-from dbManager import dbManager
+import dbManager
 from Output import Output
 from Accounts import Accounts
 import Settings
