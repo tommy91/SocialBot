@@ -55,7 +55,8 @@ END_SCRIPT
 }
 
 function cutPath {
-  return $(echo "$1" | cut -d/ -f 2-)
+  cutted=$(echo "$1" | cut -d/ -f 2-)
+  echo "$cutted"
 }
 
 function explore {
