@@ -63,14 +63,14 @@ class InstagramAccount(Account):
 
 
 	def dumpStatistics(self):
-		pickle.dump(self.statistics,open(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p","wb"))
+		pickle.dump(self.statistics,open(self.DUMP_DIRECTORY + "/" + self.username + ".p","wb"))
 
 
 	def loadStatistics(self):
 		if os.path.exists(self.DUMP_DIRECTORY):
-			if os.path.exists(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p"):
+			if os.path.exists(self.DUMP_DIRECTORY + "/" + self.username + ".p"):
 				try:
-					self.statistics = pickle.load(open(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p","rb"))
+					self.statistics = pickle.load(open(self.DUMP_DIRECTORY + "/" + self.username + ".p","rb"))
 				except Exception, msg:
 					self.write("Error: " + str(msg))
 			else:
