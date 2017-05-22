@@ -1,3 +1,4 @@
+import os
 import pickle
 from Account import *
 
@@ -15,6 +16,8 @@ class InstagramAccount(Account):
 	MIN_TIME_BETWEEN_ACTIONS = 30		# seconds
 	MAX_TIME_BETWEEN_ACTIONS = 40		# seconds 
 
+	DUMP_DIRECTORY = "dump"
+
 
 	def __init__(self, accounts, account, tags, blogs):
 		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
@@ -29,7 +32,7 @@ class InstagramAccount(Account):
 		self.num_post_xt = int(account['PostXT'])
 		self.num_follow_xt = int(account['FollowXT'])
 		self.num_like_xt = int(account['LikeXT'])
-		status = self.STATUS_STOP
+		self.status = self.STATUS_STOP
 		self.loadStatistics()
 
 
@@ -60,14 +63,20 @@ class InstagramAccount(Account):
 
 
 	def dumpStatistics(self):
-		pickle.dump(self.statistics,open("dump/" + self.getAccountName() + ".p","wb"))
+		pickle.dump(self.statistics,open(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p","wb"))
 
 
 	def loadStatistics(self):
-		try:
-			self.statistics = pickle.load(open("dump/" + self.getAccountName() + ".p","rb"))
-		except Exception, msg:
-			self.write("Error: " + str(msg))
+		if os.path.exists(self.DUMP_DIRECTORY):
+			if os.path.exists(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p"):
+				try:
+					self.statistics = pickle.load(open(self.DUMP_DIRECTORY + "/" + self.getAccountName() + ".p","rb"))
+				except Exception, msg:
+					self.write("Error: " + str(msg))
+			else:
+				self.initStatistics()
+		else:
+			os.mkdir(self.DUMP_DIRECTORY)
 			self.initStatistics()
 
 
@@ -147,7 +156,7 @@ class InstagramAccount(Account):
 
 	def updateBlog(self):
 		try:
-			ibi = self.post_insta_request({'action': 'get_insta_blog_self_info'})
+			ibi = self.post_insta_request({'action': 'get_insta_blog_info'})
 			if self.checkResponse(ibi):
 				self.data['private'] = ibi['private']
 				self.data['following'] = ibi['following']
@@ -159,11 +168,11 @@ class InstagramAccount(Account):
 			else:
 				self.write("Error: cannot update " + self.getAccountName() + ".\n")
 		except Exception, msg:
-			self.write("\tUpdate Error on get_insta_blog_self_info: " + str(msg) + "\n")
+			self.write("\tUpdate Error on get_insta_blog_info: " + str(msg) + "\n")
 						
 
 
-	def updateBlogData(self, timersTime):
+	def updateBlogData(self):
 		self.write("\tUpdate " + self.data['name'] + ".. ")
 		post_data_up = {"action": "update_blog_data_insta", 
 			"ID": self.account_id,
@@ -553,6 +562,37 @@ class InstagramAccount(Account):
 
 	def getIdByUsernameInsta(self, user):
 		return self.post_insta_request({'action': 'get_id_by_username', 'user': str(user)})[0]
+
+
+	def logAccount(self):
+		print "\nLog information for " + self.getAccountName() + ":"
+		print "ID: " + str(self.account_id)
+		print "strID: " + self.strID
+		print "mail: " + self.mail
+		print "type: " + str(self.account_type) 
+		print "username: " + self.username
+		print "password: " + self.password
+		print "tags: "
+		for tag in self.tags:
+			print "\t" + tag
+		print "blogs: "
+		for blog in self.blogs:
+			print "\t" + blog
+		print "private: " + str(self.data['private'])
+		print "following: " + str(self.data['following'])
+		print "followers: " + str(self.data['followers'])
+		print "messages: " + str(self.data['messages'])
+		print "name: " + self.data['name']
+		print "posts: " + str(self.data['posts'])
+		print "usertags: " + str(self.data['usertags'])
+		# print "url: " + self.data['url'] 
+		print "num_post_xd: " + str(self.num_post_xd)
+		print "num_follow_xd: " + str(self.num_follow_xd)
+		print "num_like_xd: " + str(self.num_like_xd)
+		print "num_post_xt: " + str(self.num_post_xt)
+		print "num_follow_xt: " + str(self.num_follow_xt)
+		print "num_like_xt: " + str(self.num_like_xt)
+		print "status: " + str(self.status)
 
 
 

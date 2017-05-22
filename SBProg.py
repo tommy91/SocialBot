@@ -85,16 +85,16 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		self.write("Initialization finished! Run the blogs!\n")
 
 
-	def newEntry():
+	def newEntry(self):
 		while True:
 			entry = raw_input("\n" + self.output.startSimble)
 			if entry in ["quit","exit"]:
 				self.closing_operations()
 				break
-			elif entry in ["log"]:
-				self.logResults()
 			elif entry in ["help","info"]:
 				self.printHelpCmd()
+			elif (entry != "") and (entry.split()[0] in ["log","Log"]):
+				self.accounts.log(entry)
 			elif (entry != "") and (entry.split()[0] in ["changeSpeed","speed","cs"]):
 				self.output.changeSpeed(entry)
 			elif (entry != "") and (entry.split()[0] in ["run","Run"]):
@@ -109,7 +109,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 	def logResults(self):
 		self.canWrite = True
-		self.write("Logging results..\n")
+		self.write("\nLogging results..\n")
 		while not raw_input() in ['q','Q']:
 			pass
 		self.canWrite = False

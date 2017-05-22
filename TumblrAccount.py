@@ -11,17 +11,17 @@ class TumblrAppAccount(Account):
 
 
 
-class TumbrlAccount(Account):
+class TumblrAccount(Account):
 
 
 	client = None
 	clientInfo = None
-	percF4F = 1/2
-	percNotF4F = 1/2
+	percF4F = 1/float(2)
+	percNotF4F = 1/float(2)
 
 
 	def __init__(self, accounts, account, tags, blogs):
-		super(TumbrlAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
+		super(TumblrAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.token = account['Token']
 		self.token_secret = account['Token_Secret']
 		self.app_account = accounts.app_accounts[str(account['App_Account'])]
@@ -35,7 +35,7 @@ class TumbrlAccount(Account):
 		self.num_follow_xt = int(account['FollowXT'])
 		self.num_like_xt = int(account['LikeXT'])
 		self.setup_clients()    
-		status = self.STATUS_STOP
+		self.status = self.STATUS_STOP
 
 
 	def getAccountName(self):
@@ -108,7 +108,7 @@ class TumbrlAccount(Account):
 			self.write("\tUpdate Error on client.info(): " + str(msg) + "\n")
 
 
-	def updateBlogData(self, timersTime):
+	def updateBlogData(self):
 		self.write("\tUpdate " + self.data['blogname'] + ".. ")
 		post_data_up = {"action": "update_blog_data", 
 			"ID": self.account_id,
@@ -193,21 +193,21 @@ class TumbrlAccount(Account):
 		bn = self.getAccountName()
 		# Check num Follows
 		follows = self.dbManager.countFollow(bn)
-		self.write("\t   check #follow.. ")
-		if follows >= (self.num_follow_xt * self.percNotF4F):
+		self.write("\t   check #follow.. needed " + str(int(self.num_follow_xt * self.percNotF4F)) + ".. ")
+		if follows >= int(self.num_follow_xt * self.percNotF4F):
 			self.write("found " + str(follows) + ", ok\n")
 		else:
-			self.write("found " + str(follows) + ", needed at least " + str(self.num_follow_xt * self.percNotF4F) + "\n")
-			self.searchByTag((self.num_follow_xt * self.percNotF4F)-follows)
+			self.write("found " + str(follows) + ", needed at least " + str(int(self.num_follow_xt * self.percNotF4F)-follows) + "\n")
+			self.searchByTag(int(self.num_follow_xt * self.percNotF4F)-follows)
 		# Check num F4F
 		f4f = self.dbManager.countFollow("f4f-tumblr")
-		self.write("\t   check #f4f-tumblr.. ")
-		if f4f >= (self.num_follow_xt * self.percF4F):
+		self.write("\t   check #f4f-tumblr.. needed " + str(int(self.num_follow_xt * self.percF4F)) + ".. ")
+		if f4f >= int(self.num_follow_xt * self.percF4F):
 			self.write("found " + str(f4f) + ", ok\n")
 		else:
-			self.write("found " + str(f4f) + ", needed at least " + str(self.num_follow_xt * self.percF4F) + "\n")
+			self.write("found " + str(f4f) + ", needed at least " + str(int(self.num_follow_xt * self.percF4F)-f4f) + "\n")
 			tag = self.randomF4F()
-			self.searchByTag((self.num_follow_xt * self.percF4F)-f4f, blogname="f4f-tumblr", tag=tag)
+			self.searchByTag(int(self.num_follow_xt * self.percF4F)-f4f, blogname="f4f-tumblr", tag=tag)
 
 
 	def search_post(self, num_post=-1):
@@ -446,3 +446,37 @@ class TumbrlAccount(Account):
 
 	def getTaggedTumblr(self, tag):
 		return self.clientInfo.tagged(tag)
+
+
+	def logAccount(self):
+		print "\nLog information for " + self.getAccountName() + ":"
+		print "ID: " + str(self.account_id)
+		print "strID: " + self.strID
+		print "mail: " + self.mail
+		print "type: " + str(self.account_type) 
+		print "token: " + self.token
+		print "token_secret: " + self.token_secret
+		print "app_account: " + str(self.app_account)
+		print "tags: "
+		for tag in self.tags:
+			print "\t" + tag
+		print "blogs: "
+		for blog in self.blogs:
+			print "\t" + blog
+		print "likes: " + str(self.data['likes'])
+		print "following: " + str(self.data['following'])
+		print "followers: " + str(self.data['followers'])
+		print "messages: " + str(self.data['messages'])
+		print "posts: " + str(self.data['posts'])
+		print "queue: " + str(self.data['queue'])
+		print "username: " + self.data['username']
+		print "blogname: " + self.data['blogname']
+		print "url: " + self.data['url'] 
+		print "num_post_xd: " + str(self.num_post_xd)
+		print "num_follow_xd: " + str(self.num_follow_xd)
+		print "num_like_xd: " + str(self.num_like_xd)
+		print "num_post_xt: " + str(self.num_post_xt)
+		print "num_follow_xt: " + str(self.num_follow_xt)
+		print "num_like_xt: " + str(self.num_like_xt)
+		print "status: " + str(self.status)
+

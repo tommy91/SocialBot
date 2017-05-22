@@ -7,7 +7,7 @@ from httplib2 import ServerNotFoundError
 
 from Utils import *
 
-class Account:
+class Account(object):
 
 	STATUS_RUN = 1
 	STATUS_STOP = 0
@@ -27,7 +27,7 @@ class Account:
 		self.write = accounts.sbprog.output.write
 		self.writeln = accounts.sbprog.output.writeln
 		self.canWrite = accounts.sbprog.output.canWrite
-		self.clearLine = accounts.sbprog.output.clearLine
+		self.clearline = accounts.sbprog.output.clearline
 		self.lock = accounts.sbprog.output.lock
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
@@ -43,7 +43,7 @@ class Account:
 		post_data_up = {"action": "get_my_accounts_ID", "id": self.account_id}
 		status_res = post_request(post_data_up)
 		if status_res != None:
-			if (status_res[0]['State'] <= STATUS_RUN) and (self.status != status_res[0]['State']):
+			if (status_res[0]['State'] <= self.STATUS_RUN) and (self.status != status_res[0]['State']):
 				post_request({"action": "set_status", "id": self.account_id, "status": self.status})
 
 
@@ -173,7 +173,7 @@ class Account:
 		bn = self.getAccountName()
 		# Check num Post
 		posts = self.dbManager.countPost(bn)
-		self.write("\t   check #post.. ")
+		self.write("\t   check #post.. needed " + str(self.num_post_xt) + ".. ")
 		if posts >= self.num_post_xt:
 			self.write("found " + str(posts) + ", ok\n")
 		else:
@@ -306,12 +306,13 @@ class Account:
 
 
 	def initFollowings(self):
-		self.write("Initialize Following.. ")
+		self.write("Initialize Following.. \n")
 		self.followingList = []
 		blogname = self.getAccountName()
 		current_num_followings = self.dbManager.countFollowing(blogname)
 		if current_num_followings != self.data['following']:
-			self.dbManager.deleteAll("Following",blogname)
+			args = (blogname,)
+			self.dbManager.deleteAll("Following",args)
 			self.getFollowing()
 		else:
 			self.followingList = self.dbManager.getFollowing(blogname)
@@ -319,7 +320,7 @@ class Account:
 
 
 	def initFollowers(self):
-		self.write("Initialize Followers.. ")
+		self.write("Initialize Followers.. \n")
 		self.followersList = []
 		self.getFollowers()
 		self.write("Done.\n")
@@ -335,9 +336,10 @@ class Account:
 		self.write("\tGet Following List.. ")
 		self.followingList = []
 		following = self.getFollowingsSocial()
+		blogname = self.getAccountName()
 		while following != []:
 			follow = following.pop()
-			if follow in followersList:
+			if follow in self.followersList:
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))

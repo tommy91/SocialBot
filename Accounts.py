@@ -13,6 +13,8 @@ class Accounts:
 		self.app_accounts = {}
 		self.accounts = {}
 		self.matches = {}
+		self.sbprog = sbprog
+		self.isTest = sbprog.isTest
 		self.timersTime = sbprog.timersTime
 		self.timers = sbprog.timers
 		self.write = sbprog.output.write
@@ -64,7 +66,7 @@ class Accounts:
 				otherAccounts = post_request({"action": "get_blogs", "ID": myAccount['ID']})
 				if (tags == None) or (otherAccounts == None):
 					continue
-				self.addMyAccount(myAccount,tags,otherAccounts)
+				self.addAccount(myAccount,tags,otherAccounts)
 				counter = counter + 1
 				self.write("Done!\n")
 
@@ -74,12 +76,12 @@ class Accounts:
 
 
 	def addAccount(self, account, tags, blogs):
-		if account['Type'] == self.TYPE_TUMBLR:
+		if int(account['Type']) == self.TYPE_TUMBLR:
 			new_account = TumblrAccount(self, account, tags, blogs) 
-		elif account['Type'] == self.TYPE_INSTAGRAM:
+		elif int(account['Type']) == self.TYPE_INSTAGRAM:
 			new_account = InstagramAccount(self, account, tags, blogs)
 		else:
-			self.write("Error at addAccount for account " + str(account['Mail']))
+			self.write("Error at addAccount for account " + str(account['Mail']) + ": get type " + str(account['Type'] + "."))
 			return
 		self.accounts[str(account['ID'])] = new_account
 		account_name = new_account.getAccountName()
@@ -93,7 +95,7 @@ class Accounts:
 		else: 
 			self.writeln("Update Blogs:\n")
 		for key, blog in self.accounts.iteritems():
-			blog.updateBlogData(self.timersTime)
+			blog.updateBlogData()
 
 
 	def synchOperations(self, firstTime=False):
@@ -179,6 +181,24 @@ class Accounts:
 			self.write("\t\tError: '" + table + "' is no a valid table!")
 
 
+	def log(self, entry):
+		if len(entry.split()) == 1:
+			self.sbprog.logResults()
+		else:
+			try:
+				if entry.split()[1] in ["all","All"]:
+					for key, blog in self.accounts.iteritems():
+						blog.logAccount()
+				else:
+					try:
+						self.accounts[matches[entry.split()[1]]].logAccount()
+					except KeyError, msg:
+						self.write(entry.split()[1] + " is not an existing account!\n",True)
+					
+			except IndexError, msg:
+				self.write("   Syntax error: 'log all' or 'log _blogname_'\n",True)
+
+
 	def runBlogs(self, entry):
 		try:
 			if entry.split()[1] in ["all","All"]:
@@ -193,7 +213,7 @@ class Accounts:
 				except KeyError, msg:
 					self.write(entry.split()[1] + " is not an existing account!\n",True)
 			if self.canWrite:
-				self.logResults()
+				self.sbprog.logResults()
 		except IndexError, msg:
 			self.write("   Syntax error: 'run all' or 'run _blogname_'\n",True)
 

@@ -33,7 +33,7 @@ class Output:
 			return
 		self.lock.acquire()
 		now = datetime.datetime.now()
-		nowstr = self.date2string(now)
+		nowstr = date2string(now)
 		try:
 			sys.stdout.write(nowstr + self.startSimble)
 			sys.stdout.flush()

@@ -81,21 +81,21 @@ def send_and_check_request(post_data):
 			try:
 				parsed = resp.json()
 				if 'Error' in parsed:
-					print "Errore: " + str(parsed['Error'])
+					print "Error: " + str(parsed['Error'])
 					return None
 				else:
 					return parsed['Result']
 			except ValueError as e:
-				print "Errore:"
+				print "ValueError:"
 				print resp.content
 				return None
 		else:
 			resp.raise_for_status()
 	except ConnectionError as e:
-		print "Errore:"
+		print "ConnectionError:"
 		print e
 		return None 
 	except Timeout as e:
-		print "Errore:"
+		print "Timeout Error:"
 		print e
 		return None
