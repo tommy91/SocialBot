@@ -348,6 +348,7 @@ class Account(object):
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
 			self.dbManager.add("Following", args)
+		print ""
 		self.followingList = self.dbManager.getFollowing(blogname)
 
 

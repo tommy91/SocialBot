@@ -148,8 +148,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		try:
 			if firstTime:
 				self.write("Update stats.. ")
-			else:
-				self.write("\tUpdate stats.. ")
+			# else:
+			# 	self.write("\tUpdate stats.. ")
 			post_data_stats = {"action": "update_statistics",
 				"Session_Start": self.startSessionTime,
 				"Num_Threads": threading.activeCount(),
@@ -158,10 +158,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			if "update" in self.timersTime:
 				post_data_stats["Deadline_Update"] = self.timersTime["update"]
 			up_stat = post_request(post_data_stats)
-			if up_stat != None:
-				self.write("ok\n")
+			if up_stat == None:
+				self.write("Error: Update stats NOT ok (None up_stat)\n")
 		except KeyError, msg:
-			print "KeyError:"
+			print "KeyError on Update stats:"
 			print str(msg)
 
 
