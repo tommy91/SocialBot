@@ -275,36 +275,39 @@ class InstagramAccount(Account):
 					self.write("\r\t         from " + blog + ".. " + str(counter))
 			print ""
 			self.waitInsta(little=True)
-		tag = self.randomTag()
-		if self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE >= num_follows:
-			popularPosts = 1
+		if len(self.tags) > 0:
+			tag = self.randomTag()
+			if self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE >= num_follows:
+				popularPosts = 1
+			else:
+				popularPosts = int(num_follows/(self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE))+1
+			counterMedia = 0
+			counterLikers = 0
+			counterComments = 0
+			media = self.getTaggedPopularInsta(tag, popularPosts)
+			for post in media:
+				if (not post['userID'] in self.followingList) and (not post['userID'] in self.followersList):
+					self.addFollowToDB(post['userID'])
+					counterMedia += 1
+					self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
+				self.waitInsta(little=True)
+				likers = self.getMediaLikersInsta(post['mediaID'], self.MAX_RETRIEVED_LIKE)
+				for liker in likers: 
+					if (not liker in self.followingList) and (not liker in self.followersList):
+						self.addFollowToDB(liker)
+						counterLikers += 1
+						self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
+				self.waitInsta(little=True)
+				comments = self.getMediaCommentsInsta(post['mediaID'], self.MAX_RETRIEVED_COMMENTS)
+				for comment in comments: 
+					if (not comment in self.followingList) and (not comment in self.followersList):
+						self.addFollowToDB(comment)
+						counterComments += 1
+						self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
+				self.waitInsta(little=True)
+			print ""
 		else:
-			popularPosts = int(num_follows/(self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE))+1
-		counterMedia = 0
-		counterLikers = 0
-		counterComments = 0
-		media = self.getTaggedPopularInsta(tag, popularPosts)
-		for post in media:
-			if (not post['userID'] in self.followingList) and (not post['userID'] in self.followersList):
-				self.addFollowToDB(post['userID'])
-				counterMedia += 1
-				self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-			self.waitInsta(little=True)
-			likers = self.getMediaLikersInsta(post['mediaID'], self.MAX_RETRIEVED_LIKE)
-			for liker in likers: 
-				if (not liker in self.followingList) and (not liker in self.followersList):
-					self.addFollowToDB(liker)
-					counterLikers += 1
-					self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-			self.waitInsta(little=True)
-			comments = self.getMediaCommentsInsta(post['mediaID'], self.MAX_RETRIEVED_COMMENTS)
-			for comment in comments: 
-				if (not comment in self.followingList) and (not comment in self.followersList):
-					self.addFollowToDB(comment)
-					counterComments += 1
-					self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-			self.waitInsta(little=True)
-		print ""
+			print "\tNo Tags inserted.. cannot get new follows!"
 
 
 	def postSocial(self, post):

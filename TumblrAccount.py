@@ -399,10 +399,12 @@ class TumblrAccount(Account):
 					followerNames.append(follower['name'])
 				if counterFollowers >= followers['total_users']:
 					shouldGetNew = False
-				self.write("\r\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " ")
+				self.write("\r\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
 				if numErrors > 30:
+					print ""
+					print msg
 					shouldGetNew = False
 				else: 
 					time.sleep(2)
@@ -430,10 +432,12 @@ class TumblrAccount(Account):
 					followingNames.append(follow['name'])
 				if counterFollowing >= following['total_blogs']:
 					shouldGetNew = False
-				self.write("\r\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " ")
+				self.write("\r\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
 				if numErrors > 30:
+					print ""
+					print msg
 					shouldGetNew = False
 				else: 
 					time.sleep(2)
