@@ -223,9 +223,12 @@ class InstagramAccount(Account):
 		nf = (self.num_like_xd - (nl * self.num_like_xt * l_tl)) / float(self.num_follow_xt * l_tf)
 
 		self.write("\tCalcule timers for " + self.getAccountName() + ":\n")
-		# self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
-		# self.write("\t\tpost every " + seconds2timeStr(self.timer_post) + "\n")
-		self.write("\t\tnever post\n")
+		if self.num_post_xd == 0:
+			self.timer_post = 0
+			self.write("\t\tnever post\n")
+		else:
+			self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
+			self.write("\t\tpost every " + seconds2timeStr(self.timer_post) + "\n")	
 		self.timer_follow = int((24*60*60/nf)+0.5)
 		self.write("\t\tfollow every " + seconds2timeStr(self.timer_follow) + "\n")
 		self.timer_like = int((24*60*60/nl)+0.5)

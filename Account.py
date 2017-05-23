@@ -77,9 +77,7 @@ class Account(object):
 			self.accounts.setUpdateTimer()
 		self.initFollowers()
 		self.initFollowings()
-		self.set_post_timer()
-		self.set_follow_timer()
-		self.set_like_timer()
+		self.setTimers()
 		self.write("\t" + self.getAccountName() + " is running.\n")
 		self.status = self.STATUS_RUN
 		self.updateBlogData()
@@ -126,6 +124,15 @@ class Account(object):
 		l4ls = ["like4like","like","likeback","l4l"]
 		tag_pos = random.randint(0, len(l4ls)-1)
 		return l4ls[tag_pos]
+
+
+	def setTimers(self):
+		if self.timer_post > 0:
+			self.set_post_timer()
+		if self.timer_follow > 0:
+			self.set_follow_timer()
+		if self.timer_like > 0:
+			self.set_like_timer()
 
 
 	def set_post_timer(self):
@@ -311,11 +318,12 @@ class Account(object):
 		blogname = self.getAccountName()
 		current_num_followings = self.dbManager.countFollowing(blogname)
 		if current_num_followings != self.data['following']:
-			args = (blogname,)
-			self.dbManager.deleteAll("Following",args)
-			self.getFollowing()
+			following = self.getFollowing()
 		else:
-			self.followingList = self.dbManager.getFollowing(blogname)
+			following = self.dbManager.getFollowing(blogname)
+		args = (blogname,)
+		self.dbManager.deleteAll("Following",args)
+		self.checkFollowingFollowed(following)
 		self.write("Done.\n")
 
 
@@ -334,8 +342,10 @@ class Account(object):
 
 	def getFollowing(self):
 		self.write("\tGet Following List.. ")
-		self.followingList = []
-		following = self.getFollowingsSocial()
+		return self.getFollowingsSocial()
+
+
+	def checkFollowingFollowed(self, following): 
 		blogname = self.getAccountName()
 		counter = 0
 		count_final_str = str(len(following))
