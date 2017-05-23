@@ -392,7 +392,7 @@ class TumblrAccount(Account):
 		followerNames = []
 		while shouldGetNew:
 			try:
-				followers = self.client.followers(blogname,offset=counterFollowers)
+				followers = self.clientInfo.followers(blogname,offset=counterFollowers)
 				if followers['users'] == []:
 					break
 				for follower in followers['users']:
@@ -406,6 +406,7 @@ class TumblrAccount(Account):
 				if numErrors > 30:
 					print ""
 					print msg
+					print followers
 					shouldGetNew = False
 				else: 
 					time.sleep(2)
@@ -425,7 +426,7 @@ class TumblrAccount(Account):
 		followingNames = []
 		while shouldGetNew:
 			try:
-				following = self.client.following(offset=counterFollowing)
+				following = self.clientInfo.following(offset=counterFollowing)
 				if following['blogs'] == []:
 					break
 				for follow in following['blogs']:
@@ -439,6 +440,7 @@ class TumblrAccount(Account):
 				if numErrors > 30:
 					print ""
 					print msg
+					print following
 					shouldGetNew = False
 				else: 
 					time.sleep(2)
