@@ -1,3 +1,4 @@
+import os
 import sys
 
 from SBProg import SBProg
@@ -1516,11 +1517,37 @@ from SBProg import SBProg
 #         print "Global Error."
 #         print e
 
+def removeFilesByExtension(ext):
+	filelist = [ f for f in os.listdir(".") if f.endswith(ext) ]
+	for f in filelist:
+    	os.remove(f)
+
+
+def clean():
+	sys.stdout.write("\tCleaning up directory:\n")
+	sys.stdout.flush()
+	sys.stdout.write("\t    files .pyc -> ")
+	sys.stdout.flush()
+	removeFilesByExtension('.pyc')
+	sys.stdout.write("ok.\n")
+	sys.stdout.flush()
+	sys.stdout.write("\t    database -> ")
+	sys.stdout.flush()
+	removeFilesByExtension('.db')
+	sys.stdout.write("ok.\n")
+	sys.stdout.flush()
+	sys.stdout.write("\n\tCleaning up complete.\nExit. Bye!")
+	sys.stdout.flush()
+	sys.exit(0)
+
+
 if __name__ == '__main__':
     lp = len(sys.argv)
     if lp > 2:
         print("\n\tError: " + str(lp-1) + " params, admitted only 1! Ignored all.\n")
     elif lp > 1:
+    	if(sys.argv[1]=='-clean'):
+ 			clean()
         if(sys.argv[1]=='-f'):
             print("\n\tFast Mode On.\n\tNo sleep char/line.\n")
             program = SBProg(sleepChar=0.0, sleepLine=0.0)
