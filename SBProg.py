@@ -170,7 +170,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		self.canWrite = True
 		try:
 			blog_to_copy = entry.split()[1]
-			my_blog = self.accounts[matches[entry.split()[2]]]
+			my_blog = self.accounts[self.matches[entry.split()[2]]]
 			limit = int(entry.split()[3])
 			counter = int(entry.split()[4])
 			self.write("Creating new thread for copy the blog.. ",True)

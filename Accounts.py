@@ -192,7 +192,7 @@ class Accounts:
 						blog.logAccount()
 				else:
 					try:
-						self.accounts[matches[entry.split()[1]]].logAccount()
+						self.accounts[self.matches[entry.split()[1]]].logAccount()
 					except KeyError, msg:
 						self.write(entry.split()[1] + " is not an existing account!\n",True)
 					
@@ -210,7 +210,7 @@ class Accounts:
 						self.write("Cannot run not available blog! (id: " + blog.strID + ")\n",True)
 			else:
 				try:
-					self.accounts[matches[entry.split()[1]]].runBlog()
+					self.accounts[self.matches[entry.split()[1]]].runBlog()
 				except KeyError, msg:
 					self.write(entry.split()[1] + " is not an existing account!\n",True)
 			if self.canWrite:
@@ -229,7 +229,7 @@ class Accounts:
 				self.timers = {}
 			else: 
 				try:
-					self.accounts[matches[entry.split()[1]]].stopBlog()
+					self.accounts[self.matches[entry.split()[1]]].stopBlog()
 				except KeyError, msg:
 					self.write(entry.split()[1] + " is not an existing blogname!\n",True)
 		except IndexError, msg:

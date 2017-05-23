@@ -153,7 +153,7 @@ class TumblrAccount(Account):
 	def copyBlog(self, blog_to_copy, limitMax, counter):
 		self.write("Done!\nLaunching procedure..\n",True)
 		self.writeln("Start to copy " + blog_to_copy + " in " + self.getAccountName() + "..\n",True)
-		my_account = matches[my_blog]
+		my_account = self.matches[my_blog]
 		total_posts = (self.client.blog_info(blog_to_copy))['blog']['posts']
 		if total_posts > limitMax:
 			total_posts = limitMax
