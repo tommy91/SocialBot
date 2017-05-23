@@ -1524,19 +1524,19 @@ def removeFilesByExtension(ext):
 
 
 def clean():
-	sys.stdout.write("\tCleaning up directory:\n")
+	sys.stdout.write("\nCleaning up directory:\n")
 	sys.stdout.flush()
-	sys.stdout.write("\t    files .pyc -> ")
+	sys.stdout.write("\n    files .pyc -> ")
 	sys.stdout.flush()
 	removeFilesByExtension('.pyc')
 	sys.stdout.write("ok.\n")
 	sys.stdout.flush()
-	sys.stdout.write("\t    database -> ")
+	sys.stdout.write("    database -> ")
 	sys.stdout.flush()
 	removeFilesByExtension('.db')
 	sys.stdout.write("ok.\n")
 	sys.stdout.flush()
-	sys.stdout.write("\n\tCleaning up complete.\nExit. Bye!")
+	sys.stdout.write("\nCleaning up complete.\n\nExit. Bye!\n")
 	sys.stdout.flush()
 	sys.exit(0)
 
