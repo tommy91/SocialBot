@@ -1536,7 +1536,7 @@ def clean():
 	removeFilesByExtension('.db')
 	sys.stdout.write("ok.\n")
 	sys.stdout.flush()
-	sys.stdout.write("\nCleaning up complete.\n\nExit. Bye!\n")
+	sys.stdout.write("\nCleaning up complete.\n\nExit. Bye!\n\n")
 	sys.stdout.flush()
 	sys.exit(0)
 
