@@ -23,7 +23,7 @@ class Accounts:
 		self.lock = sbprog.output.lock
 		self.updateStatistics = sbprog.updateStatistics
 		self.initAccounts()
-		self.updateBlogs()
+		self.updateBlogs(firstTime=True)
 		self.updateBlogsData(firstTime=True)
 		self.synchOperations(firstTime=True)
 
@@ -100,16 +100,19 @@ class Accounts:
 
 	def synchOperations(self, firstTime=False):
 		if firstTime:
-			self.write("Synchronize with online register.. ")
+			self.write("Clean up synchronization register.. ")
 		else:
 			self.write("\tSynchronize with online register.. ")
 		synch_req = post_request({'action': "synch_operations"})
-		if len(synch_req) > 0:
-			self.write("\n")
-			for up_row in synch_req:
-				self.updateData(up_row)
+		if firstTime:
+			self.write("ok\n")
 		else:
-			self.write("already synch!\n")
+			if len(synch_req) > 0:
+				self.write("\n")
+				for up_row in synch_req:
+					self.updateData(up_row)
+			else:
+				self.write("already synch!\n")
 
 
 	def updateData(self, row):
@@ -244,13 +247,13 @@ class Accounts:
 		self.timersTime["update"] = deadline
 
 
-	def updateBlogs(self):
+	def updateBlogs(self, firstTime=False):
 		self.lock.acquire()
 		self.writeln("Update blogs info.\n")
 		for kb,blog in self.accounts.iteritems():
 			blog.updateBlog()
 		self.updateBlogsData()
-		self.synchOperations()
+		self.synchOperations(firstTime)
 		self.updateStatistics()
 		if not self.isTest:
 			self.setUpdateTimer()

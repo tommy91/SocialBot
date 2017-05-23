@@ -24,6 +24,7 @@ class TumblrAccount(Account):
 		super(TumblrAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.token = account['Token']
 		self.token_secret = account['Token_Secret']
+		self.accounts = accounts
 		self.app_account = accounts.app_accounts[str(account['App_Account'])]
 		self.tags = tags2list(tags)
 		self.blogs = blogs2list(blogs)
@@ -135,9 +136,9 @@ class TumblrAccount(Account):
 
 	def updateUpOp(self, newAccount):
 		need_setup_clients = False 
-		if self.app_account != self.app_accounts[str(newAccount['App_Account'])]:
+		if self.app_account != self.accounts.app_accounts[str(newAccount['App_Account'])]:
 			need_setup_clients = True 
-			self.app_account = self.app_accounts[str(newAccount['App_Account'])]
+			self.app_account = self.accounts.app_accounts[str(newAccount['App_Account'])]
 		if self.token != newAccount['Token']:
 			need_setup_clients = True
 			self.token = newAccount['Token']
