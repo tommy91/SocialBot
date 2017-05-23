@@ -98,7 +98,7 @@ class TumblrAccount(Account):
 					self.data['username'] = response["user"]["name"]
 					self.data['blogname'] = response["user"]["blogs"][0]["name"]
 					self.data['url'] = response["user"]["blogs"][0]["url"]
-					self.accounts.matches[response["user"]["blogs"][0]["name"]] = self.account_id
+					self.accounts.matches[response["user"]["blogs"][0]["name"]] = self.strID
 			else:
 				self.write("Error: cannot update " + self.getAccountName() + ".\n")
 		except ServerNotFoundError,msg:
