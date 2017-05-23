@@ -160,6 +160,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			up_stat = post_request(post_data_stats)
 			if up_stat == None:
 				self.write("Error: Update stats NOT ok (None up_stat)\n")
+			else:
+				if firstTime:
+					self.write("ok!\n")
 		except KeyError, msg:
 			print "KeyError on Update stats:"
 			print str(msg)
