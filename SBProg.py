@@ -121,9 +121,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		self.canWrite = True
 		self.write("List of commands:\n",True)
 		self.write("   - 'help': for list of instructions\n",True)
+		self.write("   - 'clean': clean directory\n",True)
+		self.write("   - 'f': fast print\n",True)
 		self.write("   - 'changeSpeed': for changing printing text speed\n",True)
 		self.write("   - 'copy blog_to_copy my_blog': for copy an entire blog\n",True)
-		self.write("   - 'dbm': for open database manager console\n",True)
 		self.write("   - 'run': for run a/all blog(s)\n",True)
 		self.write("   - 'stop': for stop a/all blog(s)\n",True)
 		self.write("   - 'quit': for quit\n",True)
