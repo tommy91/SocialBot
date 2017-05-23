@@ -24,8 +24,6 @@ class Accounts:
 		self.updateStatistics = sbprog.updateStatistics
 		self.initAccounts()
 		self.updateBlogs(firstTime=True)
-		self.updateBlogsData(firstTime=True)
-		self.synchOperations(firstTime=True)
 
 
 	def initAccounts(self):
@@ -252,7 +250,7 @@ class Accounts:
 		self.writeln("Update blogs info.\n")
 		for kb,blog in self.accounts.iteritems():
 			blog.updateBlog()
-		self.updateBlogsData()
+		self.updateBlogsData(firstTime)
 		self.synchOperations(firstTime)
 		self.updateStatistics()
 		if not self.isTest:
