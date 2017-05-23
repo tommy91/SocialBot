@@ -337,8 +337,12 @@ class Account(object):
 		self.followingList = []
 		following = self.getFollowingsSocial()
 		blogname = self.getAccountName()
+		counter = 0
+		count_final_str = str(len(following))
 		while following != []:
 			follow = following.pop()
+			counter += 1
+			self.write("\r\tCheck following " + str(counter) + "/" + count_final_str)
 			if follow in self.followersList:
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:

@@ -259,8 +259,10 @@ class InstagramAccount(Account):
 		num_following_blogs = len(self.blogs)
 		if num_following_blogs >= num_follows:
 			followXblog = 1
-		else:
+		elif num_following_blogs > 0:
 			followXblog = int(num_follows/num_following_blogs)+1
+		else:
+			followXblog = 0
 		self.write("\t      Getting follows..\n")
 		for blog in self.blogs:
 			counter = 0

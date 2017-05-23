@@ -437,6 +437,7 @@ class TumblrAccount(Account):
 					shouldGetNew = False
 				else: 
 					time.sleep(2)
+		print ""
 		if numErrors > 30:
 			self.write("Error! (> 30 errors)\n")
 		else:
