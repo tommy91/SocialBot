@@ -165,6 +165,7 @@ class InstagramAccount(Account):
 				self.data['name'] = ibi['name']
 				self.data['posts'] = ibi['post']
 				self.data['usertags'] = ibi['usertags']
+				self.accounts.matches[ibi['name']] = self.account_id
 			else:
 				self.write("Error: cannot update " + self.getAccountName() + ".\n")
 		except Exception, msg:
