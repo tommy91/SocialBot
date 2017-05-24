@@ -89,9 +89,9 @@ class Accounts:
 
 	def updateBlogsData(self, firstTime=False):
 		if firstTime:
-			self.write("Update Blogs:\n")
+			self.write("Update Blogs to DB:\n")
 		else: 
-			self.writeln("Update Blogs:\n")
+			self.write("\tUpdate Blogs to DB:\n")
 		for key, blog in self.accounts.iteritems():
 			blog.updateBlogData()
 
@@ -247,14 +247,15 @@ class Accounts:
 
 	def updateBlogs(self, firstTime=False):
 		self.lock.acquire()
-		self.writeln("Update blogs info.\n")
+		self.writeln("Update blogs info..\n")
+		self.write("Update social data:\n")
 		for kb,blog in self.accounts.iteritems():
 			blog.updateBlog()
 		self.updateBlogsData(firstTime)
 		self.synchOperations(firstTime)
-		self.updateStatistics()
 		if not self.isTest:
 			self.setUpdateTimer()
+		self.updateStatistics(firstTime)
 		self.lock.release()
 
 

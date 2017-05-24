@@ -186,5 +186,36 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 
 	def testConnectedBlogs(self):
-		pass
-
+		self.write("\nBegin testing code:\n")
+		for key, account in self.accounts.accounts.iteritems():
+			# run
+			account.lock.acquire()
+			prevCanWrite = account.canWrite
+			account.canWrite = True
+			account.checkData()
+			account.updateBlog()
+			account.initFollowers()
+			account.initFollowings()
+			account.write("\t" + account.getAccountName() + " is running.\n")
+			account.status = account.STATUS_RUN
+			account.updateBlogData()
+			account.updateStatistics()
+			account.canWrite = prevCanWrite
+			account.lock.release()
+			# execute
+			if account.account_type == 1:
+				account.post(num_posts=1)
+			account.follow(num_follows=1, isDump=True)
+			account.like(num_likes=1, isDump=True)
+			# stop
+			account.lock.acquire()
+			prevCanWrite = account.canWrite
+			account.canWrite = True
+			account.writeln("Stop " + account.getAccountName() + ".. \n")
+			account.status = account.STATUS_STOP
+			account.updateBlogData()
+			account.updateStatistics()
+			account.write("\t" + account.getAccountName() + " stopped.\n")
+			account.canWrite = prevCanWrite
+			account.lock.release()
+		self.write("\nEnd testing code.\n")

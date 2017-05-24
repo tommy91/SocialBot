@@ -261,34 +261,72 @@ class DbManager:
 		if fields != None:
 			return self.execute_get('SELECT ' + fields + ' FROM ' + tableName, silent, tableName)
 		else:
-			return self.execute_get('SELECT * FROM ' + tableName, silent, tableName)
+			return self.execute_get_all('SELECT * FROM ' + tableName, silent, tableName)
 
 
 	def getPosts(self, blogname, limit, silent=True):
-		return self.execute_get('SELECT * FROM PostsLikes WHERE myBlog = "' + blogname + '" GROUP BY id ORDER BY time LIMIT ' + str(limit), silent, "PostsLikes")
+		return self.execute_get_all('SELECT * FROM PostsLikes WHERE myBlog = "' + blogname + '" GROUP BY id ORDER BY time LIMIT ' + str(limit), silent, "PostsLikes")
 
 
 	def getFollows(self, blogname, limit=None, silent=True):
 		if limit == None:
-			return self.execute_get('SELECT sourceBlog FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time ', silent, "Follow")
+			return self.execute_get_one('SELECT sourceBlog FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time ', silent, "Follow")
 		else:
-			return self.execute_get('SELECT sourceBlog FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time LIMIT ' + str(limit), silent, "Follow")
+			return self.execute_get_one('SELECT sourceBlog FROM Follow WHERE myBlog = "' + blogname + '" GROUP BY sourceBlog ORDER BY time LIMIT ' + str(limit), silent, "Follow")
 
 
 	def getFollowing(self, blogname, silent=True):
-		return self.execute_get('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" ORDER BY isFollowingBack, time', silent, "Following")
+		return self.execute_get_one('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" ORDER BY isFollowingBack, time', silent, "Following")
 
 
 	def getFstats(self, blogname, followedBlog, silent=True):
-		return self.execute_get('SELECT * FROM Fstats WHERE myBlog = "' + blogname + '" AND followedBlog = "' + followedBlog + '"', silent, "Fstats")
+		return self.execute_get_all('SELECT * FROM Fstats WHERE myBlog = "' + blogname + '" AND followedBlog = "' + followedBlog + '"', silent, "Fstats")
 
 
 	def getFollowingTrash(self, blogname, time, silent=True):
-		return self.execute_get('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" AND time<=' + time + ' AND NOT isFollowingBack', silent, "Following")
+		return self.execute_get_one('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" AND time<=' + time + ' AND NOT isFollowingBack', silent, "Following")
 
 
 	def getFstatsTrash(self, blogname, time, silent=True):
-		return self.execute_get('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time, silent, "Fstats")
+		return self.execute_get_one('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time, silent, "Fstats")
+
+
+	def execute_get_all(self, query, silent, tableName):
+		db = self.connectDB(silent)
+		c = db.cursor()
+		if not silent:
+			self.write("\tDownload data from " + tableName + " database.. ")
+		c.execute(query)
+		if not silent:
+			self.write("done!\n")
+		results = c.fetchall()
+		columns = c.description
+		col_names = []
+		for column in columns:
+			name, nk1, nk2, nk3, nk4, nk5, nk6 = column
+			col_names.append(name)
+		response = []
+		for result in results:
+			row = {}
+			for count in range(0,len(col_names)):
+				row[col_names[count]] = result[count]
+			response.append(row)
+		self.disconnectDB(db,silent)
+		return response
+
+
+	def execute_get_one(self, query, silent, tableName):
+		db = self.connectDB(silent)
+		db.row_factory = lambda cursor, row: row[0]
+		c = db.cursor()
+		if not silent:
+			self.write("\tDownload data from " + tableName + " database.. ")
+		c.execute(query)
+		if not silent:
+			self.write("done!\n")
+		result = c.fetchall()
+		self.disconnectDB(db,silent)
+		return result
 
 
 	def execute_get(self, query, silent, tableName):
@@ -317,7 +355,7 @@ class DbManager:
 		self.updateAll('Following', args, silent = silent)
 
 
-	def setFollowingFollowed(self, blogname, follower, isFollowingBack):
+	def setFollowingFollowed(self, blogname, follower, isFollowingBack, silent = True):
 		args = (isFollowingBack, blogname, follower)
 		self.update('Following', args, silent = silent)
 

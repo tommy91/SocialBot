@@ -136,13 +136,16 @@ if (isset($_POST['action'])) {
         $messages = intval($_POST['Messages']);
         $name = $_POST['Name'];
         $private = $_POST['Private'];
-        $usertags = $_POST['Usertags'];
+        $usertags = intval($_POST['Usertags']);
 
-        $query = "";
-        if(isset($_POST['Deadline_Post']))
-            $query = "UPDATE sb_my_accounts SET Name='".$name."', Following=".$following.", Followers=".$followers.", Posts=".$posts.", Messages=".$messages.", Private=".$private.", Usertags=".$usertags.", Deadline_Post='".$_POST['Deadline_Post']."', Deadline_Like='".$_POST['Deadline_Like']."', Deadline_Follow='".$_POST['Deadline_Follow']."' WHERE ID=".$id;
-        else    
-            $query = "UPDATE sb_my_accounts SET Name='".$name."', Following=".$following.", Followers=".$followers.", Posts=".$posts.", Messages=".$messages.", Private=".$private.", Usertags=".$usertags." WHERE ID=".$id;
+        $query = "UPDATE sb_my_accounts SET Name='".$name."', Following=".$following.", Followers=".$followers.", Posts=".$posts.", Messages=".$messages.", Private=".$private.", Usertags=".$usertags;
+        if (isset($_POST['Deadline_Post']))
+            $query .= ", Deadline_Post='".$_POST['Deadline_Post']."'";
+        if (isset($_POST['Deadline_Like']))
+            $query .= ", Deadline_Like='".$_POST['Deadline_Like']."'";
+        if (isset($_POST['Deadline_Follow']))
+            $query .= ", Deadline_Follow='".$_POST['Deadline_Follow']."'";
+        $query .= " WHERE ID=".$id;
         $result = $data->query($query);
         $fetch_result = fetchUpDelAndReturn($result);
         if(!array_key_exists('Error', $fetch_result)) {
@@ -602,7 +605,7 @@ if (isset($_POST['action'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
         $postID = $_POST['postID'];
-        echo json_encode(fetchInstaResult(like_insta($username,$password,$user,$postID)));
+        echo json_encode(fetchInstaResult(like_insta($username,$password,$postID)));
     }
 
     if($request == "getHashtagFeed_insta") {

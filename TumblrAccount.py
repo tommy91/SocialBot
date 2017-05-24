@@ -16,8 +16,12 @@ class TumblrAccount(Account):
 
 	client = None
 	clientInfo = None
+	
 	percF4F = 1/float(2)
 	percNotF4F = 1/float(2)
+
+	MAX_NUM_ERRORS = 40
+	SLEEP_TIME = 25
 
 
 	def __init__(self, accounts, account, tags, blogs):
@@ -85,6 +89,10 @@ class TumblrAccount(Account):
 
 
 	def updateBlog(self):
+		if self.getAccountName() != "not available":
+			self.write("\tUpdate " + self.getAccountName() + ".. ")
+		else:
+			self.write("\tUpdate " + self.mail + ".. ")
 		try:
 			response = self.clientInfo.info()
 			if self.checkResponse(response):
@@ -99,14 +107,15 @@ class TumblrAccount(Account):
 					self.data['blogname'] = response["user"]["blogs"][0]["name"]
 					self.data['url'] = response["user"]["blogs"][0]["url"]
 					self.accounts.matches[response["user"]["blogs"][0]["name"]] = self.strID
+				self.write("ok.\n")
 			else:
-				self.write("Error: cannot update " + self.getAccountName() + ".\n")
+				self.write("Error: cannot update.\n")
 		except ServerNotFoundError,msg:
-			self.write("\tUpdate Error: " + str(msg) + "\n")
+			self.write("ServerNotFoundError:\n" + str(msg) + "\n")
 		except socket.error, msg:
-			self.write("\tUpdate Error: " + str(msg) + "\n")
+			self.write("SocketError:\n" + str(msg) + "\n")
 		except Exception, msg:
-			self.write("\tUpdate Error on client.info(): " + str(msg) + "\n")
+			self.write("Error Exception on client.info():\n" + str(msg) + "\n")
 
 
 	def updateBlogData(self):
@@ -130,6 +139,7 @@ class TumblrAccount(Account):
 			post_data_up["Deadline_Like"] = self.timersTime[self.strID + "-like"]
 		up_res = post_request(post_data_up)
 		if up_res != None:
+			self.write("update status.. ")
 			self.updateStatus()
 			self.write("end of update.\n")
 
@@ -295,6 +305,9 @@ class TumblrAccount(Account):
 		try:
 			while counter < num_tags:
 				response = self.clientInfo.tagged(tag,before=timestamp)
+				if response == []:
+					write("null response\n")
+					break
 				for post in response:
 					try:
 						if not post['followed']:
@@ -346,6 +359,7 @@ class TumblrAccount(Account):
 				self.write("\r\tfollowed " + str(counter) + "/" + str(num_follows))
 			except Exception,msg:
 				self.write("\n\tError: exception on " + blogname + " following\n")
+		print ""
 		return counter
 
 
@@ -358,8 +372,8 @@ class TumblrAccount(Account):
 		self.client.unfollow(blog2unfollow)
 
 
-	def likeSocial(self, num_likes):
-		tag = self.random_tag()
+	def likeSocial(self, num_likes, isDump):
+		tag = self.randomTag()
 		try:
 			response = self.getTaggedTumblr(tag)
 			counter = 0
@@ -390,6 +404,7 @@ class TumblrAccount(Account):
 		numErrors = 0
 		blogname = self.getAccountName()
 		followerNames = []
+		old_total_users = 0
 		while shouldGetNew:
 			try:
 				followers = self.clientInfo.followers(blogname,offset=counterFollowers)
@@ -398,20 +413,22 @@ class TumblrAccount(Account):
 				for follower in followers['users']:
 					counterFollowers += 1
 					followerNames.append(follower['name'])
+				old_total_users = followers['total_users']
 				if counterFollowers >= followers['total_users']:
 					shouldGetNew = False
-				self.write("\r\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " (Errors: " + str(numErrors) + ")")
+				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
-				if numErrors > 30:
+				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
+				if numErrors > self.MAX_NUM_ERRORS:
 					print ""
 					print msg
 					print followers
 					shouldGetNew = False
 				else: 
-					time.sleep(2)
-		if numErrors > 30:
-			self.write("Error! (> 30 errors)\n")
+					time.sleep(self.SLEEP_TIME)
+		if numErrors > self.MAX_NUM_ERRORS:
+			self.write("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
 		else:
 			self.write("\n")
 		return followerNames
@@ -424,6 +441,7 @@ class TumblrAccount(Account):
 		numErrors = 0
 		blogname = self.getAccountName()
 		followingNames = []
+		old_total_blogs = 0
 		while shouldGetNew:
 			try:
 				following = self.clientInfo.following(offset=counterFollowing)
@@ -432,20 +450,22 @@ class TumblrAccount(Account):
 				for follow in following['blogs']:
 					counterFollowing += 1
 					followingNames.append(follow['name'])
+				old_total_blogs = following['total_blogs']
 				if counterFollowing >= following['total_blogs']:
 					shouldGetNew = False
-				self.write("\r\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " (Errors: " + str(numErrors) + ")")
+				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
-				if numErrors > 30:
+				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
+				if numErrors > self.MAX_NUM_ERRORS:
 					print ""
 					print msg
 					print following
 					shouldGetNew = False
 				else: 
-					time.sleep(2)
-		if numErrors > 30:
-			self.write("Error! (> 30 errors)\n")
+					time.sleep(self.SLEEP_TIME)
+		if numErrors > self.MAX_NUM_ERRORS:
+			self.write("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
 		else:
 			self.write("\n")
 		return followingNames

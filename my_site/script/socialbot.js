@@ -136,17 +136,17 @@ function status2int(status) {
 
 
 function setNewStatus(elem, status) {
-    if (status2int(status) == 0) {
+    if (status == 0) {
         elem.attr('src','img/red_status.png');
         elem.attr('status','red');
         elem.attr('alt', 'Red Status');
     }
-    else if (status2int(status) == 1) {
+    else if (status == 1) {
         elem.attr('src','img/green_status.png');
         elem.attr('status','green');
         elem.attr('alt', 'Green Status');
     }
-    else if (status2int(status) == 2) {
+    else if (status == 2) {
         elem.attr('src','img/yellow_status.png');
         elem.attr('status','yellow');
         elem.attr('alt', 'Yellow Status');
