@@ -46,7 +46,7 @@ function lftpSynch {
 	user $USERNAME $PASSWORD
 	set ftp:ssl-allow no
 	set net:reconnect-interval-base 1
-	mirror --reverse --delete --verbose $SOURCE $TARGET
+	mirror -R --reverse --delete --verbose $SOURCE $TARGET
 	bye
 	"
 	printf "Done.\n\n"
@@ -84,7 +84,7 @@ function synchData {
 }
 
 function changePermissions {
-	printf "\nChange all folder permissions.. "
+	printf "Change all folder permissions.. "
 	chmod -R 755 my_site
 	printf "ok\n\n"
 }
