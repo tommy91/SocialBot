@@ -5,3 +5,5 @@
 pytumblr/
 my_site/vendor/
 my_site/composer.lock
+dump/
+logs/

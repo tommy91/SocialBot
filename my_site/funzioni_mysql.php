@@ -1,5 +1,7 @@
 <?php
 
+require_once 'logManager.php';
+
 class MysqlClass {
 
     // parametri per la connessione al database
@@ -12,6 +14,7 @@ class MysqlClass {
     //funzione per l'esecuzione delle query 
     public function query($sql) {
         if (isset($this->attiva)) {
+            logQuery($sql);
             $sql = mysql_query($sql) or die(json_encode(array('Error' => mysql_error())));
             return array('Result' => $sql);
         } else {
@@ -59,6 +62,7 @@ class MysqlClass {
             }
             $v = implode(',', $v);
             $istruzione .= ' VALUES (' . $v . ')';
+            logQuery($istruzione);
             $query = mysql_query($istruzione) or die(mysql_error());
             if (!$query)
                 return mysql_error();

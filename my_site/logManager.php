@@ -2,11 +2,11 @@
 
 function logQuery($q) {
     $log = date("Y/m/d h:i:sa") . " -> " . $q . "\r\n";
-    file_put_contents('log.txt', $log, FILE_APPEND | LOCK_EX);
+    file_put_contents('log.log', $log, FILE_APPEND | LOCK_EX);
 }
 
 function readLog() {
-	$content = file_get_contents('log.txt');
+	$content = file_get_contents('log.log');
 	$lines =  explode(PHP_EOL,$content);
 	foreach ($lines as $line) {
 		printLine($line);
