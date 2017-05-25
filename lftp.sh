@@ -4,7 +4,7 @@
 # for Ubuntu use: 	sudo apt-get install lftp
 
 TARGET='BASE_DIRECTORY/'
-SOURCE='my_site/'
+SOURCE='my_site'
 TRAGET_LOG='/BASE_DIRECTORY'
 FILE_LOG='log.log'
 FILE_LOG_ESCAPED="log.log"
@@ -46,7 +46,8 @@ function lftpSynch {
 	user $USERNAME $PASSWORD
 	set ftp:ssl-allow no
 	set net:reconnect-interval-base 1
-	mirror -R --reverse --delete --verbose $SOURCE $TARGET
+	mirror -R --delete --verbose $SOURCE $TARGET
+	chmod -R 0775 $TARGET
 	bye
 	"
 	printf "Done.\n\n"
