@@ -65,7 +65,7 @@ function checkLocalDir {
 function synchData {
 	echo "Get server log before update.. "
 	checkLocalDir
-	echo "Check if log file exists.. "
+	printf "Check if log file exists.. "
 	if ftpls | grep $FILE_LOG_ESCAPED; then
 		echo "here it is :)"
 		printf "Download log.. "
