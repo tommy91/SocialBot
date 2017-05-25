@@ -39,6 +39,7 @@ END_SCRIPT
 }
 
 function lftpSynch {
+	changePermissions
 	echo "Updating files on remote server.. "
 	lftp -f "
 	open $HOSTNAME
@@ -80,6 +81,12 @@ function synchData {
 		printf "doesn't exist!\n\n"
 	fi
 	lftpSynch
+}
+
+function changePermissions {
+	printf "\nChange all folder permissions.. "
+	chmod -R 755 my_site
+	printf "ok\n\n"
 }
 
 printf "\nHi Uploader!\n\n"
