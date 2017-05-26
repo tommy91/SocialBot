@@ -9,9 +9,9 @@ class Accounts:
 	TYPE_TUMBLR = 1
 	TYPE_INSTAGRAM = 2
 
-	ADD_OPERATION = 0
-	DELETE_OPERATION = 1
-	UPDATE_OPERATION = 2
+	ADD_OPERATION = '0'
+	DELETE_OPERATION = '1'
+	UPDATE_OPERATION = '2'
 
 	def __init__(self, sbprog):
 		self.app_accounts = {}
