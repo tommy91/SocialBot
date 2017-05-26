@@ -143,7 +143,7 @@ class Accounts:
 				newBlogs = post_request({"action": "get_blogs", "id": id_blog})
 				self.addAccount(newMyAccount[0], newTags, newBlogs)
 				self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
-				if newMyAccount[0]['status'] == self.accounts[str(id_blog)].STATUS_RUN:
+				if newMyAccount[0]['State'] == self.accounts[str(id_blog)].STATUS_RUN:
 					self.accounts[str(id_blog)].runBlog()
 			else:
 				self.write("\t\t   Error: received empty list when try to get account!\n")

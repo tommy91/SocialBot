@@ -86,7 +86,7 @@ class Account(object):
 			self.write("ok\n")
 		else:
 			self.write("\t\t    No need to setup new timers!\n")
-		if int(newAccount['Status']) > self.STATUS_RUN:
+		if int(newAccount['State']) > self.STATUS_RUN:
 			if self.status == self.STATUS_STOP:
 				self.write("\t\t    Need to run the blog:\n")
 				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
