@@ -153,7 +153,7 @@ class Accounts:
 			self.write("\t\t    removing dependencies for the app account:\n")
 			for key, blog in self.accounts:
 				if blog.app_account == id_blog:
-					if blog.status = blog.STATUS_RUN:
+					if blog.status == blog.STATUS_RUN:
 						blog.stopBlog()
 					self.write("\t\t        cleaning '" + blog.getAccountName() + "'.. ")
 					blog.app_account = None
