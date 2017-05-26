@@ -70,7 +70,7 @@ def post_request(post_data):
 	try:
 		return send_and_check_request(post_data)
 	except HTTPError as e:
-		print e
+		self.write(str(e) + "\n")
 		return None
 
 
@@ -81,21 +81,21 @@ def send_and_check_request(post_data):
 			try:
 				parsed = resp.json()
 				if 'Error' in parsed:
-					print "Error: " + str(parsed['Error'])
+					self.write("Error: " + str(parsed['Error']) + "\n")
 					return None
 				else:
 					return parsed['Result']
 			except ValueError as e:
-				print "ValueError:"
-				print resp.content
+				self.write("ValueError:\n")
+				self.write(str(resp.content) + "\n")
 				return None
 		else:
 			resp.raise_for_status()
 	except ConnectionError as e:
-		print "ConnectionError:"
-		print e
+		self.write("ConnectionError:\n")
+		self.write(str(e) + "\n")
 		return None 
 	except Timeout as e:
-		print "Timeout Error:"
-		print e
+		self.write("Timeout Error:\n")
+		self.write(str(e) + "\n")
 		return None

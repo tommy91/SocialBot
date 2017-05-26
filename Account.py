@@ -246,12 +246,12 @@ class Account(object):
 			num_posts = self.num_post_xt
 		posts = self.dbManager.getPosts(blogname,num_posts)
 		if isDump:
-			print posts 
+			self.write(str(posts) + "\n") 
 		counter = 0
 		for post in posts:
 			try:
 				if isDump:
-					print post 
+					self.write(str(post) + "\n") 
 				self.postSocial(post)
 				args = (post['id'],blogname)
 				self.dbManager.delete("PostsLikes",args)
@@ -410,7 +410,7 @@ class Account(object):
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
 			self.dbManager.add("Following", args)
-		print ""
+		self.write("\n")
 		self.followingList = self.dbManager.getFollowing(blogname)
 
 

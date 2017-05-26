@@ -290,7 +290,7 @@ class InstagramAccount(Account):
 					self.addFollowToDB(follow)
 					counter += 1
 					self.write("\r\t         from " + blog + ".. " + str(counter))
-			print ""
+			self.write("\n")
 			self.waitInsta(little=True)
 		if len(self.tags) > 0:
 			tag = self.randomTag()
@@ -322,9 +322,9 @@ class InstagramAccount(Account):
 						counterComments += 1
 						self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 				self.waitInsta(little=True)
-			print ""
+			self.write("\n")
 		else:
-			print "\t         No Tags inserted.. cannot get new follows!"
+			self.write("\t         No Tags inserted.. cannot get new follows!\n")
 
 
 	def postSocial(self, post):
@@ -369,7 +369,7 @@ class InstagramAccount(Account):
 					self.followAndRandomLike(follow, isDump, isF4F = True)
 					num_f4frl += 1
 			self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows) + " ( " + str(errors) + " errors )")
-		print ""
+		self.write("\n")
 
 
 	def getNewFollowFromDB(self, alreadyFollowed):
@@ -422,10 +422,10 @@ class InstagramAccount(Account):
 	def followAndRandomLike(self, follow, isDump, isF4F = False):
 		if isDump:
 			if isF4F:
-				print "f4f and random like:"
+				self.write("f4f and random like:\n")
 			else:
-				print "follow and random like:"
-			print follow 
+				self.write("follow and random like:\n")
+			self.write(str(follow) + "\n") 
 		self.followInsta(follow)
 		self.randomMediaLikeInsta(follow)
 		if isF4F:
@@ -438,10 +438,10 @@ class InstagramAccount(Account):
 	def justFollow(self, follow, isDump, isF4F = False):
 		if isDump:
 			if isF4F:
-				print "just f4f:"
+				self.write("just f4f:\n")
 			else:
-				print "just follow:"
-			print follow 
+				self.write("just follow:\n")
+			self.write(str(follow) + "\n")
 		self.followInsta(follow)
 		if isF4F:
 			self.addStatistics(follow, 'f4f')
@@ -525,7 +525,7 @@ class InstagramAccount(Account):
 				self.randomLike(user, isDump)
 				num_rl += 1
 			self.write("\r\t" + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl of " + str(num_likes))
-		print ""
+		self.write("\n")
 
 
 	def justLike(self, media, isDump, isL4L = False):
@@ -649,34 +649,34 @@ class InstagramAccount(Account):
 
 
 	def logAccount(self):
-		print "\nLog information for " + self.getAccountName() + ":"
-		print "ID: " + str(self.account_id)
-		print "strID: " + self.strID
-		print "mail: " + self.mail
-		print "type: " + str(self.account_type) 
-		print "username: " + self.username
-		print "password: " + self.password
-		print "tags: "
+		self.write("\nLog information for " + self.getAccountName() + ":\n")
+		self.write("ID: " + str(self.account_id) + "\n")
+		self.write("strID: " + self.strID + "\n")
+		self.write("mail: " + self.mail + "\n")
+		self.write("type: " + str(self.account_type) + "\n")
+		self.write("username: " + self.username + "\n")
+		self.write("password: " + self.password + "\n")
+		self.write("tags:\n")
 		for tag in self.tags:
-			print "\t" + tag
-		print "blogs: "
+			self.write("\t" + tag + "\n")
+		self.write("blogs:\n")
 		for blog in self.blogs:
-			print "\t" + blog
-		print "private: " + str(self.data['private'])
-		print "following: " + str(self.data['following'])
-		print "followers: " + str(self.data['followers'])
-		print "messages: " + str(self.data['messages'])
-		print "name: " + self.data['name']
-		print "posts: " + str(self.data['posts'])
-		print "usertags: " + str(self.data['usertags'])
-		# print "url: " + self.data['url'] 
-		print "num_post_xd: " + str(self.num_post_xd)
-		print "num_follow_xd: " + str(self.num_follow_xd)
-		print "num_like_xd: " + str(self.num_like_xd)
-		print "num_post_xt: " + str(self.num_post_xt)
-		print "num_follow_xt: " + str(self.num_follow_xt)
-		print "num_like_xt: " + str(self.num_like_xt)
-		print "status: " + str(self.status)
+			self.write("\t" + blog + "\n")
+		self.write("private: " + str(self.data['private']) + "\n")
+		self.write("following: " + str(self.data['following']) + "\n")
+		self.write("followers: " + str(self.data['followers']) + "\n")
+		self.write("messages: " + str(self.data['messages']) + "\n")
+		self.write("name: " + self.data['name'] + "\n")
+		self.write("posts: " + str(self.data['posts']) + "\n")
+		self.write("usertags: " + str(self.data['usertags']) + "\n")
+		# self.write("url: " + self.data['url'] + "\n")
+		self.write("num_post_xd: " + str(self.num_post_xd) + "\n")
+		self.write("num_follow_xd: " + str(self.num_follow_xd) + "\n")
+		self.write("num_like_xd: " + str(self.num_like_xd) + "\n")
+		self.write("num_post_xt: " + str(self.num_post_xt) + "\n")
+		self.write("num_follow_xt: " + str(self.num_follow_xt) + "\n")
+		self.write("num_like_xt: " + str(self.num_like_xt) + "\n")
+		self.write("status: " + str(self.status) + "\n")
 
 
 

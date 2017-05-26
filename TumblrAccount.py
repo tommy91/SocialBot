@@ -365,11 +365,11 @@ class TumblrAccount(Account):
 
 	def followSocialBlogs(self, toFollow, blogname, isDump, counter, num_follows):
 		if isDump:
-			print toFollow
+			self.write(str(toFollow) + "\n")
 		for follow in toFollow:
 			try:
 				if isDump:
-					print follow
+					self.write(str(follow) + "\n")
 				self.followTumblr(follow)
 				args = (follow,blogname)
 				self.dbManager.delete("Follow",args)
@@ -377,7 +377,7 @@ class TumblrAccount(Account):
 				self.write("\r\tfollowed " + str(counter) + "/" + str(num_follows))
 			except Exception,msg:
 				self.write("\n\tError: exception on " + blogname + " following\n")
-		print ""
+		self.write("\n")
 		return counter
 
 
@@ -439,9 +439,9 @@ class TumblrAccount(Account):
 				numErrors += 1
 				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					print ""
-					print msg
-					print followers
+					self.write("\n")
+					self.write(str(msg) + "\n")
+					self.write(str(followers) + "\n")
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
@@ -476,9 +476,9 @@ class TumblrAccount(Account):
 				numErrors += 1
 				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					print ""
-					print msg
-					print following
+					self.write("\n")
+					self.write(str(msg) + "\n")
+					self.write(str(following) + "\n")
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
@@ -494,34 +494,34 @@ class TumblrAccount(Account):
 
 
 	def logAccount(self):
-		print "\nLog information for " + self.getAccountName() + ":"
-		print "ID: " + str(self.account_id)
-		print "strID: " + self.strID
-		print "mail: " + self.mail
-		print "type: " + str(self.account_type) 
-		print "token: " + self.token
-		print "token_secret: " + self.token_secret
-		print "app_account: " + str(self.app_account)
-		print "tags: "
+		self.write("\nLog information for " + self.getAccountName() + ":\n")
+		self.write("ID: " + str(self.account_id) + "\n")
+		self.write("strID: " + self.strID + "\n")
+		self.write("mail: " + self.mail + "\n")
+		self.write("type: " + str(self.account_type) + "\n")
+		self.write("token: " + self.token + "\n")
+		self.write("token_secret: " + self.token_secret + "\n")
+		self.write("app_account: " + str(self.app_account) + "\n")
+		self.write("tags:\n")
 		for tag in self.tags:
-			print "\t" + tag
-		print "blogs: "
+			self.write("\t" + tag + "\n")
+		self.write("blogs:\n")
 		for blog in self.blogs:
-			print "\t" + blog
-		print "likes: " + str(self.data['likes'])
-		print "following: " + str(self.data['following'])
-		print "followers: " + str(self.data['followers'])
-		print "messages: " + str(self.data['messages'])
-		print "posts: " + str(self.data['posts'])
-		print "queue: " + str(self.data['queue'])
-		print "username: " + self.data['username']
-		print "blogname: " + self.data['blogname']
-		print "url: " + self.data['url'] 
-		print "num_post_xd: " + str(self.num_post_xd)
-		print "num_follow_xd: " + str(self.num_follow_xd)
-		print "num_like_xd: " + str(self.num_like_xd)
-		print "num_post_xt: " + str(self.num_post_xt)
-		print "num_follow_xt: " + str(self.num_follow_xt)
-		print "num_like_xt: " + str(self.num_like_xt)
-		print "status: " + str(self.status)
+			self.write("\t" + blog + "\n")
+		self.write("likes: " + str(self.data['likes']) + "\n")
+		self.write("following: " + str(self.data['following']) + "\n")
+		self.write("followers: " + str(self.data['followers']) + "\n")
+		self.write("messages: " + str(self.data['messages']) + "\n")
+		self.write("posts: " + str(self.data['posts']) + "\n")
+		self.write("queue: " + str(self.data['queue']) + "\n")
+		self.write("username: " + self.data['username'] + "\n")
+		self.write("blogname: " + self.data['blogname'] + "\n")
+		self.write("url: " + self.data['url'] + "\n")
+		self.write("num_post_xd: " + str(self.num_post_xd) + "\n")
+		self.write("num_follow_xd: " + str(self.num_follow_xd) + "\n")
+		self.write("num_like_xd: " + str(self.num_like_xd) + "\n")
+		self.write("num_post_xt: " + str(self.num_post_xt) + "\n")
+		self.write("num_follow_xt: " + str(self.num_follow_xt) + "\n")
+		self.write("num_like_xt: " + str(self.num_like_xt) + "\n")
+		self.write("status: " + str(self.status) + "\n")
 

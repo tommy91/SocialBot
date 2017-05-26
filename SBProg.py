@@ -35,14 +35,14 @@ class SBProg:
 		self.canWrite = self.output.canWrite
 		self.printHello()
 		if not self.tryConnectToRemoteServer():
-			print "Closing.. bye."
+			self.write("Closing.. bye.\n")
 		self.dbManager = DbManager(self.output)
 		self.tryConnectDB()
 		self.mainBOT()
 		self.newEntry()
 		# except Exception, e:
-		# 	print "Global Error."
-		# 	print e
+		# 	self.write("Global Error.\n")
+		# 	self.write(str(e) + "\n")
 
 
 	def printHello(self):
@@ -56,7 +56,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		self.write("Trying connecting to server online.. ")
 		resp = post_request({"action": "server_alive"})
 		if resp != None:
-			print "ok"
+			self.write("ok\n")
 			return True
 		else:
 			return False
@@ -164,8 +164,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 				if firstTime:
 					self.write("ok!\n")
 		except KeyError, msg:
-			print "KeyError on Update stats:"
-			print str(msg)
+			self.write("KeyError on Update stats:\n")
+			self.write(str(msg) + "\n")
 
 
 	def copyBlog(self, entry):
