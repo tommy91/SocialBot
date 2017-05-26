@@ -131,16 +131,22 @@ class Accounts:
 	def updateAddOp(self, table, id_blog):
 		if table == "sb_app_accounts":
 			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
-			self.addAppAccount(newAppAccount)
-			self.write("\t\tCreated new " + self.app_accounts[str(id_blog)].getSocialName() + " app account: '" + self.app_accounts[str(id_blog)].getAccountName() + "'\n")
+			if newAppAccount != []:
+				self.addAppAccount(newAppAccount[0])
+				self.write("\t\tCreated new " + self.app_accounts[str(id_blog)].getSocialName() + " app account: '" + self.app_accounts[str(id_blog)].getAccountName() + "'\n")
+			else:
+				self.write("\t\t   Error: received empty list when try to get app account!\n")
 		elif table == "sb_my_accounts":
 			newMyAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
-			newTags = post_request({"action": "get_tags", "id": id_blog})
-			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-			self.addAccount(newMyAccount, newTags, newBlogs)
-			self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
-			if newMyAccount['status'] == self.accounts[str(id_blog)].STATUS_RUN:
-				self.accounts[str(id_blog)].runBlog()
+			if newAccount != []:
+				newTags = post_request({"action": "get_tags", "id": id_blog})
+				newBlogs = post_request({"action": "get_blogs", "id": id_blog})
+				self.addAccount(newMyAccount[0], newTags, newBlogs)
+				self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
+				if newMyAccount[0]['status'] == self.accounts[str(id_blog)].STATUS_RUN:
+					self.accounts[str(id_blog)].runBlog()
+			else:
+				self.write("\t\t   Error: received empty list when try to get account!\n")
 		elif (table == "sb_other_accounts") or (table == "sb_tags"):
 			self.write("\t\tTrying to add tags or blogs, operation not permitted!!! WTF is happening???\n")
 		else:
@@ -179,11 +185,17 @@ class Accounts:
 	def updateUpOp(self, table, id_blog):
 		if table == "sb_app_accounts":
 			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
-			self.addAppAccount(newAppAccount)
+			if newAppAccount != []:
+				self.addAppAccount(newAppAccount[0])
+			else:
+				self.write("\t\t   Error: received empty list when try to get app account!\n")
 		elif table == "sb_my_accounts":
 			self.write("\t\tUpdate account for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
 			newAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
-			self.accounts[str(id_blog)].updateUpOp(newAccount)
+			if newAccount != []:
+				self.accounts[str(id_blog)].updateUpOp(newAccount[0])
+			else:
+				self.write("\t\t   Error: received empty list when try to get account!\n")
 		elif table == "sb_other_accounts":
 			self.write("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
 			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
