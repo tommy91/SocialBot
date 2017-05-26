@@ -22,8 +22,6 @@ class Account(object):
 	followersList = []
 	followingList = []
 
-	f4fs = ["follow4follow","follow","followback"] 
-	l4ls = ["like4like","like","likeback"]
 	notGoodTags = ["follow4follow","follow","f4f","followback","Follow4Follow","Follow","F4F","FollowBack","like4like","like","likeback","l4l","Like4Like","Like","LikeBack","L4L"]
 
 

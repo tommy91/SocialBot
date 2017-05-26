@@ -31,6 +31,9 @@ class TumblrAccount(Account):
 	MAX_NUM_ERRORS = 40
 	SLEEP_TIME = 25
 
+	f4fs = ["follow4follow","follow","followback"] 
+	l4ls = ["like4like","like","likeback"]
+
 
 	def __init__(self, accounts, account, tags, blogs):
 		super(TumblrAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])

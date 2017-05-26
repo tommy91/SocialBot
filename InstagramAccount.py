@@ -18,6 +18,9 @@ class InstagramAccount(Account):
 
 	DUMP_DIRECTORY = "dump"
 
+	f4fs = ["follow4follow","follow","followback"] 
+	l4ls = ["like4like","likeback"]
+
 
 	def __init__(self, accounts, account, tags, blogs):
 		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
