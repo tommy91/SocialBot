@@ -1551,15 +1551,16 @@ if __name__ == '__main__':
 			return
 		if(sys.argv[1]=='-f'):
 			print("\n\tFast Mode On.\n\tNo sleep char/line.\n")
-			program = SBProg(sleepChar=0.0, sleepLine=0.0)
+			SBProg(sleepChar=0.0, sleepLine=0.0).runProgram()
 		elif(sys.argv[1]=='-t'):
 			print("\n\tTest Mode On.\n")
-			program = SBProg(isTest=True)
+			SBProg(isTest=True).runProgram()
 		elif(sys.argv[1] in ['-ft','-tf']):
 			print("\n\tFast Mode On.\n\tNo sleep char/line.\n\n\tTest Mode On.\n")
-			program = SBProg(isTest=True, sleepChar=0.0, sleepLine=0.0)
+			SBProg(isTest=True, sleepChar=0.0, sleepLine=0.0).runProgram()
 		else:
 			print("\n\tError: unknown command '" + sys.argv[1] + "', ignored.\n")
-			program = SBProg()
-	program.runProgram()
+			SBProg().runProgram()
+	else:
+		SBProg().runProgram()
 
