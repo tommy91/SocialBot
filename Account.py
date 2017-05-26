@@ -57,29 +57,29 @@ class Account(object):
 			self.write("\t\t    PostXD: " + str(self.num_post_xd) + " -> " + str(newAccount['PostXD']) + "\n")
 			self.num_post_xd = int(newAccount['PostXD'])
 			needCalcNewTimes = True
-		if self.num_follow_xd = int(newAccount['FollowXD']):
+		if self.num_follow_xd != int(newAccount['FollowXD']):
 			self.write("\t\t    FollowXD: " + str(self.num_follow_xd) + " -> " + str(newAccount['FollowXD']) + "\n")
 			self.num_follow_xd = int(newAccount['FollowXD'])
 			needCalcNewTimes = True
-		if self.num_like_xd = int(newAccount['LikeXD']):
+		if self.num_like_xd != int(newAccount['LikeXD']):
 			self.write("\t\t    LikeXD: " + str(self.num_like_xd) + " -> " + str(newAccount['LikeXD']) + "\n")
 			self.num_like_xd = int(newAccount['LikeXD'])
 			needCalcNewTimes = True
-		if self.num_post_xt = int(newAccount['PostXT']):
+		if self.num_post_xt != int(newAccount['PostXT']):
 			self.write("\t\t    PostXT: " + str(self.num_post_xt) + " -> " + str(newAccount['PostXT']) + "\n")
 			self.num_post_xt = int(newAccount['PostXT'])
 			needCalcNewTimes = True
-		if self.num_follow_xt = int(newAccount['FollowXT']):
+		if self.num_follow_xt != int(newAccount['FollowXT']):
 			self.write("\t\t    FollowXT: " + str(self.num_follow_xt) + " -> " + str(newAccount['FollowXT']) + "\n")
 			self.num_follow_xt = int(newAccount['FollowXT'])
 			needCalcNewTimes = True
-		if self.num_like_xt = int(newAccount['LikeXT']):
+		if self.num_like_xt != int(newAccount['LikeXT']):
 			self.write("\t\t    LikeXT: " + str(self.num_like_xt) + " -> " + str(newAccount['LikeXT']) + "\n")
 			self.num_like_xt = int(newAccount['LikeXT'])
 			needCalcNewTimes = True
-		if self.mail = newAccount['Mail']:
+		if self.mail != newAccount['Mail']:
 			self.write("\t\t    Mail: " + self.mail + " -> " + newAccount['Mail'] + "\n")
-			self.mail = newAccount['Mail']
+			self.mail != newAccount['Mail']
 		if needCalcNewTimes:
 			self.write("\t\t    Setup new timers.. ")
 			self.calc_time_post_follow()
