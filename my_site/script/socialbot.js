@@ -730,7 +730,7 @@ function deleteBlogs(id_blog) {
 }
 
 
-function insertBlogs() {
+function insertBlogs(id_blog) {
     var blogs2update = [];
     $('.li-input-blogs-modify').each(function(){
         if(($(this).attr('new_blog') == "true")&&($(this).val()!="..."))
