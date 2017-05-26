@@ -101,11 +101,12 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 		$counter = 0;
 		if ($is_popular) {
 			foreach ($hashtagFeed->ranked_items as $key => $value) {
+				$is_private = $value->caption->user->is_private;
 				$followed_by = $value->caption->user->friendship_status->followed_by;
 				$following = $value->caption->user->friendship_status->following;
 				$outgoing_request = $value->caption->user->friendship_status->outgoing_request;
 				$has_liked = $value->has_liked;
-				if ((!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
+				if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
 					$post = array(	'mediaID' => $value->caption->media_id, 
 						  			'userID' => $value->caption->user_id
 						  			);
@@ -118,11 +119,12 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 		}
 		else {
 			foreach ($hashtagFeed->items as $key => $value) {
+				$is_private = $value->caption->user->is_private;
 				$followed_by = $value->caption->user->friendship_status->followed_by;
 				$following = $value->caption->user->friendship_status->following;
 				$outgoing_request = $value->caption->user->friendship_status->outgoing_request;
 				$has_liked = $value->has_liked;
-				if ((!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
+				if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
 					$post = array(	'mediaID' => $value->caption->media_id, 
 						  			'userID' => $value->caption->user_id
 						  			);
@@ -149,6 +151,8 @@ function get_likers($username, $password, $mediaID, $max_num = NULL) {
 			$response = array();
 			if ($likers->user_count > 0) {
 				foreach ($likers->users as $key => $value) {
+					if ($value->is_private)
+						continue;
 					array_push($response, $value->pk);
 					$counter++;
 					if (($max_num != NULL) && ($counter >= $max_num))
@@ -174,6 +178,8 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 			$response = array();
 			if ($comments->comment_count > 0) {
 				foreach ($comments->comments as $key => $value) {
+					if ($value->user->is_private)
+						continue;
 					array_push($response, $value->user_id);
 					$counter++;
 					if (($max_num != NULL) && ($counter >= $max_num))
@@ -189,10 +195,13 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 
 function getFollowers($username, $password, $userID = NULL, $max_num = NULL) {
 	global $ig;
+	$getting_my = true;
 	if ($userID === NULL)
 		$userID = connect($username,$password);
-	else
+	else {
+		$getting_my = false;
 		connect($username,$password);
+	}
 	$maxId = null;
 	$followers = array();
 	$counter = 0;
@@ -202,6 +211,8 @@ function getFollowers($username, $password, $userID = NULL, $max_num = NULL) {
 			if ($response->status != 'ok')
 				return array('Error' => $response);
 			foreach ($response->getUsers() as $key => $value) {
+				if ((!$getting_my) && ($value->is_private))
+					continue;
 				array_push($followers, $value->pk);
 				$counter++;
 				if (($max_num != NULL) && ($counter >= $max_num))
