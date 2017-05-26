@@ -111,6 +111,8 @@ class Accounts:
 		else:
 			if len(synch_req) > 0:
 				self.write("\n")
+				self.alreadySynchTags = []
+				self.alreadySynchBlogs = []
 				for up_row in synch_req:
 					self.updateData(up_row)
 			else:
@@ -139,8 +141,8 @@ class Accounts:
 		elif table == "sb_my_accounts":
 			newMyAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
 			if newAccount != []:
-				newTags = post_request({"action": "get_tags", "id": id_blog})
-				newBlogs = post_request({"action": "get_blogs", "id": id_blog})
+				newTags = post_request({"action": "get_tags", "ID": id_blog})
+				newBlogs = post_request({"action": "get_blogs", "ID": id_blog})
 				self.addAccount(newMyAccount[0], newTags, newBlogs)
 				self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
 				if newMyAccount[0]['State'] == self.accounts[str(id_blog)].STATUS_RUN:
@@ -196,18 +198,22 @@ class Accounts:
 				self.accounts[str(id_blog)].updateUpOp(newAccount[0])
 			else:
 				self.write("\t\t   Error: received empty list when try to get account!\n")
-		elif table == "sb_other_accounts":
-			self.write("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
-			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-			self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
-			for blog in self.accounts[str(id_blog)].blogs:
-				self.write("\t\t    " + blog + "\n")
+		elif table == "sb_other_accounts": 
+			if not id_blog in self.alreadySynchBlogs:
+				self.write("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+				newBlogs = post_request({"action": "get_blogs", "ID": id_blog})
+				self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
+				for blog in self.accounts[str(id_blog)].blogs:
+					self.write("\t\t    " + blog + "\n")
+				self.alreadySynchBlogs.append(id_blog)
 		elif table == "sb_tags":
-			self.write("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
-			newTags = post_request({"action": "get_tags", "id": id_blog})
-			self.accounts[str(id_blog)].tags = tags2list(newTags)
-			for tag in self.accounts[str(id_blog)].tags:
-				self.write("\t\t    " + tag + "\n")
+			if not id_blog in self.alreadySynchTags:
+				self.write("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+				newTags = post_request({"action": "get_tags", "ID": id_blog})
+				self.accounts[str(id_blog)].tags = tags2list(newTags)
+				for tag in self.accounts[str(id_blog)].tags:
+					self.write("\t\t    " + tag + "\n")
+				self.alreadySynchTags.append(id_blog)
 		else:
 			self.write("\t\tError: '" + table + "' is no a valid table!\n")
 
