@@ -213,7 +213,7 @@ class InstagramAccount(Account):
 		if self.password != newAccount['Password']:
 			self.write("\t\t    Password: " + self.password + " -> " + newAccount['Password'] + "\n")
 			self.password = newAccount['Password']
-		super().updateUpOp(newAccount)
+		super(InstagramAccount, self).updateUpOp(newAccount)
 
 
 	def copyBlog(self, blog_to_copy, limitMax, counter):

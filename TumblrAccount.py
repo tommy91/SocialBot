@@ -175,7 +175,7 @@ class TumblrAccount(Account):
 			self.write("ok\n")
 		else:
 			self.write("\t\t    No need to setup clients!\n")
-		super().updateUpOp(newAccount)
+		super(TumblrAccount, self).updateUpOp(newAccount)
 
 
 	def copyBlog(self, blog_to_copy, limitMax, counter):
