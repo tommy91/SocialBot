@@ -601,7 +601,8 @@ class InstagramAccount(Account):
 		if maxNum != None:
 			params['maxNum'] = maxNum
 		followers = self.post_insta_request(params)
-		self.write("\r\t\tGet Followers List.. " + str(len(followers)) + "/" + str(self.data['followers']) + "\n")
+		if user == None:
+			self.write("\r\t\tGet Followers List.. " + str(len(followers)) + "/" + str(self.data['followers']) + "\n")
 		return followers
 
 
