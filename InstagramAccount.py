@@ -283,7 +283,7 @@ class InstagramAccount(Account):
 		self.write("\t      Getting follows..\n")
 		for blog in self.blogs:
 			counter = 0
-			blog_id = getIdByUsernameInsta(blog)
+			blog_id = self.getIdByUsernameInsta(blog)
 			followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
 			for follow in followers:
 				if (not follow in self.followersList) and (not follow in self.followingList):
