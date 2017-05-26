@@ -41,7 +41,7 @@ class InstagramAccount(Account):
 
 
 	def getSocialName(self):
-		return "insta"
+		return "instagram"
 
 
 	def initStatistics(self):
@@ -204,8 +204,12 @@ class InstagramAccount(Account):
 
 
 	def updateUpOp(self, newAccount):
-		self.username = newAccount['Username']
-		self.password = newAccount['Password']
+		if self.username != newAccount['Username']:
+			self.write("\t\t    Username: " + self.username + " -> " + newAccount['Username'] + "\n")
+			self.username = newAccount['Username']
+		if self.password != newAccount['Password']:
+			self.write("\t\t    Password: " + self.password + " -> " + newAccount['Password'] + "\n")
+			self.password = newAccount['Password']
 		super().updateUpOp(newAccount)
 
 

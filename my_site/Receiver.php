@@ -416,7 +416,7 @@ if (isset($_POST['action'])) {
         $result = $data->inserisci($t,$v,$r);
 
         if ($result == 1){
-            if(op2register(0, "sb_tags", $id, 0))
+            if(op2register(0, "sb_tags", $id, 2))
                 echo $result;
             else
                 echo -1;
@@ -436,7 +436,7 @@ if (isset($_POST['action'])) {
         $result = $data->inserisci($t,$v,$r);
 
         if ($result == 1){
-            if(op2register(0, "sb_other_accounts", $id, 0))
+            if(op2register(0, "sb_other_accounts", $id, 2))
                 echo $result;
             else
                 echo -1;
@@ -452,7 +452,7 @@ if (isset($_POST['action'])) {
         $result = $data->query($query);
         $fetch_result = fetchUpDelAndReturn($result);
         if(!array_key_exists('Error', $fetch_result)) {
-            if(op2register(0, "sb_tags", $id, 1))
+            if(op2register(0, "sb_tags", $id, 2))
                 echo json_encode($fetch_result);
             else
                 echo json_encode(array('Error' => " Error on saving to register for blog ".$id."."));
@@ -469,7 +469,7 @@ if (isset($_POST['action'])) {
         $result = $data->query($query);
         $fetch_result = fetchUpDelAndReturn($result);
         if(!array_key_exists('Error', $fetch_result)) {
-            if(op2register(0, "sb_other_accounts", $id, 1))
+            if(op2register(0, "sb_other_accounts", $id, 2))
                 echo json_encode($fetch_result);
             else
                 echo json_encode(array('Error' => " Error on saving to register for blog ".$id."."));

@@ -10,6 +10,14 @@ class TumblrAppAccount(Account):
 		self.token_secret = account['Token_Secret']
 
 
+	def getAccountName(self):
+		return self.mail
+
+
+	def getSocialName(self):
+		return "tumblr"
+
+
 
 class TumblrAccount(Account):
 
@@ -148,15 +156,22 @@ class TumblrAccount(Account):
 		need_setup_clients = False 
 		if self.app_account != self.accounts.app_accounts[str(newAccount['App_Account'])]:
 			need_setup_clients = True 
+			self.write("\t\t    App Account: " + str(self.app_account.getAccountName()) + " -> " + str(self.accounts.app_accounts[str(newAccount['App_Account'])].getAccountName()) + "\n")
 			self.app_account = self.accounts.app_accounts[str(newAccount['App_Account'])]
 		if self.token != newAccount['Token']:
 			need_setup_clients = True
+			self.write("\t\t    Token: " + self.token + " -> " + newAccount['Token'] + "\n")
 			self.token = newAccount['Token']
 		if self.token_secret != newAccount['Token_Secret']:
 			need_setup_clients = True
+			self.write("\t\t    Token Secret: " + self.tokenSecret + " -> " + newAccount['Token_Secret'] + "\n")
 			self.tokenSecret = newAccount['Token_Secret']
 		if need_setup_clients:
+			self.write("\t\t    Setup clients.. ")
 			self.setup_clients()
+			self.write("ok\n")
+		else:
+			self.write("\t\t    No need to setup clients!\n")
 		super().updateUpOp(newAccount)
 
 

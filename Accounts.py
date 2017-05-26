@@ -9,6 +9,10 @@ class Accounts:
 	TYPE_TUMBLR = 1
 	TYPE_INSTAGRAM = 2
 
+	ADD_OPERATION = 0
+	DELETE_OPERATION = 1
+	UPDATE_OPERATION = 2
+
 	def __init__(self, sbprog):
 		self.app_accounts = {}
 		self.accounts = {}
@@ -114,11 +118,11 @@ class Accounts:
 
 
 	def updateData(self, row):
-		if row['Operation'] == '0':
+		if row['Operation'] == self.ADD_OPERATION:
 			self.updateAddOp(row['Table'],row['Blog'])
-		elif row['Operation'] == '1':
+		elif row['Operation'] == self.DELETE_OPERATION:
 			self.updateDelOp(row['Table'],row['Blog'])
-		elif row['Operation'] == '2':
+		elif row['Operation'] == self.UPDATE_OPERATION:
 			self.updateUpOp(row['Table'],row['Blog'])
 		else:
 			self.write("\t\tError: operation " + str(row['Operation']) + "unknown!\n")
@@ -128,45 +132,48 @@ class Accounts:
 		if table == "sb_app_accounts":
 			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
 			self.addAppAccount(newAppAccount)
+			self.write("\t\tCreated new " + self.app_accounts[str(id_blog)].getSocialName() + " app account: '" + self.app_accounts[str(id_blog)].getAccountName() + "'\n")
 		elif table == "sb_my_accounts":
 			newMyAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
 			newTags = post_request({"action": "get_tags", "id": id_blog})
 			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
 			self.addAccount(newMyAccount, newTags, newBlogs)
-			if newMyAccount['status'] == self.STATUS_RUN:
+			self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
+			if newMyAccount['status'] == self.accounts[str(id_blog)].STATUS_RUN:
 				self.accounts[str(id_blog)].runBlog()
-		elif table == "sb_other_accounts":
-			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-			self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
-		elif table == "sb_tags":
-			newTags = post_request({"action": "get_tags", "id": id_blog})
-			self.accounts[str(id_blog)].tags = tags2list(newTags)
+		elif (table == "sb_other_accounts") or (table == "sb_tags"):
+			self.write("\t\tTrying to add tags or blogs, operation not permitted!!! WTF is happening???\n")
 		else:
-			self.write("\t\tError: '" + table + "' is no a valid table!")
+			self.write("\t\tError: '" + table + "' is no a valid table!\n")
 
 
 	def updateDelOp(self, table, id_blog):
 		if table == "sb_app_accounts":
+			self.write("\t\tRemoving " + self.app_accounts[str(id_blog)].getSocialName() + " app account '" + self.app_accounts[str(id_blog)].getAccountName() + "':\n")
+			self.write("\t\t    removing dependencies for the app account:\n")
 			for key, blog in self.accounts:
 				if blog.app_account == id_blog:
-					self.accounts[key].app_account = None
-					self.accounts[key].client = None
-					self.accounts[key].clientInfo = None
+					if blog.status = blog.STATUS_RUN:
+						blog.stopBlog()
+					self.write("\t\t        cleaning '" + blog.getAccountName() + "'.. ")
+					blog.app_account = None
+					blog.client = None
+					blog.clientInfo = None
+					self.write("ok\n")
 			del self.app_accounts[str(id_blog)]
+			self.write("\t\tRemoved!\n")
 		elif table == "sb_my_accounts":
-			if self.accounts[str(id_blog)].status == self.STATUS_RUN:
+			self.write("\t\tRemoving " + self.accounts[str(id_blog)].getSocialName() + " account '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+			if self.accounts[str(id_blog)].status == self.accounts[str(id_blog)].STATUS_RUN:
 				self.accounts[str(id_blog)].stopBlog()
 				self.accounts[str(id_blog)].clearDB()
 			del self.matches[self.accounts[str(id_blog)].getAccountName()]
 			del self.accounts[str(id_blog)]
-		elif table == "sb_other_accounts":
-			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
-			self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
-		elif table == "sb_tags":
-			newTags = post_request({"action": "get_tags", "id": id_blog})
-			self.accounts[str(id_blog)].tags = tags2list(newTags)
+			self.write("\t\tRemoved!\n")
+		elif (table == "sb_other_accounts") or (table == "sb_tags"):
+			self.write("\t\tTrying to delete tags or blogs, operation not permitted!!! WTF is happening???\n")
 		else:
-			self.write("\t\tError: '" + table + "' is no a valid table!")
+			self.write("\t\tError: '" + table + "' is no a valid table!\n")
 
 
 	def updateUpOp(self, table, id_blog):
@@ -174,12 +181,23 @@ class Accounts:
 			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
 			self.addAppAccount(newAppAccount)
 		elif table == "sb_my_accounts":
+			self.write("\t\tUpdate account for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
 			newAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
 			self.accounts[str(id_blog)].updateUpOp(newAccount)
-		elif (table == "sb_other_accounts") or (table == "sb_tags"):
-			self.write("\t\tOperation not permitted!!! WTF is happening???")
+		elif table == "sb_other_accounts":
+			self.write("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+			newBlogs = post_request({"action": "get_blogs", "id": id_blog})
+			self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
+			for blog in self.accounts[str(id_blog)].blogs:
+				self.write("\t\t    " + blog + "\n")
+		elif table == "sb_tags":
+			self.write("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+			newTags = post_request({"action": "get_tags", "id": id_blog})
+			self.accounts[str(id_blog)].tags = tags2list(newTags)
+			for tag in self.accounts[str(id_blog)].tags:
+				self.write("\t\t    " + tag + "\n")
 		else:
-			self.write("\t\tError: '" + table + "' is no a valid table!")
+			self.write("\t\tError: '" + table + "' is no a valid table!\n")
 
 
 	def log(self, entry):

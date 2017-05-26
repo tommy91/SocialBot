@@ -54,21 +54,51 @@ class Account(object):
 
 
 	def updateUpOp(self, newAccount):
-		self.num_post_xd = int(newAccount['PostXD'])
-		self.num_follow_xd = int(newAccount['FollowXD'])
-		self.num_like_xd = int(newAccount['LikeXD'])
-		self.num_post_xt = int(newAccount['PostXT'])
-		self.num_follow_xt = int(newAccount['FollowXT'])
-		self.num_like_xt = int(newAccount['LikeXT'])
-		self.mail = newAccount['Mail']
-		self.calc_time_post_follow()
+		needCalcNewTimes = False
+		if self.num_post_xd != int(newAccount['PostXD']):
+			self.write("\t\t    PostXD: " + str(self.num_post_xd) + " -> " + str(newAccount['PostXD']) + "\n")
+			self.num_post_xd = int(newAccount['PostXD'])
+			needCalcNewTimes = True
+		if self.num_follow_xd = int(newAccount['FollowXD']):
+			self.write("\t\t    FollowXD: " + str(self.num_follow_xd) + " -> " + str(newAccount['FollowXD']) + "\n")
+			self.num_follow_xd = int(newAccount['FollowXD'])
+			needCalcNewTimes = True
+		if self.num_like_xd = int(newAccount['LikeXD']):
+			self.write("\t\t    LikeXD: " + str(self.num_like_xd) + " -> " + str(newAccount['LikeXD']) + "\n")
+			self.num_like_xd = int(newAccount['LikeXD'])
+			needCalcNewTimes = True
+		if self.num_post_xt = int(newAccount['PostXT']):
+			self.write("\t\t    PostXT: " + str(self.num_post_xt) + " -> " + str(newAccount['PostXT']) + "\n")
+			self.num_post_xt = int(newAccount['PostXT'])
+			needCalcNewTimes = True
+		if self.num_follow_xt = int(newAccount['FollowXT']):
+			self.write("\t\t    FollowXT: " + str(self.num_follow_xt) + " -> " + str(newAccount['FollowXT']) + "\n")
+			self.num_follow_xt = int(newAccount['FollowXT'])
+			needCalcNewTimes = True
+		if self.num_like_xt = int(newAccount['LikeXT']):
+			self.write("\t\t    LikeXT: " + str(self.num_like_xt) + " -> " + str(newAccount['LikeXT']) + "\n")
+			self.num_like_xt = int(newAccount['LikeXT'])
+			needCalcNewTimes = True
+		if self.mail = newAccount['Mail']:
+			self.write("\t\t    Mail: " + self.mail + " -> " + newAccount['Mail'] + "\n")
+			self.mail = newAccount['Mail']
+		if needCalcNewTimes:
+			self.write("\t\t    Setup new timers.. ")
+			self.calc_time_post_follow()
+			self.write("ok\n")
+		else:
+			self.write("\t\t    No need to setup new timers!\n")
 		if int(newAccount['Status']) > self.STATUS_RUN:
 			if self.status == self.STATUS_STOP:
+				self.write("\t\t    Need to run the blog:\n")
 				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
 				self.runBlog()
 			elif self.status == self.STATUS_RUN:
+				self.write("\t\t    Need to stop the blog:\n")
 				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
 				self.stopBlog()
+		else:
+			self.write("\t\t    No need to change the status of the blog!\n")
 
 
 	def runBlog(self):
