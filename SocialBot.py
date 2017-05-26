@@ -1548,6 +1548,7 @@ if __name__ == '__main__':
 	elif lp > 1:
 		if(sys.argv[1]=='-clean'):
 			clean()
+			return
 		if(sys.argv[1]=='-f'):
 			print("\n\tFast Mode On.\n\tNo sleep char/line.\n")
 			program = SBProg(sleepChar=0.0, sleepLine=0.0)
