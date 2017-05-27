@@ -326,8 +326,8 @@ class Account(object):
 
 
 	def checkFollowingStatus(self):
+		blogname = self.getAccountName()
 		if time.time() >= self.updateFollowersTime:
-			blogname = self.getAccountName()
 			self.write("Time to update follower and following status..\n")
 			# Get Followers
 			self.getFollowers()
