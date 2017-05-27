@@ -5,6 +5,10 @@ import socket
 import datetime
 import threading
 
+import requests
+from httplib2 import ServerNotFoundError
+from requests.exceptions import ConnectionError, Timeout, HTTPError
+
 from Utils import *
 from dbManager import DbManager
 from Output import Output
@@ -54,7 +58,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 	def tryConnectToRemoteServer(self):
 		"Look for the remote server"
 		self.write("Trying connecting to server online.. ")
-		resp = post_request({"action": "server_alive"})
+		resp = self.post_request({"action": "server_alive"})
 		if resp != None:
 			self.write("ok\n")
 			return True
@@ -140,7 +144,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		except KeyError, msg:
 			pass
 		self.updateStatistics()
-		resp = post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
+		resp = self.post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
 		self.write("   Bye!\n\n")
 
 
@@ -157,7 +161,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 				"Num_Follow": self.dbManager.countAllFollow()}
 			if "update" in self.timersTime:
 				post_data_stats["Deadline_Update"] = self.timersTime["update"]
-			up_stat = post_request(post_data_stats)
+			up_stat = self.post_request(post_data_stats)
 			if up_stat == None:
 				self.write("Error: Update stats NOT ok (None up_stat)\n")
 			else:
@@ -219,3 +223,38 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			account.canWrite = prevCanWrite
 			account.lock.release()
 		self.write("\nEnd testing code.\n")
+
+
+	def post_request(self, post_data):
+		try:
+			return self.send_and_check_request(post_data)
+		except HTTPError as e:
+			self.write(str(e) + "\n")
+			return None
+
+
+	def send_and_check_request(self, post_data):
+		try:
+			resp = requests.post(Settings.PATH_TO_SERVER + Settings.RECEIVER, data = post_data)
+			if resp.status_code == 200:
+				try:
+					parsed = resp.json()
+					if 'Error' in parsed:
+						self.write("Error: " + str(parsed['Error']) + "\n")
+						return None
+					else:
+						return parsed['Result']
+				except ValueError as e:
+					self.write("ValueError:\n")
+					self.write(str(resp.content) + "\n")
+					return None
+			else:
+				resp.raise_for_status()
+		except ConnectionError as e:
+			self.write("ConnectionError:\n")
+			self.write(str(e) + "\n")
+			return None 
+		except Timeout as e:
+			self.write("Timeout Error:\n")
+			self.write(str(e) + "\n")
+			return None

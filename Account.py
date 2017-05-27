@@ -37,6 +37,7 @@ class Account(object):
 		self.timersTime = accounts.sbprog.timersTime
 		self.updateStatistics = accounts.sbprog.updateStatistics
 		self.dbManager = accounts.sbprog.dbManager
+		self.post_request = accounts.sbprog.post_request
 		self.account_id = int(account_id)
 		self.strID = str(account_id)
 		self.mail = mail
@@ -45,10 +46,10 @@ class Account(object):
 
 	def updateStatus(self):
 		post_data_up = {"action": "get_my_accounts_ID", "id": self.account_id}
-		status_res = post_request(post_data_up)
+		status_res = self.post_request(post_data_up)
 		if status_res != None:
 			if self.status != status_res[0]['State']:
-				post_request({"action": "set_status", "id": self.account_id, "status": self.status})
+				self.post_request({"action": "set_status", "id": self.account_id, "status": self.status})
 
 
 	def updateUpOp(self, newAccount):
@@ -89,11 +90,11 @@ class Account(object):
 		if int(newAccount['State']) > self.STATUS_RUN:
 			if self.status == self.STATUS_STOP:
 				self.write("\t\t    Need to run the blog:\n")
-				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
+				self.post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
 				self.runBlog()
 			elif self.status == self.STATUS_RUN:
 				self.write("\t\t    Need to stop the blog:\n")
-				post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
+				self.post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
 				self.stopBlog()
 		else:
 			self.write("\t\t    No need to change the status of the blog!\n")

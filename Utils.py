@@ -1,10 +1,3 @@
-import requests
-from httplib2 import ServerNotFoundError
-from requests.exceptions import ConnectionError, Timeout, HTTPError
-
-import Settings
-
-
 def seconds2timeStr(secs):
 	seconds = secs % 60
 	minutes = (secs / 60) % 60
@@ -66,36 +59,3 @@ def blogs2list(other_accounts):
 	return oaList
 
 
-def post_request(post_data):
-	try:
-		return send_and_check_request(post_data)
-	except HTTPError as e:
-		self.write(str(e) + "\n")
-		return None
-
-
-def send_and_check_request(post_data):
-	try:
-		resp = requests.post(Settings.PATH_TO_SERVER + Settings.RECEIVER, data = post_data)
-		if resp.status_code == 200:
-			try:
-				parsed = resp.json()
-				if 'Error' in parsed:
-					self.write("Error: " + str(parsed['Error']) + "\n")
-					return None
-				else:
-					return parsed['Result']
-			except ValueError as e:
-				self.write("ValueError:\n")
-				self.write(str(resp.content) + "\n")
-				return None
-		else:
-			resp.raise_for_status()
-	except ConnectionError as e:
-		self.write("ConnectionError:\n")
-		self.write(str(e) + "\n")
-		return None 
-	except Timeout as e:
-		self.write("Timeout Error:\n")
-		self.write(str(e) + "\n")
-		return None

@@ -148,7 +148,7 @@ class TumblrAccount(Account):
 			post_data_up["Deadline_Follow"] = self.timersTime[self.strID + "-follow"]
 		if (self.strID + "-like") in self.timersTime:
 			post_data_up["Deadline_Like"] = self.timersTime[self.strID + "-like"]
-		up_res = post_request(post_data_up)
+		up_res = self.post_request(post_data_up)
 		if up_res != None:
 			self.write("update status.. ")
 			self.updateStatus()

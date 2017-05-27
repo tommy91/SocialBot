@@ -26,13 +26,14 @@ class Accounts:
 		self.canWrite = sbprog.output.canWrite
 		self.lock = sbprog.output.lock
 		self.updateStatistics = sbprog.updateStatistics
+		self.post_request = sbprog.post_request
 		self.initAccounts()
 		self.updateBlogs(firstTime=True)
 
 
 	def initAccounts(self):
 		self.write("Get App Accounts.. ")
-		appAccounts = post_request({"action": "get_app_accounts"})
+		appAccounts = self.post_request({"action": "get_app_accounts"})
 		if appAccounts == None:
 			self.write("\tError: None response.\n")
 			return
@@ -47,7 +48,7 @@ class Accounts:
 				counter = counter + 1
 				self.addAppAccount(appAccount)
 		self.write("Get My Accounts.. ")
-		myAccounts = post_request({"action": "get_my_accounts"})
+		myAccounts = self.post_request({"action": "get_my_accounts"})
 		if myAccounts == None:
 			self.write("\tError: None response.\n")
 			return
@@ -64,8 +65,8 @@ class Accounts:
 			counter = 0
 			for myAccount in myAccounts:
 				self.write("\t" + str(counter + 1) + ") " + myAccount["Mail"] + " -> ")
-				tags = post_request({"action": "get_tags", "ID": myAccount['ID']})
-				otherAccounts = post_request({"action": "get_blogs", "ID": myAccount['ID']})
+				tags = self.post_request({"action": "get_tags", "ID": myAccount['ID']})
+				otherAccounts = self.post_request({"action": "get_blogs", "ID": myAccount['ID']})
 				if (tags == None) or (otherAccounts == None):
 					continue
 				self.addAccount(myAccount,tags,otherAccounts)
@@ -105,7 +106,7 @@ class Accounts:
 			self.write("Clean up synchronization register.. ")
 		else:
 			self.write("\tSynchronize with online register.. ")
-		synch_req = post_request({'action': "synch_operations"})
+		synch_req = self.post_request({'action': "synch_operations"})
 		if firstTime:
 			self.write("ok\n")
 		else:
@@ -132,17 +133,17 @@ class Accounts:
 
 	def updateAddOp(self, table, id_blog):
 		if table == "sb_app_accounts":
-			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
+			newAppAccount = self.post_request({"action": "get_app_accounts_ID", "id": id_blog})
 			if newAppAccount != []:
 				self.addAppAccount(newAppAccount[0])
 				self.write("\t\tCreated new " + self.app_accounts[str(id_blog)].getSocialName() + " app account: '" + self.app_accounts[str(id_blog)].getAccountName() + "'\n")
 			else:
 				self.write("\t\t   Error: received empty list when try to get app account!\n")
 		elif table == "sb_my_accounts":
-			newMyAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
+			newMyAccount = self.post_request({"action": "get_my_accounts_ID", "id": id_blog})
 			if newAccount != []:
-				newTags = post_request({"action": "get_tags", "ID": id_blog})
-				newBlogs = post_request({"action": "get_blogs", "ID": id_blog})
+				newTags = self.post_request({"action": "get_tags", "ID": id_blog})
+				newBlogs = self.post_request({"action": "get_blogs", "ID": id_blog})
 				self.addAccount(newMyAccount[0], newTags, newBlogs)
 				self.write("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
 				if newMyAccount[0]['State'] == self.accounts[str(id_blog)].STATUS_RUN:
@@ -186,14 +187,14 @@ class Accounts:
 
 	def updateUpOp(self, table, id_blog):
 		if table == "sb_app_accounts":
-			newAppAccount = post_request({"action": "get_app_accounts_ID", "id": id_blog})
+			newAppAccount = self.post_request({"action": "get_app_accounts_ID", "id": id_blog})
 			if newAppAccount != []:
 				self.addAppAccount(newAppAccount[0])
 			else:
 				self.write("\t\t   Error: received empty list when try to get app account!\n")
 		elif table == "sb_my_accounts":
 			self.write("\t\tUpdate account for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
-			newAccount = post_request({"action": "get_my_accounts_ID", "id": id_blog})
+			newAccount = self.post_request({"action": "get_my_accounts_ID", "id": id_blog})
 			if newAccount != []:
 				self.accounts[str(id_blog)].updateUpOp(newAccount[0])
 			else:
@@ -201,7 +202,7 @@ class Accounts:
 		elif table == "sb_other_accounts": 
 			if not id_blog in self.alreadySynchBlogs:
 				self.write("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
-				newBlogs = post_request({"action": "get_blogs", "ID": id_blog})
+				newBlogs = self.post_request({"action": "get_blogs", "ID": id_blog})
 				self.accounts[str(id_blog)].blogs = blogs2list(newBlogs)
 				for blog in self.accounts[str(id_blog)].blogs:
 					self.write("\t\t    " + blog + "\n")
@@ -209,7 +210,7 @@ class Accounts:
 		elif table == "sb_tags":
 			if not id_blog in self.alreadySynchTags:
 				self.write("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
-				newTags = post_request({"action": "get_tags", "ID": id_blog})
+				newTags = self.post_request({"action": "get_tags", "ID": id_blog})
 				self.accounts[str(id_blog)].tags = tags2list(newTags)
 				for tag in self.accounts[str(id_blog)].tags:
 					self.write("\t\t    " + tag + "\n")
