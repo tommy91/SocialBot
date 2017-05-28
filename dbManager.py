@@ -291,8 +291,8 @@ class DbManager:
 		return self.execute_get_one('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time, silent, "Fstats")
 
 
-	def getTablesNames(self):
-		return self.execute_get_one("SELECT name FROM sqlite_master WHERE type='table'")
+	def getTablesNames(self, silent=True):
+		return self.execute_get_one("SELECT name FROM sqlite_master WHERE type='table'", silent, "sqlite_master")
 	
 
 	def execute_get_all(self, query, silent, tableName):
