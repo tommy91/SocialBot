@@ -287,7 +287,6 @@ class Account(object):
 	def unfollow(self):
 		blogname = self.getAccountName()
 		self.writeln("Unfollowing " + blogname + ":\n")
-		self.updateFollowers()
 		counterUnfollow = 0
 		while counterUnfollow <= self.num_follow_xt:
 			try:
@@ -304,11 +303,13 @@ class Account(object):
 					# else re-append at the end
 					self.followingList.append(blog_name_unfollow)
 			except IndexError, msg:
-				self.write("Error: " + str(msg))
+				self.write("\n\tError: " + str(msg) + "\n")
+			except Exception, msg:
+				self.write("\n\tError: exception on " + blogname + " unfollow!\n")
 		self.write("\r\tUnfollowed " + str(counterUnfollow) + " blogs.\n")
 
 
-	def canUnfollow(self):
+	def canUnfollow(self,blog2unfollow):
 		return True
 
 
@@ -357,10 +358,8 @@ class Account(object):
 			self.write("unfollowed " + str(counterUnfollowed) + ".\n")
 		# Check if too many follow and unfollow in that case
 		if len(self.followingList) >= self.LIMITFOLLOW:
-			try:
-				self.unfollow()
-			except Exception, msg:
-				self.write("\n\tError: exception on " + blogname + " unfollow!\n")
+			self.unfollow()
+			
 
 
 	def initFollowings(self):
