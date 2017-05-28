@@ -291,6 +291,10 @@ class DbManager:
 		return self.execute_get_one('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time, silent, "Fstats")
 
 
+	def getTablesNames(self):
+		return self.execute_get_one("SELECT name FROM sqlite_master WHERE type='table'")
+	
+
 	def execute_get_all(self, query, silent, tableName):
 		db = self.connectDB(silent)
 		c = db.cursor()
@@ -343,11 +347,36 @@ class DbManager:
 
 
 	def clearDB(self, blogname):
+		self.clearPostsLikes4Blog(blogname)
+		self.clearFollow4Blog(blogname)
+		self.clearFollowing4Blog(blogname)
+		self.clearFstats4Blog(blogname)
+
+
+	def clearTable4blog(self, blogname, table):
+		args = (blogname)
+		self.deleteAll(table, args)
+
+
+	def clearPostsLikes4Blog(self, blogname):
 		args = (blogname)
 		self.deleteAll("PostsLikes", args)
+
+
+	def clearFollow4Blog(self, blogname):
+		args = (blogname)
 		self.deleteAll("Follow", args)
+
+
+	def clearFollowing4Blog(self, blogname):
+		args = (blogname)
 		self.deleteAll("Following", args)
+
+
+	def clearFstats4Blog(self, blogname):
+		args = (blogname)
 		self.deleteAll("Fstats", args)
+
 
 
 	def setAllFollowingUnfollowed(self, blogname, silent = True):

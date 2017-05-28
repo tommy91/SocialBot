@@ -97,6 +97,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 				break
 			elif entry in ["help","info"]:
 				self.printHelpCmd()
+			elif (entry != "") and (entry.split()[0] in ["clear","Clear"]):
+				self.accounts.clearDB(entry)
 			elif (entry != "") and (entry.split()[0] in ["log","Log"]):
 				self.accounts.log(entry)
 			elif (entry != "") and (entry.split()[0] in ["changeSpeed","speed","cs"]):

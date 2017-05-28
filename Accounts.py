@@ -237,6 +237,66 @@ class Accounts:
 				self.write("   Syntax error: 'log all' or 'log _blogname_'\n",True)
 
 
+	def clearDB4blog(self, entry):
+		splitted = entry.split()
+		if splitted[1] in ['help','Help']:
+			print "'clear BLOG(all) TABLE(all)'"
+			print "Blogs:"
+			for key, blog in self.accounts.iteritems():
+				print "\t" + blog.getAccountName()
+			print "Tables:"
+			for table in self.sbprog.dbManager.getTablesNames():
+				print "\t" + table
+		elif len(splitted) < 3:
+			print "Need 2 params: 'clear BLOG(all) TABLE(all)'"
+		else:
+			try:
+				if splitted[1] in ["all","All"]:
+					if splitted[2] in ["all","All"]:
+						print "Clear all tables for all blogs:"
+						for key, blog in self.accounts.iteritems():
+							blogname = blog.getAccountName()
+							if blogname != "not available":
+								print "\t" + blogname + " -> ",
+								self.sbprog.dbManager.clearDB(blogname)
+								print "ok."
+					else:
+						table = splitted[2]
+						if not table in self.sbprog.dbManager.getTablesNames():
+							print "Error: table '" + table + "' not found!" 
+						else:
+							print "Clear table '" + table + "' for all blogs:"
+							for key, blog in self.accounts.iteritems():
+								blogname = blog.getAccountName()
+								if blogname != "not available":
+									print "\t" + blogname + " -> ", 
+									self.sbprog.dbManager.clearTable4blog(blogname,table)
+									print "ok."
+				else:
+					try:
+						blogname = self.accounts[self.matches[splitted[1]]].getAccountName()
+					except KeyError, msg:
+						print "'" + splitted[1] + "' is not an existing account!"
+					else:
+						if blogname == "not available":
+							print "Error: blogname not available"
+						else:
+							table = splitted[2]
+							if table in ["all","All"]:
+								print "Clear all tables for blog '" + blogname + "' -> ",
+								self.sbprog.dbManager.clearDB(blogname)
+								print "ok."
+							else:
+								if not table in self.sbprog.dbManager.getTablesNames():
+									print "Error: table '" + table + "' not found!" 
+								else:
+									print "Clear table '" + table + "' for blog '" + blogname + "' -> ",
+									self.sbprog.dbManager.clearTable4blog(blogname,table)
+									print "ok."
+			except IndexError, msg:
+				print "   Syntax error: 'clear BLOG(all) TABLE(all)'"
+
+
 	def runBlogs(self, entry):
 		try:
 			if entry.split()[1] in ["all","All"]:

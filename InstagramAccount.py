@@ -638,10 +638,15 @@ class InstagramAccount(Account):
 
 	def randomMediaLikeInsta(self, user, howMany=1):
 		media = self.getMediaInsta(user, self.MAX_RETRIEVED_MEDIA)
-		self.waitInsta(little=True)
-		for count in range(0,howMany):
-			key = random.randint(0, len(media)-1)
-			self.likeInsta(media.pop(key))
+		if media == None:
+			self.write("\n\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'\n")
+		elif media == []:
+			self.write("\n\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'\n")
+		else:
+			self.waitInsta(little=True)
+			for count in range(0,howMany):
+				key = random.randint(0, len(media)-1)
+				self.likeInsta(media.pop(key))
 
 
 	def getIdByUsernameInsta(self, user):
@@ -677,6 +682,7 @@ class InstagramAccount(Account):
 		self.write("num_follow_xt: " + str(self.num_follow_xt) + "\n")
 		self.write("num_like_xt: " + str(self.num_like_xt) + "\n")
 		self.write("status: " + str(self.status) + "\n")
+		pprint(self.statistics)
 
 
 
