@@ -284,6 +284,9 @@ class InstagramAccount(Account):
 		for blog in self.blogs:
 			counter = 0
 			blog_id = self.getIdByUsernameInsta(blog)
+			if blog_id == None:
+				self.write("\t         Error (None response) for '" + blog + "' -> skip!\n")
+				continue
 			followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
 			for follow in followers:
 				if (not follow in self.followersList) and (not follow in self.followingList):
@@ -650,7 +653,11 @@ class InstagramAccount(Account):
 
 
 	def getIdByUsernameInsta(self, user):
-		return self.post_insta_request({'action': 'get_id_by_username', 'user': str(user)})[0]
+		resp = self.post_insta_request({'action': 'get_id_by_username', 'user': str(user)})
+		if resp == None:
+			return None
+		else:
+			return resp[0] 
 
 
 	def logAccount(self):
