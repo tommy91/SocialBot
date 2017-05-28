@@ -354,27 +354,27 @@ class DbManager:
 
 
 	def clearTable4blog(self, blogname, table):
-		args = (blogname)
+		args = (blogname,)
 		self.deleteAll(table, args)
 
 
 	def clearPostsLikes4Blog(self, blogname):
-		args = (blogname)
+		args = (blogname,)
 		self.deleteAll("PostsLikes", args)
 
 
 	def clearFollow4Blog(self, blogname):
-		args = (blogname)
+		args = (blogname,)
 		self.deleteAll("Follow", args)
 
 
 	def clearFollowing4Blog(self, blogname):
-		args = (blogname)
+		args = (blogname,)
 		self.deleteAll("Following", args)
 
 
 	def clearFstats4Blog(self, blogname):
-		args = (blogname)
+		args = (blogname,)
 		self.deleteAll("Fstats", args)
 
 
