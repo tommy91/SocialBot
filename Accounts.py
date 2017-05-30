@@ -1,5 +1,6 @@
-from Utils import *
+import sys
 
+from Utils import *
 from Account import *
 from TumblrAccount import *
 from InstagramAccount import *
@@ -32,59 +33,62 @@ class Accounts:
 
 
 	def initAccounts(self):
-		self.write("Get App Accounts.. ")
+		sys.stdout.write("Get App Accounts.. ")
 		appAccounts = self.post_request({"action": "get_app_accounts"})
 		if appAccounts == None:
-			self.write("\tError: None response.\n")
+			print "\tError: None response."
 			return
-		self.write("ok\n")
-		self.write("App Accounts:\n")
+		print "ok"
+		print "App Accounts:"
 		counter = 0
 		if len(appAccounts) == 0:
-			self.write("\tNo app accounts fonud.\n")
+			print "\tNo app accounts fonud."
 		else:
 			for appAccount in appAccounts:
-				self.write("\t" + str(counter + 1) + ") " + appAccount["Mail"] + " (id: " + appAccount["ID"] + ")" + "\n")
+				print "\t" + str(counter + 1) + ") " + appAccount["Mail"] + " (id: " + appAccount["ID"] + ")"
 				counter = counter + 1
 				self.addAppAccount(appAccount)
-		self.write("Get My Accounts.. ")
+		sys.stdout.write("Get My Accounts.. ")
 		myAccounts = self.post_request({"action": "get_my_accounts"})
 		if myAccounts == None:
-			self.write("\tError: None response.\n")
+			print "\tError: None response."
 			return
-		self.write("ok\n")
-		self.write("My Accounts:\n")
+		print "ok"
+		print "My Accounts:"
 		counter = 0
 		if len(myAccounts) == 0:
-			self.write("\tNo accounts fonud.\n")
+			print "\tNo accounts fonud."
 		for myAccount in myAccounts:
-			self.write("\t" + str(counter + 1) + ") " + myAccount["Mail"] + "\n")
+			print "\t" + str(counter + 1) + ") " + myAccount["Mail"]
 			counter = counter + 1
 		if len(myAccounts) != 0:
-			self.write("Get Accounts Data:\n")
+			print "Get Accounts Data:"
 			counter = 0
 			for myAccount in myAccounts:
-				self.write("\t" + str(counter + 1) + ") " + myAccount["Mail"] + " -> ")
+				print "\t" + str(counter + 1) + ") " + myAccount["Mail"] + " -> "
 				tags = self.post_request({"action": "get_tags", "ID": myAccount['ID']})
 				otherAccounts = self.post_request({"action": "get_blogs", "ID": myAccount['ID']})
 				if (tags == None) or (otherAccounts == None):
 					continue
-				self.addAccount(myAccount,tags,otherAccounts)
+				self.addAccount(myAccount,tags,otherAccounts,firstTime=True)
 				counter = counter + 1
-				self.write("Done!\n")
+				print "Done!"
 
 
 	def addAppAccount(self, account):
 		self.app_accounts[str(account['ID'])] = TumblrAppAccount(self, account)
 
 
-	def addAccount(self, account, tags, blogs):
+	def addAccount(self, account, tags, blogs, firstTime=False):
 		if int(account['Type']) == self.TYPE_TUMBLR:
 			new_account = TumblrAccount(self, account, tags, blogs) 
 		elif int(account['Type']) == self.TYPE_INSTAGRAM:
 			new_account = InstagramAccount(self, account, tags, blogs)
 		else:
-			self.write("Error at addAccount for account " + str(account['Mail']) + ": get type " + str(account['Type'] + "."))
+			if firstTime:
+				print "Error at addAccount for account " + str(account['Mail']) + ": get type " + str(account['Type'] + ".")
+			else:
+				self.write("Error at addAccount for account " + str(account['Mail']) + ": get type " + str(account['Type'] + "."))
 			return
 		self.accounts[str(account['ID'])] = new_account
 		account_name = new_account.getAccountName()
