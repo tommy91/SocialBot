@@ -169,7 +169,7 @@ class InstagramAccount(Account):
 			else:
 				self.write("\tUpdate " + self.mail + ".. ")
 		try:
-			ibi = self.post_insta_request({'action': 'get_insta_blog_info'})
+			ibi = self.post_insta_request({'action': 'get_insta_blog_info'}, firstTime=True)
 			if self.checkResponse(ibi):
 				self.data['private'] = ibi['private']
 				self.data['following'] = ibi['following']
@@ -697,40 +697,55 @@ class InstagramAccount(Account):
 			return resp[0] 
 
 
-	def post_insta_request(self, post_data):
+	def post_insta_request(self, post_data, firstTime=False):
 		post_data['username'] = self.username
 		post_data['password'] = self.password
 		try:
-			return self.send_and_check_request_insta(post_data)
+			return self.send_and_check_request_insta(post_data, firstTime)
 		except HTTPError as e:
-			self.write(str(e) + "\n")
+			if firstTime:
+				print e
+			else:
+				self.write(str(e) + "\n")
 			return None
 
 
-	def send_and_check_request_insta(self, post_data):
+	def send_and_check_request_insta(self, post_data, firstTime=False):
 		try:
 			resp = requests.post(Settings.PATH_TO_SERVER_INSTA + Settings.RECEIVER_INSTA, data = post_data)
 			if resp.status_code == 200:
 				try:
 					parsed = resp.json()
 					if 'Error' in parsed:
-						self.write("Error: " + str(parsed['Error']) + "\n")
+						if firstTime:
+							print "Error: " + str(parsed['Error'])
+						else:
+							self.write("Error: " + str(parsed['Error']) + "\n")
 						return None
 					else:
 						return parsed['Result']
 				except ValueError as e:
-					self.write("ValueError:\n")
-					self.write(str(resp.content) + "\n")
+					if firstTime:
+						print "ValueError:\n" + str(resp.content)
+					else:
+						self.write("ValueError:\n")
+						self.write(str(resp.content) + "\n")
 					return None
 			else:
 				resp.raise_for_status()
 		except ConnectionError as e:
-			self.write("ConnectionError:\n")
-			self.write(str(e) + "\n")
+			if firstTime:
+				print "ConnectionError:\n" + str(e)
+			else:
+				self.write("ConnectionError:\n")
+				self.write(str(e) + "\n")
 			return None 
 		except Timeout as e:
-			self.write("Timeout Error:\n")
-			self.write(str(e) + "\n")
+			if firstTime:
+				print "Timeout Error:\n" + str(e)
+			else:
+				self.write("Timeout Error:\n")
+				self.write(str(e) + "\n")
 			return None
 
 
