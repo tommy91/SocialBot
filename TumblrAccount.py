@@ -1,3 +1,5 @@
+import sys
+
 import pytumblr
 from Account import *
 
@@ -101,9 +103,15 @@ class TumblrAccount(Account):
 
 	def updateBlog(self, firstTime=False):
 		if self.getAccountName() != "not available":
-			self.write("\tUpdate " + self.getAccountName() + ".. ")
+			if firstTime:
+				sys.stdout.write("\tUpdate " + self.getAccountName() + ".. ")
+			else:
+				self.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
-			self.write("\tUpdate " + self.mail + ".. ")
+			if firstTime:
+				sys.stdout.write("\tUpdate " + self.mail + ".. ")
+			else:
+				self.write("\tUpdate " + self.mail + ".. ")
 		try:
 			response = self.clientInfo.info()
 			if self.checkResponse(response):
@@ -118,15 +126,30 @@ class TumblrAccount(Account):
 					self.data['blogname'] = response["user"]["blogs"][0]["name"]
 					self.data['url'] = response["user"]["blogs"][0]["url"]
 					self.accounts.matches[response["user"]["blogs"][0]["name"]] = self.strID
-				self.write("ok.\n")
+				if firstTime:
+					print "ok."
+				else:
+					self.write("ok.\n")
 			else:
-				self.write("Error: cannot update.\n")
+				if firstTime:
+					print "Error: cannot update."
+				else:
+					self.write("Error: cannot update.\n")
 		except ServerNotFoundError,msg:
-			self.write("ServerNotFoundError:\n" + str(msg) + "\n")
+			if firstTime:
+				print "ServerNotFoundError:\n" + str(msg)
+			else:
+				self.write("ServerNotFoundError:\n" + str(msg) + "\n")
 		except socket.error, msg:
-			self.write("SocketError:\n" + str(msg) + "\n")
+			if firstTime:
+				print "SocketError:\n" + str(msg)
+			else:
+				self.write("SocketError:\n" + str(msg) + "\n")
 		except Exception, msg:
-			self.write("Error Exception on client.info():\n" + str(msg) + "\n")
+			if firstTime:
+				print "Error Exception on client.info():\n" + str(msg)
+			else:
+				self.write("Error Exception on client.info():\n" + str(msg) + "\n")
 
 
 	def updateBlogData(self):

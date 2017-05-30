@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 import requests
 from httplib2 import ServerNotFoundError
@@ -158,9 +159,15 @@ class InstagramAccount(Account):
 
 	def updateBlog(self, firstTime=False):
 		if self.getAccountName() != "not available":
-			self.write("\tUpdate " + self.getAccountName() + ".. ")
+			if firstTime:
+				sys.stdout.write("\tUpdate " + self.getAccountName() + ".. ")
+			else:
+				self.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
-			self.write("\tUpdate " + self.mail + ".. ")
+			if firstTime:
+				sys.stdout.write("\tUpdate " + self.mail + ".. ")
+			else:
+				self.write("\tUpdate " + self.mail + ".. ")
 		try:
 			ibi = self.post_insta_request({'action': 'get_insta_blog_info'})
 			if self.checkResponse(ibi):
@@ -172,13 +179,21 @@ class InstagramAccount(Account):
 				self.data['posts'] = ibi['post']
 				self.data['usertags'] = ibi['usertags']
 				self.accounts.matches[ibi['name']] = self.strID
-				self.write("ok.\n")
+				if firstTime:
+					print "ok."
+				else:
+					self.write("ok.\n")
 			else:
-				self.write("Error: cannot update.\n")
+				if firstTime:
+					print "Error: cannot update."
+				else:
+					self.write("Error: cannot update.\n")
 		except Exception, msg:
-			self.write("Error Exception:\n" + str(msg) + "\n")
+			if firstTime:
+				print "Error Exception:\n" + str(msg)
+			else:
+				self.write("Error Exception:\n" + str(msg) + "\n")
 						
-
 
 	def updateBlogData(self):
 		self.write("\tUpdate " + self.data['name'] + ".. ")
