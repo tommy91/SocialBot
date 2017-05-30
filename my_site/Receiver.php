@@ -1,7 +1,6 @@
 <?php
 
 require_once 'funzioni_mysql.php';
-require_once 'insta.php';
 
 $data = new MysqlClass(); 
 $data->connetti();
@@ -47,15 +46,6 @@ function fetchUpDelAndReturn($auth) {
     }
     else {
         return array('Result' => $auth['Result']);
-    }
-}
-
-function fetchInstaResult($res) {
-    if (array_key_exists('Error', $res)) {
-        return $res;
-    }
-    else {
-        return array('Result' => $res);
     }
 }
 
@@ -565,89 +555,6 @@ if (isset($_POST['action'])) {
         else
             echo json_encode($fetch_result);
     }
-
-    if($request == "get_insta_blog_info") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        echo json_encode(fetchInstaResult(get_user_info($username,$password)));
-    }
-
-    if($request == "get_id_by_username") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $user = $_POST['user'];
-        echo json_encode(fetchInstaResult(get_id_by_username($username,$password,$user)));
-    }
-
-    if($request == "get_insta_media") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $user = $_POST['user'];
-        $maxNum = $_POST['maxNum'];
-        echo json_encode(fetchInstaResult(get_insta_media($username,$password,$user,$maxNum)));
-    }
-
-    if($request == "follow_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $user = $_POST['user'];
-        echo json_encode(fetchInstaResult(follow_insta($username,$password,$user)));
-    }
-
-    if($request == "unfollow_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $user = $_POST['user'];
-        echo json_encode(fetchInstaResult(unfollow_insta($username,$password,$user)));
-    }
-
-    if($request == "like_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $postID = $_POST['postID'];
-        echo json_encode(fetchInstaResult(like_insta($username,$password,$postID)));
-    }
-
-    if($request == "getHashtagFeed_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $tag = $_POST['tag'];
-        $isPopular = $_POST['isPopular'];
-        $maxNum = $_POST['maxNum'];
-        echo json_encode(fetchInstaResult(getHashtagFeed($username,$password,$tag,$isPopular,$maxNum)));
-    }
-
-    if($request == "get_likers_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $postID = $_POST['postID'];
-        $maxNum = $_POST['maxNum'];
-        echo json_encode(fetchInstaResult(get_likers($username,$password,$postID,$maxNum)));
-    }
-
-    if($request == "get_comments_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $postID = $_POST['postID'];
-        $maxNum = $_POST['maxNum'];
-        echo json_encode(fetchInstaResult(get_comments($username,$password,$postID,$maxNum)));
-    }
-
-    if($request == "get_followers_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $userID = $_POST['userID'];
-        $maxNum = $_POST['maxNum'];
-        echo json_encode(fetchInstaResult(getFollowers($username,$password,$userID,$maxNum)));
-    }
-
-    if($request == "get_followings_insta") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $userID = $_POST['userID'];
-        echo json_encode(fetchInstaResult(getFollowings($username,$password,$userID)));
-    }
-
 
 }
 

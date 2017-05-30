@@ -1,6 +1,11 @@
 import os
 import pickle
+import requests
+from httplib2 import ServerNotFoundError
+from requests.exceptions import ConnectionError, Timeout, HTTPError
+
 from Account import *
+import Settings
 
 class InstagramAccount(Account):
 
@@ -132,12 +137,6 @@ class InstagramAccount(Account):
 		self.dbManager.add("Fstats",args)
 
 
-	def post_insta_request(self, post_data):
-		post_data['username'] = self.username
-		post_data['password'] = self.password
-		return self.post_request(post_data)
-
-
 	def initData(self):
 		return {'private': "not available",
 				'following': "not available",
@@ -157,7 +156,7 @@ class InstagramAccount(Account):
 			return False
 
 
-	def updateBlog(self):
+	def updateBlog(self, firstTime=False):
 		if self.getAccountName() != "not available":
 			self.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
@@ -480,10 +479,15 @@ class InstagramAccount(Account):
 			tfl = self.statistics['timer_like_prob']
 			if seed <= (tfl['l4l'] + tfl['l4l+f'] + tfl['l4l+rl'] + tfl['l4l+f+rl']):
 				tag = self.randomL4L()
+				self.write("\tGet recent media with tag '" + tag + "'.. ")
 				media = self.getTaggedRecentInsta(tag,1)
-				if media == []:
+				if media == None:
+					continue
+				elif media == []:
 					self.write("no recent tag for '" + tag + "'!\n")
 					continue
+				else:
+					self.write("ok\n")
 				media = media[0]
 				if seed <= tfl['l4l']:
 					self.justLike(media, isDump, isL4L = True)
@@ -503,10 +507,15 @@ class InstagramAccount(Account):
 				if tag == "":
 					self.write("cannot get random tag!\n")
 					continue
+				self.write("\tGet recent media with tag '" + tag + "'.. ")
 				media = self.getTaggedRecentInsta(tag,1)
-				if media == []:
+				if media == None:
+					continue
+				elif media == []:
 					self.write("no recent tag for '" + tag + "'!\n")
 					continue
+				else:
+					self.write("ok\n")
 				media = media[0]
 				if seed <= tfl['l+f+rl']:
 					self.likeFollowAndRandomLike(media, isDump)
@@ -527,7 +536,7 @@ class InstagramAccount(Account):
 					continue
 				self.randomLike(user, isDump)
 				num_rl += 1
-			self.write("\r\t" + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl of " + str(num_likes))
+			self.write("\t" str(counter) " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl\n")
 		self.write("\n")
 
 
@@ -658,6 +667,43 @@ class InstagramAccount(Account):
 			return None
 		else:
 			return resp[0] 
+
+
+	def post_insta_request(self, post_data):
+		post_data['username'] = self.username
+		post_data['password'] = self.password
+		try:
+			return self.send_and_check_request_insta(post_data)
+		except HTTPError as e:
+			self.write(str(e) + "\n")
+			return None
+
+
+	def send_and_check_request_insta(self, post_data):
+		try:
+			resp = requests.post(Settings.PATH_TO_SERVER_INSTA + Settings.RECEIVER_INSTA, data = post_data)
+			if resp.status_code == 200:
+				try:
+					parsed = resp.json()
+					if 'Error' in parsed:
+						self.write("Error: " + str(parsed['Error']) + "\n")
+						return None
+					else:
+						return parsed['Result']
+				except ValueError as e:
+					self.write("ValueError:\n")
+					self.write(str(resp.content) + "\n")
+					return None
+			else:
+				resp.raise_for_status()
+		except ConnectionError as e:
+			self.write("ConnectionError:\n")
+			self.write(str(e) + "\n")
+			return None 
+		except Timeout as e:
+			self.write("Timeout Error:\n")
+			self.write(str(e) + "\n")
+			return None
 
 
 	def logAccount(self):

@@ -39,7 +39,7 @@ class SBProg:
 		self.canWrite = self.output.canWrite
 		self.printHello()
 		if not self.tryConnectToRemoteServer():
-			self.write("Closing.. bye.\n")
+			print "Closing.. bye."
 		self.dbManager = DbManager(self.output)
 		self.tryConnectDB()
 		self.mainBOT()
@@ -50,17 +50,17 @@ class SBProg:
 
 
 	def printHello(self):
-		self.write("""$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\
+		print """$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\
 $$$$$$$$$$$$$$$$$$$$$$$$$$   WELCOME SOCIAL BOT   $$$$$$$$$$$$$$$$$$$$$$$$$$\n\
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n""")
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"""
 
 
 	def tryConnectToRemoteServer(self):
 		"Look for the remote server"
-		self.write("Trying connecting to server online.. ")
+		sys.stdout.write("Trying connecting to server online.. ")
 		resp = self.post_request({"action": "server_alive"})
 		if resp != None:
-			self.write("ok\n")
+			print "ok"
 			return True
 		else:
 			return False
@@ -68,25 +68,25 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 
 	def tryConnectDB(self):
 		"Look for database"
-		self.write("Look for database (" + self.dbManager.dbName + ").. ")
+		sys.stdout.write("Look for database (" + self.dbManager.dbName + ").. ")
 		if (not os.path.exists(self.dbManager.dbName)):
-			self.write("not in path\n")
+			print "not in path"
 			self.dbManager.initDB()
 		else:
-			self.write("already in path!\n")
+			print "already in path!"
 			self.dbManager.initDB()
 
 
 	def mainBOT(self):
-		self.write("Initializing the BOT:\n")
+		print "Initializing the BOT:"
 		self.startSessionTime = datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')
-		self.write("Get data from online server:\n")
+		print "Get data from online server:"
 		self.accounts = Accounts(self)
-		self.write("Get data from online server complete!\n")
+		print "Get data from online server complete!"
 		self.updateStatistics(firstTime=True)
 		if self.isTest:
 			self.testConnectedBlogs()
-		self.write("Initialization finished! Run the blogs!\n")
+		print "Initialization finished! Run the blogs!"
 
 
 	def newEntry(self):
@@ -104,18 +104,20 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			elif (entry != "") and (entry.split()[0] in ["changeSpeed","speed","cs"]):
 				self.output.changeSpeed(entry)
 			elif (entry != "") and (entry.split()[0] in ["run","Run"]):
-				self.accounts.runBlogs(entry)
+				# self.accounts.runBlogs(entry)
+				print "Running Blogs!"
+				t = threading.Thread(target=self.accounts.runBlogs, args=(entry,)).start()
 			elif (entry != "") and (entry.split()[0] in ["stop","Stop"]):
 				self.accounts.stopBlogs(entry)
 			elif (entry != "") and (entry.split()[0] == "copy"):
 				self.copyBlog(entry)
 			else:
-				self.write("Unknown command '" + entry + "'\n",True)
+				print "Unknown command '" + entry + "'"
 
 
 	def logResults(self):
 		self.canWrite = True
-		self.write("\nLogging results..\n")
+		print "\nLogging results.."
 		while not raw_input() in ['q','Q']:
 			pass
 		self.canWrite = False
@@ -125,21 +127,21 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 		"Print list of available commands"
 		prevCanWrite = self.canWrite
 		self.canWrite = True
-		self.write("List of commands:\n",True)
-		self.write("   - 'help': for list of instructions\n",True)
-		self.write("   - 'clean': clean directory\n",True)
-		self.write("   - 'f': fast print\n",True)
-		self.write("   - 'changeSpeed': for changing printing text speed\n",True)
-		self.write("   - 'copy blog_to_copy my_blog': for copy an entire blog\n",True)
-		self.write("   - 'run': for run a/all blog(s)\n",True)
-		self.write("   - 'stop': for stop a/all blog(s)\n",True)
-		self.write("   - 'quit': for quit\n",True)
+		print "List of commands:"
+		print "   - 'help': for list of instructions"
+		print "   - 'clean': clean directory"
+		print "   - 'f': fast print"
+		print "   - 'changeSpeed': for changing printing text speed"
+		print "   - 'copy blog_to_copy my_blog': for copy an entire blog"
+		print "   - 'run': for run a/all blog(s)"
+		print "   - 'stop': for stop a/all blog(s)"
+		print "   - 'quit': for quit"
 		prevCanWrite = self.canWrite
 
 
 	def closing_operations(self):
 		self.canWrite = True
-		self.write("Terminating program.\n")
+		print "Terminating program."
 		self.accounts.closingOperations()
 		try:
 			self.timers["update"].cancel()
@@ -147,15 +149,15 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			pass
 		self.updateStatistics()
 		resp = self.post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
-		self.write("   Bye!\n\n")
+		print "   Bye!\n"
 
 
 	def updateStatistics(self, firstTime=False):
 		try:
 			if firstTime:
-				self.write("Update stats.. ")
-			# else:
-			# 	self.write("\tUpdate stats.. ")
+				sys.stdout.write("Update stats.. ")
+			else:
+				self.write("\tUpdate stats.. ")
 			post_data_stats = {"action": "update_statistics",
 				"Session_Start": self.startSessionTime,
 				"Num_Threads": threading.activeCount(),
@@ -165,13 +167,21 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 				post_data_stats["Deadline_Update"] = self.timersTime["update"]
 			up_stat = self.post_request(post_data_stats)
 			if up_stat == None:
-				self.write("Error: Update stats NOT ok (None up_stat)\n")
+				if firstTime:
+					print "Error: Update stats NOT ok (None up_stat)"
+				else:
+					self.write("Error: Update stats NOT ok (None up_stat)\n")
 			else:
 				if firstTime:
+					print "ok!"
+				else:
 					self.write("ok!\n")
 		except KeyError, msg:
-			self.write("KeyError on Update stats:\n")
-			self.write(str(msg) + "\n")
+			if firstTime:
+				print "KeyError on Update stats:\n" + str(msg)
+			else:
+				self.write("KeyError on Update stats:\n")
+				self.write(str(msg) + "\n")
 
 
 	def copyBlog(self, entry):
@@ -182,22 +192,22 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n
 			my_blog = self.accounts[self.matches[entry.split()[2]]]
 			limit = int(entry.split()[3])
 			counter = int(entry.split()[4])
-			self.write("Creating new thread for copy the blog.. ",True)
+			print "Creating new thread for copy the blog.. "
 			t = threading.Thread(target=my_blog.copyBlog, args=(blog_to_copy,limit,counter)).start()
 			self.updateStatistics()
 			self.canWrite = prevCanWrite
 		except IndexError, msg:
-			self.write("   Syntax error: 'copy source myblog limit counter'\n",True)
+			print "   Syntax error: 'copy source myblog limit counter'"
 			self.canWrite = prevCanWrite
 
 
 	def testConnectedBlogs(self):
-		self.write("\nBegin testing code:\n")
+		print "\nBegin testing code:"
 		account = self.accounts.accounts['1']
 		account.initFollowers()
 		account.initFollowings()
 		account.unfollow()
-		self.write("\nEnd testing code.\n")
+		print "\nEnd testing code."
 
 
 	def post_request(self, post_data):

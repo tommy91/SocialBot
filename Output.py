@@ -1,9 +1,13 @@
 import sys
 import time
+import logging
 import datetime
 import threading
 
 from Utils import *
+import Settings
+
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG, datefmt='%m/%d/%y %H:%M:%S', filename=Settings.LOGFILE_PATH)
 
 
 class Output:
@@ -32,11 +36,11 @@ class Output:
 		if (not force) and (not self.canWrite):
 			return
 		self.lock.acquire()
-		now = datetime.datetime.now()
-		nowstr = date2string(now)
+		# now = datetime.datetime.now()
+		# nowstr = date2string(now)
 		try:
-			sys.stdout.write(nowstr + self.startSimble)
-			sys.stdout.flush()
+			# sys.stdout.write(nowstr + self.startSimble)
+			# sys.stdout.flush()
 			self.write(res, force)
 		finally:
 			self.lock.release()
@@ -49,11 +53,12 @@ class Output:
 		self.lock.acquire()
 		self.lastline = res
 		try:
-			time.sleep(self.sleepLine)
-			for c in res:
-				sys.stdout.write('%s' % c)
-				sys.stdout.flush()
-				time.sleep(self.sleepChar)
+			# time.sleep(self.sleepLine)
+			logging.info(res)
+			# for c in res:
+			# 	sys.stdout.write('%s' % c)
+			# 	sys.stdout.flush()
+			# 	time.sleep(self.sleepChar)
 
 		finally:
 			self.lock.release()

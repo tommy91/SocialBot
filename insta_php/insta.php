@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+require 'logManager.php'
 
 $ig = new \InstagramAPI\Instagram();
 
@@ -15,7 +16,11 @@ function connect($username, $password){
 function get_user_info($username, $password) {
 	global $ig;
 	connect($username,$password);
-	$info = $ig->getSelfUserInfo();
+	try {
+		$info = $ig->getSelfUserInfo();
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($info->status != 'ok')
 		return array('Error' => $info);
 	$userInfo = $info->user;
@@ -33,7 +38,11 @@ function get_user_info($username, $password) {
 function get_id_by_username($username, $password, $user) {
 	global $ig;
 	connect($username,$password);
-	$info = $ig->getUserInfoByName($user);
+	try {
+		$info = $ig->getUserInfoByName($user);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($info->status != 'ok')
 		return array('Error' => $info);
 	return array($info->user->pk);
@@ -42,7 +51,11 @@ function get_id_by_username($username, $password, $user) {
 function get_insta_media($username, $password, $user, $max_num) {
 	global $ig;
 	connect($username,$password);
-	$media = $ig->getUserFeed($user);
+	try {
+		$media = $ig->getUserFeed($user);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($media->status != 'ok')
 		return array('Error' => $media);
 	else {
@@ -63,7 +76,11 @@ function get_insta_media($username, $password, $user, $max_num) {
 function follow_insta($username, $password, $user) {
 	global $ig;
 	connect($username,$password);
-	$follow_response = $ig->follow($user);
+	try {
+		$follow_response = $ig->follow($user);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($follow_response->status != 'ok')
 		return array('Error' => $follow_response);
 	else
@@ -73,7 +90,11 @@ function follow_insta($username, $password, $user) {
 function unfollow_insta($username, $password, $user) {
 	global $ig;
 	connect($username,$password);
-	$unfollow_response = $ig->unfollow($user);
+	try {
+		$unfollow_response = $ig->unfollow($user);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($unfollow_response->status != 'ok')
 		return array('Error' => $unfollow_response);
 	else
@@ -83,7 +104,11 @@ function unfollow_insta($username, $password, $user) {
 function like_insta($username, $password, $postID) {
 	global $ig;
 	connect($username,$password);
-	$like_response = $ig->like($postID);
+	try {
+		$like_response = $ig->like($postID);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($like_response->status != 'ok')
 		return array('Error' => $like_response);
 	else
@@ -93,7 +118,11 @@ function like_insta($username, $password, $postID) {
 function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 	global $ig;
 	connect($username,$password);
-	$hashtagFeed = $ig->getHashtagFeed($tag);
+	try {
+		$hashtagFeed = $ig->getHashtagFeed($tag);
+	} catch (Exception $e) {
+		return array('Error' => $e->getMessage());
+	}
 	if ($hashtagFeed->status != 'ok')
 		return array('Error' => $hashtagFeed);
 	else {
@@ -142,9 +171,9 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 function get_likers($username, $password, $mediaID, $max_num = NULL) {
 	global $ig;
 	connect($username,$password);
-	$likers = $ig->getMediaLikers($mediaID);
-	$counter = 0;
 	try {
+		$likers = $ig->getMediaLikers($mediaID);
+		$counter = 0;
 		if ($likers->status != 'ok')
 			return array('Error' => $likers);
 		else {
@@ -169,9 +198,9 @@ function get_likers($username, $password, $mediaID, $max_num = NULL) {
 function get_comments($username, $password, $mediaID, $max_num = NULL) {
 	global $ig;
 	connect($username,$password);
-	$comments = $ig->getMediaComments($mediaID);
-	$counter = 0;
 	try {
+		$comments = $ig->getMediaComments($mediaID);
+		$counter = 0;
 		if ($comments->status != 'ok')
 			return array('Error' => $comments);
 		else {
@@ -252,5 +281,102 @@ function getFollowings($username, $password, $userID = NULL) {
 	}
 }
 
+function fetchInstaResult($res) {
+    if (array_key_exists('Error', $res)) {
+    	logError($res['Error']);
+        return $res;
+    }
+    else {
+        return array('Result' => $res);
+    }
+}
+
+
+if (isset($_POST['action'])) {
+	$request = $_POST['action'];
+
+	if($request == "get_insta_blog_info") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        echo json_encode(fetchInstaResult(get_user_info($username,$password)));
+    }
+
+    if($request == "get_id_by_username") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $user = $_POST['user'];
+        echo json_encode(fetchInstaResult(get_id_by_username($username,$password,$user)));
+    }
+
+    if($request == "get_insta_media") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $user = $_POST['user'];
+        $maxNum = $_POST['maxNum'];
+        echo json_encode(fetchInstaResult(get_insta_media($username,$password,$user,$maxNum)));
+    }
+
+    if($request == "follow_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $user = $_POST['user'];
+        echo json_encode(fetchInstaResult(follow_insta($username,$password,$user)));
+    }
+
+    if($request == "unfollow_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $user = $_POST['user'];
+        echo json_encode(fetchInstaResult(unfollow_insta($username,$password,$user)));
+    }
+
+    if($request == "like_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $postID = $_POST['postID'];
+        echo json_encode(fetchInstaResult(like_insta($username,$password,$postID)));
+    }
+
+    if($request == "getHashtagFeed_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $tag = $_POST['tag'];
+        $isPopular = $_POST['isPopular'];
+        $maxNum = $_POST['maxNum'];
+        echo json_encode(fetchInstaResult(getHashtagFeed($username,$password,$tag,$isPopular,$maxNum)));
+    }
+
+    if($request == "get_likers_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $postID = $_POST['postID'];
+        $maxNum = $_POST['maxNum'];
+        echo json_encode(fetchInstaResult(get_likers($username,$password,$postID,$maxNum)));
+    }
+
+    if($request == "get_comments_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $postID = $_POST['postID'];
+        $maxNum = $_POST['maxNum'];
+        echo json_encode(fetchInstaResult(get_comments($username,$password,$postID,$maxNum)));
+    }
+
+    if($request == "get_followers_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $userID = $_POST['userID'];
+        $maxNum = $_POST['maxNum'];
+        echo json_encode(fetchInstaResult(getFollowers($username,$password,$userID,$maxNum)));
+    }
+
+    if($request == "get_followings_insta") {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $userID = $_POST['userID'];
+        echo json_encode(fetchInstaResult(getFollowings($username,$password,$userID)));
+    }
+
+}
 
 ?>

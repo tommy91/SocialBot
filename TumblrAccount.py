@@ -99,7 +99,7 @@ class TumblrAccount(Account):
 			return True
 
 
-	def updateBlog(self):
+	def updateBlog(self, firstTime=False):
 		if self.getAccountName() != "not available":
 			self.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:

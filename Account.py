@@ -358,7 +358,10 @@ class Account(object):
 			self.write("unfollowed " + str(counterUnfollowed) + ".\n")
 		# Check if too many follow and unfollow in that case
 		if len(self.followingList) >= self.LIMITFOLLOW:
+			self.write("\t#Following: " + str(len(self.followingList)) + " >= max # following (" + str(self.LIMITFOLLOW) + ") -> need to unfollow!\n")
 			self.unfollow()
+		else:
+			self.write("\t#Following: " + str(len(self.followingList)) + " < max # following (" + str(self.LIMITFOLLOW) + ") -> NO need to unfollow!\n")
 			
 
 

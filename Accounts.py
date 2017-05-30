@@ -304,16 +304,16 @@ class Accounts:
 					if blog.getAccountName() != "not available":
 						blog.runBlog()
 					else:
-						self.write("Cannot run not available blog! (id: " + blog.strID + ")\n",True)
+						print "Cannot run not available blog! (id: " + blog.strID + ")"
 			else:
 				try:
 					self.accounts[self.matches[entry.split()[1]]].runBlog()
 				except KeyError, msg:
-					self.write(entry.split()[1] + " is not an existing account!\n",True)
+					print entry.split()[1] + " is not an existing account!"
 			if self.canWrite:
 				self.sbprog.logResults()
 		except IndexError, msg:
-			self.write("   Syntax error: 'run all' or 'run _blogname_'\n",True)
+			print "   Syntax error: 'run all' or 'run _blogname_'"
 
 
 	def stopBlogs(self, entry):
@@ -328,9 +328,9 @@ class Accounts:
 				try:
 					self.accounts[self.matches[entry.split()[1]]].stopBlog()
 				except KeyError, msg:
-					self.write(entry.split()[1] + " is not an existing blogname!\n",True)
+					print entry.split()[1] + " is not an existing blogname!"
 		except IndexError, msg:
-			self.write("   Syntax error: 'stop all' or 'stop _blogname_'\n",True)
+			print "   Syntax error: 'stop all' or 'stop _blogname_'"
 
 
 	def setUpdateTimer(self):
@@ -344,10 +344,13 @@ class Accounts:
 
 	def updateBlogs(self, firstTime=False):
 		self.lock.acquire()
-		self.writeln("Update blogs info..\n")
-		self.write("Update social data:\n")
+		if firstTime:
+			print "Update blogs info..\n" + "Update social data:"
+		else:
+			self.writeln("Update blogs info..\n")
+			self.write("Update social data:\n")
 		for kb,blog in self.accounts.iteritems():
-			blog.updateBlog()
+			blog.updateBlog(firstTime)
 		self.updateBlogsData(firstTime)
 		self.synchOperations(firstTime)
 		if not self.isTest:
