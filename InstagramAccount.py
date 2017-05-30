@@ -348,7 +348,7 @@ class InstagramAccount(Account):
 				could_get, follow = self.getNewFollowFromDB(alreadyFollowed)
 				if not could_get:
 					errors += 1
-					self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows) + " ( " + str(errors) + " errors )")
+					self.write("\r\t" + str(counter) + " of " + str(num_follows) + ": " + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl" + " ( " + str(errors) + " errors )")
 					continue
 				alreadyFollowed.append(follow)
 				if seed <= tfp['f+rl']:
@@ -361,7 +361,7 @@ class InstagramAccount(Account):
 				could_get, follow = self.getNewFollowFromSearch(alreadyFollowed)
 				if not could_get:
 					errors += 1
-					self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows) + " ( " + str(errors) + " errors )")
+					self.write("\r\t" + str(counter) + " of " + str(num_follows) + ": " + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl" + " ( " + str(errors) + " errors )")
 					continue
 				alreadyFollowed.append(follow)
 				if seed <= (tfp['f+rl'] + tfp['f'] + tfp['f4f']):
@@ -370,7 +370,7 @@ class InstagramAccount(Account):
 				else:
 					self.followAndRandomLike(follow, isDump, isF4F = True)
 					num_f4frl += 1
-			self.write("\r\t" + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl of " + str(num_follows) + " ( " + str(errors) + " errors )")
+			self.write("\r\t" + str(counter) + " of " + str(num_follows) + ": " + str(num_f) + " f, " + str(num_frl) + " f+rl, " + str(num_f4f) + " f4f, " + str(num_f4frl) + " f4f+rl" + " ( " + str(errors) + " errors )")
 		self.write("\n")
 
 
@@ -474,6 +474,7 @@ class InstagramAccount(Account):
 		num_lrl = 0
 		num_l = 0
 		num_rl = 0
+		errors = 0
 		for counter in range(0,num_likes):
 			seed = random.random()
 			tfl = self.statistics['timer_like_prob']
@@ -482,9 +483,13 @@ class InstagramAccount(Account):
 				self.write("\tGet recent media with tag '" + tag + "'.. ")
 				media = self.getTaggedRecentInsta(tag,1)
 				if media == None:
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				elif media == []:
 					self.write("no recent tag for '" + tag + "'!\n")
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				else:
 					self.write("ok\n")
@@ -506,13 +511,19 @@ class InstagramAccount(Account):
 				tag = self.randomTag()
 				if tag == "":
 					self.write("cannot get random tag!\n")
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				self.write("\tGet recent media with tag '" + tag + "'.. ")
 				media = self.getTaggedRecentInsta(tag,1)
 				if media == None:
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				elif media == []:
 					self.write("no recent tag for '" + tag + "'!\n")
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				else:
 					self.write("ok\n")
@@ -533,10 +544,12 @@ class InstagramAccount(Account):
 				could_get, user = self.getNewFollowFromDB([])
 				if not could_get:
 					self.write("no follow in DB!\n")
+					errors += 1
+					self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 					continue
 				self.randomLike(user, isDump)
 				num_rl += 1
-			self.write("\t" str(counter) " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl\n")
+			self.write("\t" + str(counter) + " of " + str(num_likes) + ": " + str(num_l4l) + " l4l, " + str(num_l4lf) + " l4l+f, " + str(num_l4lrl) + " l4l+rl, " + str(num_l4lfrl) + " l4l+f+rl, " + str(num_lfrl) + " l+f+rl, " + str(num_lf) + " l+f, " + str(num_lrl) + " l+rl, " + str(num_l) + " l, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
 		self.write("\n")
 
 
