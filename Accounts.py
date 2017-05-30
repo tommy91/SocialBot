@@ -65,7 +65,7 @@ class Accounts:
 			print "Get Accounts Data:"
 			counter = 0
 			for myAccount in myAccounts:
-				print "\t" + str(counter + 1) + ") " + myAccount["Mail"] + " -> "
+				sys.stdout.write("\t" + str(counter + 1) + ") " + myAccount["Mail"] + " -> ")
 				tags = self.post_request({"action": "get_tags", "ID": myAccount['ID']})
 				otherAccounts = self.post_request({"action": "get_blogs", "ID": myAccount['ID']})
 				if (tags == None) or (otherAccounts == None):
