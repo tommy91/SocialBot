@@ -59,3 +59,15 @@ def blogs2list(other_accounts):
 	return oaList
 
 
+def binarySearch(elem, lst):
+	if lst == []:
+		return False
+	index_pivot = int(len(lst)/float(2))
+	if lst[index_pivot] == elem:
+		return True
+	elif lst[index_pivot] > elem:
+		return binarySearch(elem, lst[:index_pivot])
+	else:
+		return binarySearch(elem, lst[(index_pivot+1):])
+
+

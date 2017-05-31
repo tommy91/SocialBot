@@ -386,6 +386,7 @@ class Account(object):
 		self.write("\tInitialize Followers.. \n")
 		self.followersList = []
 		self.getFollowers()
+		self.orderedFollowersList = sorted(self.followersList)
 		self.write("\tDone.\n")
 
 
@@ -408,7 +409,7 @@ class Account(object):
 			follow = following.pop()
 			counter += 1
 			self.write("\r\t\tCheck following " + str(counter) + "/" + count_final_str)
-			if follow in self.followersList:
+			if binarySearch(follow, self.orderedFollowersList):
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
