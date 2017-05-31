@@ -7,7 +7,7 @@ import threading
 from Utils import *
 import Settings
 
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG, datefmt='%m/%d/%y %H:%M:%S', filename=Settings.LOGFILE_PATH)
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO, datefmt='%m/%d/%y %H:%M:%S', filename=Settings.LOGFILE_PATH)
 
 
 class Output:
