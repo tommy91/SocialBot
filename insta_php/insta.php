@@ -1,7 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
-require 'logManager.php'
+require 'logManager.php';
 
 $ig = new \InstagramAPI\Instagram();
 
