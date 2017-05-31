@@ -25,6 +25,8 @@ class SBProg:
 	PATH_TO_SERVER = Settings.PATH_TO_SERVER
 	RECEIVER = Settings.RECEIVER 
 
+	MAX_NUM_ERRORS = 5
+
 	def __init__(self, sleepChar=None, sleepLine=None, isTest = False):
 		self.isTest = isTest
 		self.sleepChar = sleepChar
@@ -219,6 +221,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 
 
 	def send_and_check_request(self, post_data):
+		errors = 0
 		try:
 			resp = requests.post(Settings.PATH_TO_SERVER + Settings.RECEIVER, data = post_data)
 			if resp.status_code == 200:
@@ -238,8 +241,20 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		except ConnectionError as e:
 			self.write("ConnectionError:\n")
 			self.write(str(e) + "\n")
-			return None 
+			errors += 1
+			if errors >= self.MAX_NUM_ERRORS:
+				return None
+			else:
+				time.sleep(5)
+				self.write("Retry to send request!")
+				self.send_and_check_request(post_data)
 		except Timeout as e:
 			self.write("Timeout Error:\n")
 			self.write(str(e) + "\n")
-			return None
+			errors += 1
+			if errors >= self.MAX_NUM_ERRORS:
+				return None
+			else:
+				time.sleep(5)
+				self.write("Retry to send request!")
+				self.send_and_check_request(post_data)
