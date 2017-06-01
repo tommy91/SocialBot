@@ -421,10 +421,18 @@ class InstagramAccount(Account):
 		while True:
 			tag = self.randomF4F()
 			follow = self.getTaggedRecentInsta(tag, 1)
-			if follow == []:
+			if follow == None:
+				self.write("Error: 'None' response for find recent media tagged '" + tag + "'\n")
+				num_errors += 1
+				if num_errors >= max_errors:
+					self.write("Error: max num errors reached for getNewFollowFromSearch!\n")
+					return False, None
+				else:
+					self.waitInsta(little=True)
+			elif follow == []:
 				self.write("Error: cannot find recent media tagged '" + tag + "'\n")
 				return False, None
-			if not follow[0]['userID'] in alreadyFollowed:
+			elif not follow[0]['userID'] in alreadyFollowed:
 				return True, follow[0]['userID']
 			else:
 				num_errors += 1
