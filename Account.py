@@ -405,6 +405,7 @@ class Account(object):
 		blogname = self.getAccountName()
 		counter = 0
 		count_final_str = str(len(following))
+		following2insert = []
 		while following != []:
 			follow = following.pop()
 			counter += 1
@@ -413,8 +414,10 @@ class Account(object):
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
-			self.dbManager.add("Following", args)
-		self.write("\n")
+			following2insert.append(args)
+		self.write("\n\t\tInsert following in DB.. ")
+		self.dbManager.addList("Following", argsList)
+		self.write("ok!\n")
 		self.followingList = self.dbManager.getFollowing(blogname)
 
 

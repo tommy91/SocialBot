@@ -84,6 +84,27 @@ class DbManager:
 		self.disconnectDB(db,silent)
 
 
+	def addList(self, table, argsList, silent=True):
+		db = self.connectDB(silent)
+		c = db.cursor() 
+		while argsList != []:
+			try:
+				if table == "PostsLikes":
+					c.execute('INSERT INTO PostsLikes VALUES (?,?,?,?,?)',argsList.pop())
+				elif table == "Follow":
+					c.execute('INSERT INTO Follow VALUES (?,?,?)',argsList.pop())
+				elif table == "Following":
+					c.execute('INSERT INTO Following VALUES (?,?,?,?)',argsList.pop())
+				elif table == "Fstats":
+					c.execute('INSERT INTO Fstats VALUES (?,?,?,?)',argsList.pop())
+			except sqlite3.IntegrityError, msg:
+				self.write("   Error" + str(msg) + "\n")	
+			else: 
+				if not silent:
+					self.write("   Created new entry in " + table + " table.\n")
+		self.disconnectDB(db,silent)
+
+
 	def delete(self, table, args, silent=True):
 		db = self.connectDB(silent)
 		c = db.cursor()
