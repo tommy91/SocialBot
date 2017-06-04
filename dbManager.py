@@ -158,7 +158,7 @@ class DbManager:
 		c = db.cursor()
 		rows = 0 
 		try:
-			rows = c.execute('DELETE FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time).rowcount
+			rows = c.execute('DELETE FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + str(time)).rowcount
 		except sqlite3.IntegrityError, msg:
 			self.write("\tError" + str(msg) + "\n")
 		else:
@@ -305,11 +305,11 @@ class DbManager:
 
 
 	def getFollowingTrash(self, blogname, time, silent=True):
-		return self.execute_get_one('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" AND time<=' + time + ' AND NOT isFollowingBack', silent, "Following")
+		return self.execute_get_one('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" AND time<=' + str(time) + ' AND NOT isFollowingBack', silent, "Following")
 
 
 	def getFstatsTrash(self, blogname, time, silent=True):
-		return self.execute_get_one('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + time, silent, "Fstats")
+		return self.execute_get_one('SELECT followedBlog FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + str(time), silent, "Fstats")
 
 
 	def getTablesNames(self, silent=True):
