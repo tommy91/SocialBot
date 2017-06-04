@@ -416,7 +416,7 @@ class Account(object):
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
 			following2insert.append(args)
 		self.write("\n\t\tInsert following in DB.. ")
-		self.dbManager.addList("Following", argsList)
+		self.dbManager.addList("Following", following2insert)
 		self.write("ok!\n")
 		self.followingList = self.dbManager.getFollowing(blogname)
 
