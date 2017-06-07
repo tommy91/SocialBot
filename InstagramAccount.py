@@ -103,7 +103,7 @@ class InstagramAccount(Account):
 					if fstat['action'][0] == 'f':
 						self.updateMatchStatistics('timer_follow', fstat['action'])
 					else:
-						self.updateMatchStatistics('timer_follow', fstat['action'])
+						self.updateMatchStatistics('timer_like', fstat['action'])
 				args = (bn,follow)
 				self.dbManager.delete('Fstats',args)
 		# Delete old ones:
