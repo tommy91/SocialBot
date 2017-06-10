@@ -87,21 +87,20 @@ class DbManager:
 	def addList(self, table, argsList, silent=True):
 		db = self.connectDB(silent)
 		c = db.cursor() 
-		while argsList != []:
-			try:
-				if table == "PostsLikes":
-					c.execute('INSERT INTO PostsLikes VALUES (?,?,?,?,?)',argsList.pop())
-				elif table == "Follow":
-					c.execute('INSERT INTO Follow VALUES (?,?,?)',argsList.pop())
-				elif table == "Following":
-					c.execute('INSERT INTO Following VALUES (?,?,?,?)',argsList.pop())
-				elif table == "Fstats":
-					c.execute('INSERT INTO Fstats VALUES (?,?,?,?)',argsList.pop())
-			except sqlite3.IntegrityError, msg:
-				self.write("   Error" + str(msg) + "\n")	
-			else: 
-				if not silent:
-					self.write("   Created new entry in " + table + " table.\n")
+		try:
+			if table == "PostsLikes":
+				c.executemany('INSERT INTO PostsLikes VALUES (?,?,?,?,?)',argsList)
+			elif table == "Follow":
+				c.executemany('INSERT INTO Follow VALUES (?,?,?)',argsList)
+			elif table == "Following":
+				c.executemany('INSERT INTO Following VALUES (?,?,?,?)',argsList)
+			elif table == "Fstats":
+				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?)',argsList)
+		except sqlite3.IntegrityError, msg:
+			self.write("   Error" + str(msg) + "\n")	
+		else: 
+			if not silent:
+				self.write("   Created new entry in " + table + " table.\n")
 		self.disconnectDB(db,silent)
 
 
