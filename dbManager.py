@@ -87,6 +87,7 @@ class DbManager:
 	def addList(self, table, argsList, silent=True):
 		db = self.connectDB(silent)
 		c = db.cursor() 
+		c.execute("begin")
 		try:
 			if table == "PostsLikes":
 				c.executemany('INSERT INTO PostsLikes VALUES (?,?,?,?,?)',argsList)
@@ -97,8 +98,10 @@ class DbManager:
 			elif table == "Fstats":
 				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?)',argsList)
 		except sqlite3.IntegrityError, msg:
+			c.execute("rollback")
 			self.write("   Error" + str(msg) + "\n")	
 		else: 
+			c.execute("commit")
 			if not silent:
 				self.write("   Created new entry in " + table + " table.\n")
 		self.disconnectDB(db,silent)
