@@ -329,18 +329,24 @@ class InstagramAccount(Account):
 						self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 					likers = self.getMediaLikersInsta(post['mediaID'], self.MAX_RETRIEVED_LIKE)
-					for liker in likers: 
-						if (not liker in self.followingList) and (not liker in self.followersList):
-							self.addFollowToDB(liker)
-							counterLikers += 1
-							self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
+					if likers == None:
+						self.write("\r\t         Error: None response for getMediaLikersInsta")
+					else:
+						for liker in likers: 
+							if (not liker in self.followingList) and (not liker in self.followersList):
+								self.addFollowToDB(liker)
+								counterLikers += 1
+								self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 					comments = self.getMediaCommentsInsta(post['mediaID'], self.MAX_RETRIEVED_COMMENTS)
-					for comment in comments: 
-						if (not comment in self.followingList) and (not comment in self.followersList):
-							self.addFollowToDB(comment)
-							counterComments += 1
-							self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
+					if comments == None:
+						self.write("\r\t         Error: None response for getMediaCommentsInsta")
+					else:
+						for comment in comments: 
+							if (not comment in self.followingList) and (not comment in self.followersList):
+								self.addFollowToDB(comment)
+								counterComments += 1
+								self.write("\r\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 				self.write("\n")
 		else:
