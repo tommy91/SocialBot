@@ -302,12 +302,15 @@ class InstagramAccount(Account):
 				self.write("\t         Error (None response) for '" + blog + "' -> skip!\n")
 				continue
 			followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
-			for follow in followers:
-				if (not follow in self.followersList) and (not follow in self.followingList):
-					self.addFollowToDB(follow)
-					counter += 1
-					self.write("\r\t         from " + blog + ".. " + str(counter))
-			self.write("\n")
+			if followers == None:
+				self.write("\t         Error (None response getFollowersSocial) for '" + blog + "'\n")
+			else:
+				for follow in followers:
+					if (not follow in self.followersList) and (not follow in self.followingList):
+						self.addFollowToDB(follow)
+						counter += 1
+						self.write("\r\t         from " + blog + ".. " + str(counter))
+				self.write("\n")
 			self.waitInsta(little=True)
 		if len(self.tags) > 0:
 			tag = self.randomTag()
