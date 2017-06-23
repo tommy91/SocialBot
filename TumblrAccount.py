@@ -24,6 +24,8 @@ class TumblrAppAccount(Account):
 class TumblrAccount(Account):
 
 
+	LIMITFOLLOW = 4950
+
 	client = None
 	clientInfo = None
 	

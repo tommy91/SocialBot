@@ -10,6 +10,8 @@ import Settings
 
 class InstagramAccount(Account):
 
+	LIMITFOLLOW = 8000
+
 	percF4F = 1/2
 	percNotF4F = 1/2
 

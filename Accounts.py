@@ -111,17 +111,20 @@ class Accounts:
 		else:
 			self.write("\tSynchronize with online register.. ")
 		synch_req = self.post_request({'action': "synch_operations"})
-		if firstTime:
-			self.write("ok\n")
+		if synch_req == None:
+			self.write("Error: None response\n")
 		else:
-			if len(synch_req) > 0:
-				self.write("\n")
-				self.alreadySynchTags = []
-				self.alreadySynchBlogs = []
-				for up_row in synch_req:
-					self.updateData(up_row)
+			if firstTime:
+				self.write("ok\n")
 			else:
-				self.write("already synch!\n")
+				if len(synch_req) > 0:
+					self.write("\n")
+					self.alreadySynchTags = []
+					self.alreadySynchBlogs = []
+					for up_row in synch_req:
+						self.updateData(up_row)
+				else:
+					self.write("already synch!\n")
 
 
 	def updateData(self, row):
