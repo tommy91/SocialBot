@@ -769,7 +769,7 @@ class InstagramAccount(Account):
 
 
 	def logAccount(self):
-		print "\nLog information for " + self.getAccountName() + ":")
+		print "\nLog information for " + self.getAccountName() + ":"
 		print "ID: " + str(self.account_id)
 		print "strID: " + self.strID
 		print "mail: " + self.mail
