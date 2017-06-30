@@ -3,6 +3,7 @@ import sqlite3
 
 from Utils import *
 from Output import Output
+import Settings
 
 
 class DbManager:
