@@ -291,14 +291,14 @@ class Accounts:
 			if entry.split()[1] in ["all","All"]:
 				for key, blog in self.accounts.iteritems():
 					if blog.getAccountName() != "not available":
-						blog.runBlog()
 						print "Running '" + blog.getAccountName() + "'"
+						blog.runBlog()
 					else:
 						print "Cannot run not available blog! (id: " + blog.strID + ")"
 			else:
 				try:
-					self.accounts[self.matches[entry.split()[1]]].runBlog()
 					print "Running '" + entry.split()[1] + "'"
+					self.accounts[self.matches[entry.split()[1]]].runBlog()
 				except KeyError, msg:
 					print entry.split()[1] + " is not an existing account!"
 		except IndexError, msg:
