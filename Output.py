@@ -14,7 +14,7 @@ class Output:
 		self.errorLog = self.setup_logger('errorLog', LOGFILE_ERROR, level=logging.DEBUG)
 
 
-	def setup_logger(name, log_file, level=logging.INFO):
+	def setup_logger(self, name, log_file, level=logging.INFO):
 	    """Function setup as many loggers as you want"""
 	    handler = logging.FileHandler(log_file)        
 	    handler.setFormatter(formatter)
