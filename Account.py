@@ -8,6 +8,7 @@ from httplib2 import ServerNotFoundError
 
 from Utils import *
 from Output import Output
+import Settings
 
 class Account(object):
 
