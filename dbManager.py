@@ -13,7 +13,7 @@ class DbManager:
 
 
 	def __init__(self, dbName=None):
-		self.output = Output(Settings.LOGFILE_PATH + "db.log")
+		self.output = Output("db.log")
 		self.write = self.output.write
 		if dbName != None:
 			self.dbName = dbName
