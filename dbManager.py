@@ -10,7 +10,7 @@ class DbManager:
 	dbName = "SocialDB.db"
 
 
-	def __init__(self, output, dbName=None):
+	def __init__(self, dbName=None):
 		self.output = Output(Settings.LOGFILE_PATH + "db.log")
 		self.write = self.output.write
 		if dbName != None:

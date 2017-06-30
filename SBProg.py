@@ -38,7 +38,7 @@ class SBProg:
 			self.printHello()
 			if not self.tryConnectToRemoteServer():
 				print "Closing.. bye."
-			self.dbManager = DbManager(self.output)
+			self.dbManager = DbManager()
 			self.tryConnectDB()
 			self.mainBOT()
 			self.newEntry()
