@@ -29,7 +29,7 @@ class SBProg:
 
 	def __init__(self, isTest = False):
 		self.isTest = isTest
-		self.output = Output(Settings.LOGFILE_PATH + "sbprog.log")
+		self.output = Output("sbprog.log")
 		self.write = self.output.write
 		self.writeError = self.output.writeError
 

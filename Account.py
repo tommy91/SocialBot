@@ -8,7 +8,7 @@ from httplib2 import ServerNotFoundError
 
 from Utils import *
 from Output import Output
-import Settings
+
 
 class Account(object):
 
@@ -28,7 +28,7 @@ class Account(object):
 
 	def __init__(self, accounts, account_id, mail, account_type):
 		self.accounts = accounts
-		self.output = Output(Settings.LOGFILE_PATH + mail + ".log")
+		self.output = Output(mail + ".log")
 		self.write = self.output.write
 		self.writeError = self.output.writeError
 		self.timers = accounts.sbprog.timers
