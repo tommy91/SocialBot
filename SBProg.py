@@ -27,28 +27,25 @@ class SBProg:
 
 	MAX_NUM_ERRORS = 5
 
-	def __init__(self, sleepChar=None, sleepLine=None, isTest = False):
+	def __init__(self, isTest = False):
 		self.isTest = isTest
-		self.sleepChar = sleepChar
-		self.sleepLine = sleepLine
-
+		self.output = Output(Settings.LOGFILE_PATH + "sbprog.log")
+		self.write = self.output.write
+		self.writeError = self.output.writeError
 
 	def runProgram(self):
-		# try:
-		self.output = Output(sleepChar=self.sleepChar, sleepLine=self.sleepLine)
-		self.write = self.output.write
-		self.writeln = self.output.writeln
-		self.canWrite = self.output.canWrite
-		self.printHello()
-		if not self.tryConnectToRemoteServer():
-			print "Closing.. bye."
-		self.dbManager = DbManager(self.output)
-		self.tryConnectDB()
-		self.mainBOT()
-		self.newEntry()
-		# except Exception, e:
-		# 	self.write("Global Error.\n")
-		# 	self.write(str(e) + "\n")
+		try:
+			self.printHello()
+			if not self.tryConnectToRemoteServer():
+				print "Closing.. bye."
+			self.dbManager = DbManager(self.output)
+			self.tryConnectDB()
+			self.mainBOT()
+			self.newEntry()
+		except Exception, e:
+			self.writeError("Error: Global Error.\n" + str(e))
+			print "Global Error"			
+			print e
 
 
 	def printHello(self):
@@ -59,7 +56,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 
 	def tryConnectToRemoteServer(self):
 		"Look for the remote server"
-		sys.stdout.write("Trying connecting to server online.. ")
+		write("Trying connecting to server online.. ")
 		resp = self.post_request({"action": "server_alive"})
 		if resp != None:
 			print "ok"
@@ -70,7 +67,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 
 	def tryConnectDB(self):
 		"Look for database"
-		sys.stdout.write("Look for database (" + self.dbManager.dbName + ").. ")
+		write("Look for database (" + self.dbManager.dbName + ").. ")
 		if (not os.path.exists(self.dbManager.dbName)):
 			print "not in path"
 			self.dbManager.initDB()
@@ -93,7 +90,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 
 	def newEntry(self):
 		while True:
-			entry = raw_input("\n" + self.output.startSimble)
+			entry = raw_input("\n -> ")
 			if entry in ["quit","exit"]:
 				self.closing_operations()
 				break
@@ -101,14 +98,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				self.printHelpCmd()
 			elif (entry != "") and (entry.split()[0] in ["clear","Clear"]):
 				self.accounts.clearDB4blog(entry)
-			elif (entry != "") and (entry.split()[0] in ["log","Log"]):
-				self.accounts.log(entry)
-			elif (entry != "") and (entry.split()[0] in ["changeSpeed","speed","cs"]):
-				self.output.changeSpeed(entry)
 			elif (entry != "") and (entry.split()[0] in ["run","Run"]):
-				# self.accounts.runBlogs(entry)
+				self.accounts.runBlogs(entry)
 				print "Running Blogs!"
-				t = threading.Thread(target=self.accounts.runBlogs, args=(entry,)).start()
 			elif (entry != "") and (entry.split()[0] in ["stop","Stop"]):
 				self.accounts.stopBlogs(entry)
 			elif (entry != "") and (entry.split()[0] == "copy"):
@@ -117,32 +109,19 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				print "Unknown command '" + entry + "'"
 
 
-	def logResults(self):
-		self.canWrite = True
-		print "\nLogging results.."
-		while not raw_input() in ['q','Q']:
-			pass
-		self.canWrite = False
-
-
 	def printHelpCmd(self):
 		"Print list of available commands"
-		prevCanWrite = self.canWrite
-		self.canWrite = True
 		print "List of commands:"
 		print "   - 'help': for list of instructions"
 		print "   - 'clean': clean directory"
 		print "   - 'f': fast print"
-		print "   - 'changeSpeed': for changing printing text speed"
 		print "   - 'copy blog_to_copy my_blog': for copy an entire blog"
 		print "   - 'run': for run a/all blog(s)"
 		print "   - 'stop': for stop a/all blog(s)"
 		print "   - 'quit': for quit"
-		prevCanWrite = self.canWrite
 
 
 	def closing_operations(self):
-		self.canWrite = True
 		print "Terminating program."
 		self.accounts.closingOperations()
 		try:
@@ -157,7 +136,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 	def updateStatistics(self, firstTime=False):
 		try:
 			if firstTime:
-				sys.stdout.write("Update stats.. ")
+				write("Update stats.. ")
 			else:
 				self.write("\tUpdate stats.. ")
 			post_data_stats = {"action": "update_statistics",
@@ -172,23 +151,20 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				if firstTime:
 					print "Error: Update stats NOT ok (None up_stat)"
 				else:
-					self.write("Error: Update stats NOT ok (None up_stat)\n")
+					self.writeError("Error: Update stats NOT ok (None up_stat)")
 			else:
 				if firstTime:
 					print "ok!"
 				else:
-					self.write("ok!\n")
+					self.write("\tok!")
 		except KeyError, msg:
 			if firstTime:
 				print "KeyError on Update stats:\n" + str(msg)
 			else:
-				self.write("KeyError on Update stats:\n")
-				self.write(str(msg) + "\n")
+				self.writeError("Error: KeyError on Update stats:\n" + str(msg))
 
 
 	def copyBlog(self, entry):
-		prevCanWrite = self.canWrite
-		self.canWrite = True
 		try:
 			blog_to_copy = entry.split()[1]
 			my_blog = self.accounts[self.matches[entry.split()[2]]]
@@ -197,10 +173,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 			print "Creating new thread for copy the blog.. "
 			t = threading.Thread(target=my_blog.copyBlog, args=(blog_to_copy,limit,counter)).start()
 			self.updateStatistics()
-			self.canWrite = prevCanWrite
 		except IndexError, msg:
 			print "   Syntax error: 'copy source myblog limit counter'"
-			self.canWrite = prevCanWrite
 
 
 	def testConnectedBlogs(self):
@@ -216,7 +190,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		try:
 			return self.send_and_check_request(post_data)
 		except HTTPError as e:
-			self.write(str(e) + "\n")
+			self.writeError("Error: HTTPError\n" + str(e))
 			return None
 
 
@@ -228,19 +202,17 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				try:
 					parsed = resp.json()
 					if 'Error' in parsed:
-						self.write("Error: " + str(parsed['Error']) + "\n")
+						self.writeError("Error:\n" + str(parsed['Error']))
 						return None
 					else:
 						return parsed['Result']
 				except ValueError as e:
-					self.write("ValueError:\n")
-					self.write(str(resp.content) + "\n")
+					self.writeError("Error: ValueError:\n" + str(resp.content))
 					return None
 			else:
 				resp.raise_for_status()
 		except ConnectionError as e:
-			self.write("ConnectionError:\n")
-			self.write(str(e) + "\n")
+			self.writeError("Error: ConnectionError:\n" + str(e))
 			errors += 1
 			if errors >= self.MAX_NUM_ERRORS:
 				return None
@@ -249,8 +221,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				self.write("Retry to send request!")
 				self.send_and_check_request(post_data)
 		except Timeout as e:
-			self.write("Timeout Error:\n")
-			self.write(str(e) + "\n")
+			self.writeError("Error: Timeout Error:\n" + str(e))
 			errors += 1
 			if errors >= self.MAX_NUM_ERRORS:
 				return None

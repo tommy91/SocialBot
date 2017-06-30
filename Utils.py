@@ -1,3 +1,6 @@
+import sys
+
+
 def seconds2timeStr(secs):
 	seconds = secs % 60
 	minutes = (secs / 60) % 60
@@ -69,5 +72,10 @@ def binarySearch(elem, lst):
 		return binarySearch(elem, lst[:index_pivot])
 	else:
 		return binarySearch(elem, lst[(index_pivot+1):])
+
+
+def write(s):
+	sys.stdout.write(s)
+	sys.stdout.flush()
 
 

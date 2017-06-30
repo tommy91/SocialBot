@@ -2,6 +2,7 @@ import os
 import sys
 
 from SBProg import SBProg
+from Utils import write
 
 
 def removeFilesByExtension(ext):
@@ -11,20 +12,14 @@ def removeFilesByExtension(ext):
 
 
 def clean():
-	sys.stdout.write("\nCleaning up directory:\n")
-	sys.stdout.flush()
-	sys.stdout.write("\n    files .pyc -> ")
-	sys.stdout.flush()
+	write("\nCleaning up directory:\n")
+	write("\n    files .pyc -> ")
 	removeFilesByExtension('.pyc')
-	sys.stdout.write("ok.\n")
-	sys.stdout.flush()
-	sys.stdout.write("    database -> ")
-	sys.stdout.flush()
+	write("ok.\n")
+	write("    database -> ")
 	removeFilesByExtension('.db')
-	sys.stdout.write("ok.\n")
-	sys.stdout.flush()
-	sys.stdout.write("\nCleaning up complete.\n\nExit. Bye!\n\n")
-	sys.stdout.flush()
+	write("ok.\n")
+	write("\nCleaning up complete.\n\nExit. Bye!\n\n")
 	sys.exit(0)
 
 
@@ -35,15 +30,9 @@ if __name__ == '__main__':
 	elif lp > 1:
 		if(sys.argv[1]=='-clean'):
 			clean()
-		if(sys.argv[1]=='-f'):
-			print("\n\tFast Mode On.\n\tNo sleep char/line.\n")
-			SBProg(sleepChar=0.0, sleepLine=0.0).runProgram()
 		elif(sys.argv[1]=='-t'):
 			print("\n\tTest Mode On.\n")
 			SBProg(isTest=True).runProgram()
-		elif(sys.argv[1] in ['-ft','-tf']):
-			print("\n\tFast Mode On.\n\tNo sleep char/line.\n\n\tTest Mode On.\n")
-			SBProg(isTest=True, sleepChar=0.0, sleepLine=0.0).runProgram()
 		else:
 			print("\n\tError: unknown command '" + sys.argv[1] + "', ignored.\n")
 			SBProg().runProgram()

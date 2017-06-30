@@ -2,6 +2,7 @@ import sys
 
 import pytumblr
 from Account import *
+from Utils import *
 
 class TumblrAppAccount(Account):
 
@@ -97,7 +98,7 @@ class TumblrAccount(Account):
 	def checkResponse(self, res):
 		"Check if there is an error in response"
 		if "meta" in res:
-			self.write("Error: " + res["meta"]["msg"] + " (status " + str(res["meta"]["status"]) + ")\n")
+			self.writeError("Error: " + res["meta"]["msg"] + " (status " + str(res["meta"]["status"]) + ")")
 			return False
 		else:
 			return True
@@ -106,12 +107,12 @@ class TumblrAccount(Account):
 	def updateBlog(self, firstTime=False):
 		if self.getAccountName() != "not available":
 			if firstTime:
-				sys.stdout.write("\tUpdate " + self.getAccountName() + ".. ")
+				write("\tUpdate " + self.getAccountName() + ".. ")
 			else:
 				self.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
 			if firstTime:
-				sys.stdout.write("\tUpdate " + self.mail + ".. ")
+				write("\tUpdate " + self.mail + ".. ")
 			else:
 				self.write("\tUpdate " + self.mail + ".. ")
 		try:
@@ -131,27 +132,27 @@ class TumblrAccount(Account):
 				if firstTime:
 					print "ok."
 				else:
-					self.write("ok.\n")
+					self.write("ok.")
 			else:
 				if firstTime:
 					print "Error: cannot update."
 				else:
-					self.write("Error: cannot update.\n")
+					self.writeError("Error: cannot update.")
 		except ServerNotFoundError,msg:
 			if firstTime:
 				print "ServerNotFoundError:\n" + str(msg)
 			else:
-				self.write("ServerNotFoundError:\n" + str(msg) + "\n")
+				self.writeError("ServerNotFoundError:\n" + str(msg))
 		except socket.error, msg:
 			if firstTime:
 				print "SocketError:\n" + str(msg)
 			else:
-				self.write("SocketError:\n" + str(msg) + "\n")
+				self.writeError("SocketError:\n" + str(msg))
 		except Exception, msg:
 			if firstTime:
 				print "Error Exception on client.info():\n" + str(msg)
 			else:
-				self.write("Error Exception on client.info():\n" + str(msg) + "\n")
+				self.writeError("Error Exception on client.info():\n" + str(msg))
 
 
 	def updateBlogData(self):
@@ -177,35 +178,35 @@ class TumblrAccount(Account):
 		if up_res != None:
 			self.write("update status.. ")
 			self.updateStatus()
-			self.write("end of update.\n")
+			self.write("end of update.")
 
 
 	def updateUpOp(self, newAccount):
 		need_setup_clients = False 
 		if self.app_account != self.accounts.app_accounts[str(newAccount['App_Account'])]:
 			need_setup_clients = True 
-			self.write("\t\t    App Account: " + str(self.app_account.getAccountName()) + " -> " + str(self.accounts.app_accounts[str(newAccount['App_Account'])].getAccountName()) + "\n")
+			self.write("\t\t    App Account: " + str(self.app_account.getAccountName()) + " -> " + str(self.accounts.app_accounts[str(newAccount['App_Account'])].getAccountName()))
 			self.app_account = self.accounts.app_accounts[str(newAccount['App_Account'])]
 		if self.token != newAccount['Token']:
 			need_setup_clients = True
-			self.write("\t\t    Token: " + self.token + " -> " + newAccount['Token'] + "\n")
+			self.write("\t\t    Token: " + self.token + " -> " + newAccount['Token'])
 			self.token = newAccount['Token']
 		if self.token_secret != newAccount['Token_Secret']:
 			need_setup_clients = True
-			self.write("\t\t    Token Secret: " + self.tokenSecret + " -> " + newAccount['Token_Secret'] + "\n")
+			self.write("\t\t    Token Secret: " + self.tokenSecret + " -> " + newAccount['Token_Secret'])
 			self.tokenSecret = newAccount['Token_Secret']
 		if need_setup_clients:
 			self.write("\t\t    Setup clients.. ")
 			self.setup_clients()
-			self.write("ok\n")
+			self.write("ok")
 		else:
 			self.write("\t\t    No need to setup clients!\n")
 		super(TumblrAccount, self).updateUpOp(newAccount)
 
 
 	def copyBlog(self, blog_to_copy, limitMax, counter):
-		self.write("Done!\nLaunching procedure..\n",True)
-		self.writeln("Start to copy " + blog_to_copy + " in " + self.getAccountName() + "..\n",True)
+		self.write("Done!\nLaunching procedure..")
+		self.write("Start to copy " + blog_to_copy + " in " + self.getAccountName() + "..")
 		my_account = self.matches[my_blog]
 		total_posts = (self.client.blog_info(blog_to_copy))['blog']['posts']
 		if total_posts > limitMax:
@@ -218,14 +219,14 @@ class TumblrAccount(Account):
 				howmanythis = total_posts - counter
 			posts = (self.client.posts(blog_to_copy, limit = howmanythis, offset = counter))['posts']
 			for post in posts:
-				self.write("\tReblogging post " + str(counter+1) + "/" + str(total_posts) + ".. ",True)
+				self.write("\tReblogging post " + str(counter+1) + "/" + str(total_posts) + ".. ")
 				if post['type'] != "photo":
-					self.write("Not reblogged: it's a " + post['type'] + " post!\n",True)
+					self.write("Not reblogged: it's a " + post['type'] + " post!")
 					counter = counter + 1
 					continue
 				response = self.client.reblog(self.getAccountName(), id=post['id'], reblog_key=post['reblog_key'], tags = self.tags, type = "photo")
 				if self.checkResponse(response):
-					self.write("Done!\n",True)
+					self.write("Done!")
 				counter = counter + 1
 
 
@@ -234,13 +235,13 @@ class TumblrAccount(Account):
 
 
 	def calc_time_post_follow(self):
-		self.write("\tCalcule timers for " + self.getAccountName() + ":\n")
+		self.write("\tCalcule timers for " + self.getAccountName() + ":")
 		self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
-		self.write("\t\tpost every " + seconds2timeStr(self.timer_post) + "\n")
+		self.write("\t\tpost every " + seconds2timeStr(self.timer_post))
 		self.timer_follow = int((24*60*60/(self.num_follow_xd/self.num_follow_xt))+0.5)
-		self.write("\t\tfollow every " + seconds2timeStr(self.timer_follow) + "\n")
+		self.write("\t\tfollow every " + seconds2timeStr(self.timer_follow))
 		self.timer_like = int((24*60*60/(self.num_like_xd/self.num_like_xt))+0.5)
-		self.write("\t\tlike every " + seconds2timeStr(self.timer_like) + "\n")      
+		self.write("\t\tlike every " + seconds2timeStr(self.timer_like))      
 
 
 	def checkNeedNewFollows(self):
@@ -249,17 +250,17 @@ class TumblrAccount(Account):
 		follows = self.dbManager.countFollow(bn)
 		self.write("\t   check #follow.. needed " + str(int(self.num_follow_xt * self.percNotF4F)) + ".. ")
 		if follows >= int(self.num_follow_xt * self.percNotF4F):
-			self.write("found " + str(follows) + ", ok\n")
+			self.write("\t\tfound " + str(follows) + ", ok")
 		else:
-			self.write("found " + str(follows) + ", needed at least " + str(int(self.num_follow_xt * self.percNotF4F)-follows) + "\n")
+			self.write("\t\tfound " + str(follows) + ", needed at least " + str(int(self.num_follow_xt * self.percNotF4F)-follows))
 			self.searchByTag(int(self.num_follow_xt * self.percNotF4F)-follows)
 		# Check num F4F
 		f4f = self.dbManager.countFollow("f4f-tumblr")
 		self.write("\t   check #f4f-tumblr.. needed " + str(int(self.num_follow_xt * self.percF4F)) + ".. ")
 		if f4f >= int(self.num_follow_xt * self.percF4F):
-			self.write("found " + str(f4f) + ", ok\n")
+			self.write("\t\tfound " + str(f4f) + ", ok")
 		else:
-			self.write("found " + str(f4f) + ", needed at least " + str(int(self.num_follow_xt * self.percF4F)-f4f) + "\n")
+			self.write("\t\tfound " + str(f4f) + ", needed at least " + str(int(self.num_follow_xt * self.percF4F)-f4f))
 			tag = self.randomF4F()
 			self.searchByTag(int(self.num_follow_xt * self.percF4F)-f4f, blogname="f4f-tumblr", tag=tag)
 
@@ -274,7 +275,7 @@ class TumblrAccount(Account):
 			postXblog = 1
 		else:
 			postXblog = int(num_post/num_following_blogs)+1
-		self.write("\t      Getting posts..\n")
+		self.write("\t      Getting posts..")
 		follows = self.dbManager.countFollow(blogname)
 		need_follow = False
 		if follows <= (self.num_follow_xt * self.percNotF4F):
@@ -309,7 +310,7 @@ class TumblrAccount(Account):
 											break
 								counter += 1
 						except KeyError,msg:
-							self.write("\n\t         Error (keyerror) on searchpost: " + str(msg) + "\n")
+							self.writeError("\t         Error (keyerror) on searchpost: " + str(msg))
 							# pprint(post)
 							counter += 1
 						offset_posts += 1
@@ -318,20 +319,20 @@ class TumblrAccount(Account):
 						if counter >= postXblog:
 							break
 				except Exception,msg:
-					self.write("\n\t         Error Exception.. " + str(msg) + "\n") 
+					self.writeError("\t         Error Exception.. " + str(msg)) 
 					break
 			for new_follow in new_follows:
 				args = (new_follow,blogname,int(time.time()))
 				self.dbManager.add("Follow",args)
-			self.write("\r\t         post from " + following_blog + ".. Done! (" + str(counter))
+			self.write("\t         post from " + following_blog + ".. Done! (" + str(counter))
 			if counter > 1:
 				self.write(" posts")
 			else:
 				self.write(" post")
 			if need_follow:
-				self.write(" and " + str(len(new_follows)) + " follow)\n")
+				self.write(" and " + str(len(new_follows)) + " follow)")
 			else:
-				self.write(")\n")
+				self.write(")")
 			self.updateStatistics()
 
 
@@ -341,7 +342,7 @@ class TumblrAccount(Account):
 		if blogname == None:
 			blogname = self.getAccountName
 		counter = 0
-		self.write("\t      Getting follows..\n")
+		self.write("\t      Getting follows..")
 		new_follows = []
 		self.write("\t         posts tagged " + tag + ".. ")
 		timestamp = int(time.time())
@@ -349,26 +350,26 @@ class TumblrAccount(Account):
 			while counter < num_tags:
 				response = self.clientInfo.tagged(tag,before=timestamp)
 				if response == []:
-					write("null response\n")
+					write("null response")
 					break
 				for post in response:
 					try:
 						if not post['followed']:
 							new_follows.append(post['blog_name'])
 							counter += 1
-							self.write("\r\t         posts tagged " + tag + ".. " + str(counter) + "/" + str(num_tags))
+							self.write("\t         posts tagged " + tag + ".. " + str(counter) + "/" + str(num_tags))
 						timestamp = post['timestamp']
 					except KeyError,msg:
-						self.write("\n\t         Error (keyerror) on search_by_tag: " + str(msg) + "\n")
+						self.writeError("\t         Error (keyerror) on search_by_tag: " + str(msg))
 						counter += 1
 					if counter >= num_tags:
 						break
 			for new_follow in new_follows:
 				args = (new_follow,blogname,int(time.time()))
 				self.dbManager.add("Follow",args)
-			self.write("\r\t         posts tagged " + tag + ".. Done! (" + str(counter) + " follow)\n")
+			self.write("\t         posts tagged " + tag + ".. Done! (" + str(counter) + " follow)")
 		except Exception,msg:
-			self.write("\n\t         Error Exception\n")
+			self.writeError("\t         Error Exception")
 		self.updateStatistics()
 
 
@@ -390,19 +391,18 @@ class TumblrAccount(Account):
 
 	def followSocialBlogs(self, toFollow, blogname, isDump, counter, num_follows):
 		if isDump:
-			self.write(str(toFollow) + "\n")
+			self.write(str(toFollow))
 		for follow in toFollow:
 			try:
 				if isDump:
-					self.write(str(follow) + "\n")
+					self.write(str(follow))
 				self.followTumblr(follow)
 				args = (follow,blogname)
 				self.dbManager.delete("Follow",args)
 				counter += 1
-				self.write("\r\tfollowed " + str(counter) + "/" + str(num_follows))
+				self.write("\tfollowed " + str(counter) + "/" + str(num_follows))
 			except Exception,msg:
-				self.write("\n\tError: exception on " + blogname + " following\n")
-		self.write("\n")
+				self.writeError("\tError: exception on " + blogname + " following")
 		return counter
 
 
@@ -425,15 +425,15 @@ class TumblrAccount(Account):
 					if (not post['liked']) and (not post['followed']):
 						self.likeTumblr(post['id'], post['reblog_key'])
 						counter += 1
-						self.write("\r\tliked " + str(counter) + "/" + str(num_likes))
+						self.write("\tliked " + str(counter) + "/" + str(num_likes))
 				except KeyError,msg:
-					self.write("\n\tError (keyerror) on like: " + str(msg) + "\n")
+					self.writeError("\tError (keyerror) on like: " + str(msg))
 					break
 				if counter >= num_likes:
 					break
-			self.write("\r\tliked " + str(counter) + " posts!\n")
+			self.write("\tliked " + str(counter) + " posts!")
 		except Exception,msg:
-			self.write("Error Exception\n")
+			self.writeError("Error Exception")
 
 
 	def likeTumblr(self, post_id, reblog_key):
@@ -459,31 +459,27 @@ class TumblrAccount(Account):
 				old_total_users = followers['total_users']
 				if counterFollowers >= followers['total_users']:
 					shouldGetNew = False
-				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(followers['total_users']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
-				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					self.write("\n")
-					self.write(str(msg) + "\n")
-					self.write(str(followers) + "\n")
+					self.write(str(msg))
+					self.write(str(followers))
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
 			except ServerNotFoundError, msg:
 				numErrors += 1
-				self.write("\r\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					self.write("\n")
-					self.write(str(msg) + "\n")
-					self.write(str(followers) + "\n")
+					self.writeError(str(msg))
+					self.writeError(str(followers))
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
 		if numErrors > self.MAX_NUM_ERRORS:
-			self.write("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
-		else:
-			self.write("\n")
+			self.writeError("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)")
 		return followerNames
 
 
@@ -506,31 +502,27 @@ class TumblrAccount(Account):
 				old_total_blogs = following['total_blogs']
 				if counterFollowing >= following['total_blogs']:
 					shouldGetNew = False
-				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Following List.. " + str(counterFollowing) + "/" + str(following['total_blogs']) + " (Errors: " + str(numErrors) + ")")
 			except KeyError, msg:
 				numErrors += 1
-				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					self.write("\n")
-					self.write(str(msg) + "\n")
-					self.write(str(following) + "\n")
+					self.write(str(msg))
+					self.write(str(following))
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
 			except ServerNotFoundError, msg:
 				numErrors += 1
-				self.write("\r\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
+				self.write("\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
 				if numErrors > self.MAX_NUM_ERRORS:
-					self.write("\n")
-					self.write(str(msg) + "\n")
-					self.write(str(following) + "\n")
+					self.write(str(msg))
+					self.write(str(following))
 					shouldGetNew = False
 				else: 
 					time.sleep(self.SLEEP_TIME)
 		if numErrors > self.MAX_NUM_ERRORS:
-			self.write("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
-		else:
-			self.write("\n")
+			self.writeError("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
 		return followingNames
 
 
@@ -539,34 +531,34 @@ class TumblrAccount(Account):
 
 
 	def logAccount(self):
-		self.write("\nLog information for " + self.getAccountName() + ":\n")
-		self.write("ID: " + str(self.account_id) + "\n")
-		self.write("strID: " + self.strID + "\n")
-		self.write("mail: " + self.mail + "\n")
-		self.write("type: " + str(self.account_type) + "\n")
-		self.write("token: " + self.token + "\n")
-		self.write("token_secret: " + self.token_secret + "\n")
-		self.write("app_account: " + str(self.app_account) + "\n")
-		self.write("tags:\n")
+		print "\nLog information for " + self.getAccountName() + ":"
+		print "ID: " + str(self.account_id)
+		print "strID: " + self.strID
+		print "mail: " + self.mail
+		print "type: " + str(self.account_type)
+		print "token: " + self.token 
+		print "token_secret: " + self.token_secret
+		print "app_account: " + str(self.app_account) 
+		print "tags:"
 		for tag in self.tags:
-			self.write("\t" + tag + "\n")
-		self.write("blogs:\n")
+			print "\t" + tag 
+		print "blogs:"
 		for blog in self.blogs:
-			self.write("\t" + blog + "\n")
-		self.write("likes: " + str(self.data['likes']) + "\n")
-		self.write("following: " + str(self.data['following']) + "\n")
-		self.write("followers: " + str(self.data['followers']) + "\n")
-		self.write("messages: " + str(self.data['messages']) + "\n")
-		self.write("posts: " + str(self.data['posts']) + "\n")
-		self.write("queue: " + str(self.data['queue']) + "\n")
-		self.write("username: " + self.data['username'] + "\n")
-		self.write("blogname: " + self.data['blogname'] + "\n")
-		self.write("url: " + self.data['url'] + "\n")
-		self.write("num_post_xd: " + str(self.num_post_xd) + "\n")
-		self.write("num_follow_xd: " + str(self.num_follow_xd) + "\n")
-		self.write("num_like_xd: " + str(self.num_like_xd) + "\n")
-		self.write("num_post_xt: " + str(self.num_post_xt) + "\n")
-		self.write("num_follow_xt: " + str(self.num_follow_xt) + "\n")
-		self.write("num_like_xt: " + str(self.num_like_xt) + "\n")
-		self.write("status: " + str(self.status) + "\n")
+			print "\t" + blog
+		print "likes: " + str(self.data['likes'])
+		print "following: " + str(self.data['following']) 
+		print "followers: " + str(self.data['followers']) 
+		print "messages: " + str(self.data['messages'])
+		print "posts: " + str(self.data['posts'])
+		print "queue: " + str(self.data['queue']) 
+		print "username: " + self.data['username'] 
+		print "blogname: " + self.data['blogname']
+		print "url: " + self.data['url']
+		print "num_post_xd: " + str(self.num_post_xd) 
+		print "num_follow_xd: " + str(self.num_follow_xd)
+		print "num_like_xd: " + str(self.num_like_xd)
+		print "num_post_xt: " + str(self.num_post_xt) 
+		print "num_follow_xt: " + str(self.num_follow_xt) 
+		print "num_like_xt: " + str(self.num_like_xt) 
+		print "status: " + str(self.status)
 
