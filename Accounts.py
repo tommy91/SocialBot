@@ -105,7 +105,7 @@ class Accounts:
 
 	def synchOperations(self, firstTime=False):
 		if firstTime:
-			print "Clean up synchronization register.. "
+			write("Clean up synchronization register.. ")
 		else:
 			self.write("\tSynchronize with online register.. ")
 		synch_req = self.post_request({'action': "synch_operations"})

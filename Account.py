@@ -28,6 +28,7 @@ class Account(object):
 
 	def __init__(self, accounts, account_id, mail, account_type):
 		self.accounts = accounts
+		self.isTest = accounts.sbprog.isTest
 		self.output = Output(mail + ".log")
 		self.write = self.output.write
 		self.writeError = self.output.writeError

@@ -34,18 +34,18 @@ class SBProg:
 		self.writeError = self.output.writeError
 
 	def runProgram(self):
-		try:
-			self.printHello()
-			if not self.tryConnectToRemoteServer():
-				print "Closing.. bye."
-			self.dbManager = DbManager()
-			self.tryConnectDB()
-			self.mainBOT()
-			self.newEntry()
-		except Exception, e:
-			self.writeError("Error: Global Error.\n" + str(e))
-			print "Global Error"			
-			print e
+		# try:
+		self.printHello()
+		if not self.tryConnectToRemoteServer():
+			print "Closing.. bye."
+		self.dbManager = DbManager()
+		self.tryConnectDB()
+		self.mainBOT()
+		self.newEntry()
+		# except Exception, e:
+		# 	self.writeError("Error: Global Error.\n" + str(e))
+		# 	print "Global Error"			
+		# 	print e
 
 
 	def printHello(self):
