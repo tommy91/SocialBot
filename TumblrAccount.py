@@ -314,7 +314,6 @@ class TumblrAccount(Account):
 							# pprint(post)
 							counter += 1
 						offset_posts += 1
-						self.clearline()
 						self.write("\t         post from " + following_blog + ".. " + str(counter) + "/" + str(postXblog) + "(scaled " + str(offset_posts) + "/" + str(response['blog']['posts']) + ")")
 						if counter >= postXblog:
 							break
