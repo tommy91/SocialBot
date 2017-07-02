@@ -248,7 +248,9 @@ class InstagramAccount(Account):
 			secs = random.randint(1, 4)
 		else:
 			secs = random.randint(self.MIN_TIME_BETWEEN_ACTIONS, self.MAX_TIME_BETWEEN_ACTIONS)
+		self.write("Wait " + str(secs) + "seconds")
 		time.sleep(secs)
+		self.write("End wait.")
 
 
 	def calc_time_post_follow(self):
@@ -414,6 +416,10 @@ class InstagramAccount(Account):
 			if follow == []:
 				self.writeError("Error: no follow in DB!")
 				return False, None
+			if follow[0] == None:
+				self.writeError("Error: follow[0] = None!")
+				self.writeError(follow)
+				return False, None
 			if not follow[0] in alreadyFollowed:
 				return True, follow[0]
 			else:
@@ -459,7 +465,6 @@ class InstagramAccount(Account):
 					return False, None
 				else:
 					self.waitInsta(little=True)
-
 
 
 	def followAndRandomLike(self, follow, isDump, isF4F = False):
