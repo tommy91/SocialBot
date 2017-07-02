@@ -51,8 +51,14 @@ def send_and_check_request(caller, post_data):
 
 
 def post_insta_request(caller, post_data, firstTime=False):
-	post_data['username'] = caller.username
-	post_data['password'] = caller.password
+	try:
+		post_data['username'] = caller.username
+		post_data['password'] = caller.password
+	except AttributeError as e:
+		if firstTime:
+			print "AttributeError:\n" + str(e)
+		else:
+			caller.writeError("AttributeError:\n" + str(e))
 	try:
 		return send_and_check_request_insta(caller, post_data, firstTime)
 	except HTTPError as e:
