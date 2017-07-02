@@ -19,7 +19,7 @@ function get_user_info($username, $password) {
 	try {
 		$info = $ig->getSelfUserInfo();
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password));
 	}
 	if ($info->status != 'ok')
 		return array('Error' => $info);
@@ -41,7 +41,7 @@ function get_id_by_username($username, $password, $user) {
 	try {
 		$info = $ig->getUserInfoByName($user);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
 	}
 	if ($info->status != 'ok')
 		return array('Error' => $info);
@@ -54,7 +54,7 @@ function get_insta_media($username, $password, $user, $max_num) {
 	try {
 		$media = $ig->getUserFeed($user);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user, 'max_num' => $max_num));
 	}
 	if ($media->status != 'ok')
 		return array('Error' => $media);
@@ -79,7 +79,7 @@ function follow_insta($username, $password, $user) {
 	try {
 		$follow_response = $ig->follow($user);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
 	}
 	if ($follow_response->status != 'ok')
 		return array('Error' => $follow_response);
@@ -93,7 +93,7 @@ function unfollow_insta($username, $password, $user) {
 	try {
 		$unfollow_response = $ig->unfollow($user);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
 	}
 	if ($unfollow_response->status != 'ok')
 		return array('Error' => $unfollow_response);
@@ -107,7 +107,7 @@ function like_insta($username, $password, $postID) {
 	try {
 		$like_response = $ig->like($postID);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'postID' => $postID));
 	}
 	if ($like_response->status != 'ok')
 		return array('Error' => $like_response);
@@ -121,7 +121,7 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 	try {
 		$hashtagFeed = $ig->getHashtagFeed($tag);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'tag' => $tag, 'is_popular' => $is_popular, 'max_num' => $max_num));
 	}
 	if ($hashtagFeed->status != 'ok')
 		return array('Error' => $hashtagFeed);
@@ -284,6 +284,9 @@ function getFollowings($username, $password, $userID = NULL) {
 function fetchInstaResult($res) {
     if (array_key_exists('Error', $res)) {
     	logError($res['Error']);
+    	foreach ($res['Dump'] as $key => $value) {
+    		logError($key.": ".$value);
+    	}
         return $res;
     }
     else {
