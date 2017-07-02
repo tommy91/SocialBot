@@ -1,6 +1,6 @@
 import logging
 
-from Settings import LOGFILE_PATH
+from Settings import LOGFILE_PATH, LOGFILE_ERROR
 
 
 class Output:
@@ -8,7 +8,7 @@ class Output:
 
 	def __init__(self, logname):
 		self.infoLog = self.setup_logger(logname, LOGFILE_PATH + logname)
-		self.errorLog = self.setup_logger('error_' + logname, LOGFILE_PATH + logname, level=logging.DEBUG)
+		self.errorLog = self.setup_logger('error', LOGFILE_ERROR, level=logging.DEBUG)
 
 
 	def setup_logger(self, name, log_file, level=logging.INFO):
