@@ -510,7 +510,9 @@ class TumblrAccount(Account):
 					self.write(str(following))
 					shouldGetNew = False
 				else: 
+					self.write("sleep " + str(self.SLEEP_TIME) + " seconds")
 					time.sleep(self.SLEEP_TIME)
+					self.write("end sleeping")
 			except ServerNotFoundError, msg:
 				numErrors += 1
 				self.write("\t\tGet Following List.. " + str(counterFollowing) + "/" + str(old_total_blogs) + " (Errors: " + str(numErrors) + ")")
@@ -519,7 +521,9 @@ class TumblrAccount(Account):
 					self.write(str(following))
 					shouldGetNew = False
 				else: 
+					self.write("sleep " + str(self.SLEEP_TIME) + " seconds")
 					time.sleep(self.SLEEP_TIME)
+					self.write("end sleeping")
 		if numErrors > self.MAX_NUM_ERRORS:
 			self.writeError("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)\n")
 		return followingNames
