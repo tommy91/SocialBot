@@ -5,6 +5,7 @@ from Account import *
 from TumblrAccount import *
 from InstagramAccount import *
 
+
 class Accounts:
 
 	TYPE_TUMBLR = 1

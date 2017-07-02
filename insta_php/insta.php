@@ -295,6 +295,10 @@ function fetchInstaResult($res) {
 if (isset($_POST['action'])) {
 	$request = $_POST['action'];
 
+	if ($request == "server_alive") {
+		echo json_encode(array('Result' => ""));
+	}
+
 	if($request == "get_insta_blog_info") {
         $username = $_POST['username'];
         $password = $_POST['password'];

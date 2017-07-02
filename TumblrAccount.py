@@ -3,6 +3,8 @@ import sys
 import pytumblr
 from Account import *
 from Utils import *
+import Sender
+
 
 class TumblrAppAccount(Account):
 
@@ -46,6 +48,7 @@ class TumblrAccount(Account):
 		self.token_secret = account['Token_Secret']
 		self.accounts = accounts
 		self.app_account = accounts.app_accounts[str(account['App_Account'])]
+		self.post_request = Sender.post_request
 		self.tags = tags2list(tags)
 		self.blogs = blogs2list(blogs)
 		self.data = self.initData()
@@ -467,7 +470,9 @@ class TumblrAccount(Account):
 					self.write(str(followers))
 					shouldGetNew = False
 				else: 
+					self.write("sleep " + str(self.SLEEP_TIME) + " seconds")
 					time.sleep(self.SLEEP_TIME)
+					self.write("end sleeping")
 			except ServerNotFoundError, msg:
 				numErrors += 1
 				self.write("\t\tGet Followers List.. " + str(counterFollowers) + "/" + str(old_total_users) + " (Errors: " + str(numErrors) + ")")
@@ -476,7 +481,9 @@ class TumblrAccount(Account):
 					self.writeError(str(followers))
 					shouldGetNew = False
 				else: 
+					self.write("sleep " + str(self.SLEEP_TIME) + " seconds")
 					time.sleep(self.SLEEP_TIME)
+					self.write("end sleeping")
 		if numErrors > self.MAX_NUM_ERRORS:
 			self.writeError("Error! (> " + str(self.MAX_NUM_ERRORS) + " errors)")
 		return followerNames

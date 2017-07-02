@@ -1,13 +1,11 @@
 import os
 import sys
 import pickle
-import requests
-from httplib2 import ServerNotFoundError
-from requests.exceptions import ConnectionError, Timeout, HTTPError
 
 from Account import *
 from Utils import *
-import Settings
+import Sender
+
 
 class InstagramAccount(Account):
 
@@ -35,6 +33,7 @@ class InstagramAccount(Account):
 		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.username = account['Username']
 		self.password = account['Password']
+		self.post_insta_request = Sender.post_insta_request
 		self.tags = tags2list(tags)
 		self.blogs = blogs2list(blogs)
 		self.data = self.initData()
@@ -717,55 +716,6 @@ class InstagramAccount(Account):
 			return None
 		else:
 			return resp[0] 
-
-
-	def post_insta_request(self, post_data, firstTime=False):
-		post_data['username'] = self.username
-		post_data['password'] = self.password
-		try:
-			return self.send_and_check_request_insta(post_data, firstTime)
-		except HTTPError as e:
-			if firstTime:
-				print e
-			else:
-				self.writeError(str(e))
-			return None
-
-
-	def send_and_check_request_insta(self, post_data, firstTime=False):
-		try:
-			resp = requests.post(Settings.PATH_TO_SERVER_INSTA + Settings.RECEIVER_INSTA, data = post_data)
-			if resp.status_code == 200:
-				try:
-					parsed = resp.json()
-					if 'Error' in parsed:
-						if firstTime:
-							print "Error: " + str(parsed['Error'])
-						else:
-							self.writeError("Error: " + str(parsed['Error']))
-						return None
-					else:
-						return parsed['Result']
-				except ValueError as e:
-					if firstTime:
-						print "ValueError:\n" + str(resp.content)
-					else:
-						self.writeError("ValueError:\n" + str(resp.content))
-					return None
-			else:
-				resp.raise_for_status()
-		except ConnectionError as e:
-			if firstTime:
-				print "ConnectionError:\n" + str(e)
-			else:
-				self.writeError("ConnectionError:\n" + str(e))
-			return None 
-		except Timeout as e:
-			if firstTime:
-				print "Timeout Error:\n" + str(e)
-			else:
-				self.writeError("Timeout Error:\n" + str(e))
-			return None
 
 
 	def logAccount(self):

@@ -5,15 +5,11 @@ import socket
 import datetime
 import threading
 
-import requests
-from httplib2 import ServerNotFoundError
-from requests.exceptions import ConnectionError, Timeout, HTTPError
-
 from Utils import *
 from dbManager import DbManager
 from Output import Output
 from Accounts import Accounts
-import Settings
+import Sender
 
 
 class SBProg:
@@ -22,9 +18,6 @@ class SBProg:
 	timersTime = {}
 	startSessionTime = ""
 
-	PATH_TO_SERVER = Settings.PATH_TO_SERVER
-	RECEIVER = Settings.RECEIVER 
-
 	MAX_NUM_ERRORS = 5
 
 	def __init__(self, isTest = False):
@@ -32,6 +25,8 @@ class SBProg:
 		self.output = Output("sbprog.log")
 		self.write = self.output.write
 		self.writeError = self.output.writeError
+		self.post_request = Sender.post_request
+		self.post_insta_request = Sender.post_insta_request
 
 	def runProgram(self):
 		# try:
@@ -58,6 +53,13 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		"Look for the remote server"
 		write("Trying connecting to server online.. ")
 		resp = self.post_request({"action": "server_alive"})
+		if resp != None:
+			print "ok"
+			return True
+		else:
+			return False
+		write("Trying connecting to insta server online.. ")
+		resp = self.post_insta_request({"action": "server_alive"})
 		if resp != None:
 			print "ok"
 			return True
@@ -184,48 +186,3 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		account.initFollowings()
 		account.unfollow()
 		print "\nEnd testing code."
-
-
-	def post_request(self, post_data):
-		try:
-			return self.send_and_check_request(post_data)
-		except HTTPError as e:
-			self.writeError("Error: HTTPError\n" + str(e))
-			return None
-
-
-	def send_and_check_request(self, post_data):
-		errors = 0
-		try:
-			resp = requests.post(Settings.PATH_TO_SERVER + Settings.RECEIVER, data = post_data)
-			if resp.status_code == 200:
-				try:
-					parsed = resp.json()
-					if 'Error' in parsed:
-						self.writeError("Error:\n" + str(parsed['Error']))
-						return None
-					else:
-						return parsed['Result']
-				except ValueError as e:
-					self.writeError("Error: ValueError:\n" + str(resp.content))
-					return None
-			else:
-				resp.raise_for_status()
-		except ConnectionError as e:
-			self.writeError("Error: ConnectionError:\n" + str(e))
-			errors += 1
-			if errors >= self.MAX_NUM_ERRORS:
-				return None
-			else:
-				time.sleep(5)
-				self.write("Retry to send request!")
-				self.send_and_check_request(post_data)
-		except Timeout as e:
-			self.writeError("Error: Timeout Error:\n" + str(e))
-			errors += 1
-			if errors >= self.MAX_NUM_ERRORS:
-				return None
-			else:
-				time.sleep(5)
-				self.write("Retry to send request!")
-				self.send_and_check_request(post_data)
