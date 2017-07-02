@@ -25,8 +25,15 @@ class SBProg:
 		self.output = Output("sbprog.log")
 		self.write = self.output.write
 		self.writeError = self.output.writeError
-		self.post_request = Sender.post_request
-		self.post_insta_request = Sender.post_insta_request
+
+
+	def post_request(self, params):
+		return Sender.post_request(self, params)
+
+
+	def post_insta_request(self, params, firstTime=False):
+		return Sender.post_insta_request(self, params)
+
 
 	def runProgram(self):
 		# try:

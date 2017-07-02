@@ -62,6 +62,10 @@ class TumblrAccount(Account):
 		self.status = self.STATUS_STOP
 
 
+	def post_request(self, params):
+		return Sender.post_request(self, params)
+
+
 	def getAccountName(self):
 		return self.data['blogname']
 

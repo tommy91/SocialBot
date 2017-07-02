@@ -47,6 +47,14 @@ class InstagramAccount(Account):
 		self.loadStatistics()
 
 
+	def post_request(self, params):
+		return Sender.post_request(self, params)
+
+
+	def post_insta_request(self, params, firstTime=False):
+		return Sender.post_insta_request(self, params)
+
+
 	def getAccountName(self):
 		return self.data['name']
 
