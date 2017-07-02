@@ -62,7 +62,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		resp = self.post_request({"action": "server_alive"})
 		if resp != None:
 			print "ok"
-			return True
 		else:
 			return False
 		write("Trying connecting to insta server online.. ")

@@ -33,7 +33,6 @@ class InstagramAccount(Account):
 		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
 		self.username = account['Username']
 		self.password = account['Password']
-		self.post_insta_request = Sender.post_insta_request
 		self.tags = tags2list(tags)
 		self.blogs = blogs2list(blogs)
 		self.data = self.initData()

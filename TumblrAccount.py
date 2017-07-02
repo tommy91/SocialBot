@@ -48,7 +48,6 @@ class TumblrAccount(Account):
 		self.token_secret = account['Token_Secret']
 		self.accounts = accounts
 		self.app_account = accounts.app_accounts[str(account['App_Account'])]
-		self.post_request = Sender.post_request
 		self.tags = tags2list(tags)
 		self.blogs = blogs2list(blogs)
 		self.data = self.initData()
