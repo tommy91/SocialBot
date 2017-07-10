@@ -16,14 +16,12 @@ class DbManager:
 	def __init__(self, dbName=None):
 		self.output = Output("db.log")
 		self.write = self.output.write
-		self.lock = threading.Lock()
 		if dbName != None:
 			self.dbName = dbName
 
 
 	def connectDB(self, silent=False):
 		"Connect to database"
-		self.lock.acquire()
 		if not silent:
 			self.write("\tConnecting to database.. ")
 		db = sqlite3.connect(self.dbName)
@@ -41,7 +39,6 @@ class DbManager:
 		db.close()
 		if not silent:
 			self.write("\tdisconnected!")
-		self.lock.release()
 
 
 	def createTable(self, db, q):
