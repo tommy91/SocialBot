@@ -341,6 +341,7 @@ class Accounts:
 			self.write("Update blogs info..")
 			self.write("Update social data:")
 		for kb,blog in self.accounts.iteritems():
+			self.write("\tUpdate " + blog.getAccountName())
 			blog.updateBlog(firstTime)
 		self.updateBlogsData(firstTime)
 		self.synchOperations(firstTime)

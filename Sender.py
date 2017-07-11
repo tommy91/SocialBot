@@ -1,3 +1,4 @@
+import time
 import requests
 from httplib2 import ServerNotFoundError
 from requests.exceptions import ConnectionError, Timeout, HTTPError
