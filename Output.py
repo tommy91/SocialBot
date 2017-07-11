@@ -7,18 +7,18 @@ class Output:
 
 
 	def __init__(self, logname):
-		self.infoLog = self.setup_logger(logname, LOGFILE_PATH + logname)
-		self.errorLog = self.setup_logger('error', LOGFILE_ERROR, level=logging.DEBUG)
+		self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
+		self.errorLog = self.setup_error_logger('error', LOGFILE_ERROR, level=logging.DEBUG)
 
 
 	def setup_info_logger(self, name, log_file, level=logging.INFO):
 		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
-		return setup_logger(self, name, log_file, formatter, level=logging.INFO)
+		return self.setup_logger(name, log_file, formatter, level=logging.INFO)
 
 
 	def setup_error_logger(self, name, log_file, level=logging.INFO):
 		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(funcName)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
-		return setup_logger(self, name, log_file, formatter, level=logging.INFO)
+		return self.setup_logger(name, log_file, formatter, level=logging.INFO)
 
 
 	def setup_logger(self, name, log_file, formatter, level=logging.INFO):
