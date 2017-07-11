@@ -100,7 +100,12 @@ class Account(object):
 
 
 	def runBlog(self):
-		self.write("Run " + self.getAccountName() + ":")
+		self.init_tread = threading.Thread(name=self.getAccountName() + "_init_thread", target=self.initRun)
+		self.init_tread.start()
+
+
+	def initRun(self):
+		self.write("Run " + self.getAccountName() + "on thread '" + self.init_tread.getName() + "'" + ":")
 		self.calc_time_post_follow()
 		self.checkData()
 		self.updateBlog()
@@ -113,10 +118,14 @@ class Account(object):
 		self.status = self.STATUS_RUN
 		self.updateBlogData()
 		self.updateStatistics()
+		self.write("\tThread '" + self.init_tread.getName() + "' is done.")
 
 
 	def stopBlog(self):
 		self.write("Stop " + self.getAccountName() + ".. ")
+		if self.init_tread.isAlive():
+			self.write("\tWaiting thread '" + self.init_tread.getName() + "' to stop..")
+			self.init_tread.join()
 		self.status = self.STATUS_STOP
 		self.updateBlogData()
 		self.stopTimers()

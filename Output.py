@@ -11,9 +11,18 @@ class Output:
 		self.errorLog = self.setup_logger('error', LOGFILE_ERROR, level=logging.DEBUG)
 
 
-	def setup_logger(self, name, log_file, level=logging.INFO):
+	def setup_info_logger(self, name, log_file, level=logging.INFO):
+		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
+		return setup_logger(self, name, log_file, formatter, level=logging.INFO)
+
+
+	def setup_error_logger(self, name, log_file, level=logging.INFO):
+		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(funcName)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
+		return setup_logger(self, name, log_file, formatter, level=logging.INFO)
+
+
+	def setup_logger(self, name, log_file, formatter, level=logging.INFO):
 	    """Function setup as many loggers as you want"""
-	    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
 	    handler = logging.FileHandler(log_file)        
 	    handler.setFormatter(formatter)
 	    logger = logging.getLogger(name)
