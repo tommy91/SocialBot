@@ -20,6 +20,8 @@ class Account(object):
 	FOLLOWING_TRASH_TIME = 60*60*24*20		# 20 giorni
 	FOLLOWERS_UPDATE_TIME = 60*60*24		# 1 giorno
 
+	OVER_UNFOLLOW = 5
+
 	followersList = []
 	followingList = []
 
@@ -284,7 +286,7 @@ class Account(object):
 		blogname = self.getAccountName()
 		self.write("Unfollowing " + blogname + ":")
 		counterUnfollow = 0
-		while counterUnfollow <= self.num_follow_xt:
+		while counterUnfollow <= self.num_follow_xt + self.OVER_UNFOLLOW:
 			try:
 				# pop the first
 				blog_name_unfollow = self.followingList.pop(0)

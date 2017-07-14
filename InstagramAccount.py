@@ -9,7 +9,7 @@ import Sender
 
 class InstagramAccount(Account):
 
-	LIMITFOLLOW = 8000
+	LIMITFOLLOW = 7000
 
 	percF4F = 1/2
 	percNotF4F = 1/2
