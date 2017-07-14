@@ -685,7 +685,10 @@ class InstagramAccount(Account):
 			following = self.post_insta_request({'action': 'get_followings_insta'})
 		else:
 			following = self.post_insta_request({'action': 'get_followings_insta', 'userID': str(user)})
-		self.write("\t\tGet Following List.. " + str(len(following)) + "/" + str(self.data['following']))
+		if following != None:
+			self.write("\t\tGet Following List.. " + str(len(following)) + "/" + str(self.data['following']))
+		else:
+			self.write("\t\tError: None following\n" + str(following))
 		return following
 
 
