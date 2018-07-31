@@ -1,9 +1,10 @@
 #!/usr/bin/python
+import os
 import sqlite3
 import threading
 
-from Utils import *
-from Output import Output
+import Utils
+import Output
 import Settings
 
 
@@ -11,62 +12,59 @@ class DbManager:
 
 
 	dbName = "SocialDB.db"
+	dbSchema = "dbSchema.sql"
 
 
-	def __init__(self, dbName=None):
-		self.output = Output("db.log")
-		self.write = self.output.write
+	def __init__(self, dbName=None, dbSchema=None):
+		self.output = Output.Output("db.log")
 		if dbName != None:
 			self.dbName = dbName
+		if dbSchema != None:
+			self.dbSchema = dbSchema
+
+
+	def tryDBConnection(self):
+		"Look for database"
+		self.output.write("Look for local DB (" + self.dbName + ").. ")
+		if (not os.path.exists(self.dbName)):
+			print "not in path"
+			self.initDB()
+		else:
+			print "already in path!"
+
+
+	def initDB(self):
+		self.output.write("\tCreating database:")
+		db = self.connectDB()
+		c = db.cursor() 
+		self.output.write("\Setup tables.. ")
+		with open(dbSchema, 'rt') as f:
+			schema = f.read()
+		db.executescript(schema)
+		self.output.write("ok\n")
+		self.disconnectDB(db)
+		self.output.write("\tDatabase created.\n")
 
 
 	def connectDB(self, silent=False):
 		"Connect to database"
 		if not silent:
-			self.write("\tConnecting to database.. ")
+			self.output.write("\tConnecting to database.. ")
 		db = sqlite3.connect(self.dbName)
 		db.isolation_level = None
 		db.row_factory = sqlite3.Row
 		if not silent:
-			self.write("\tconnected!")
+			self.output.write("connected!\n")
 		return (db)
 
 
 	def disconnectDB(self, db, silent=False):
 		"Disconnect from database"
 		if not silent:
-			self.write("\tDisconnecting from database.. ")
+			self.output.write("\tDisconnecting from database.. ")
 		db.close()
 		if not silent:
-			self.write("\tdisconnected!")
-
-
-	def createTable(self, db, q):
-		try:
-			db.execute(q)
-		except sqlite3.OperationalError, msg:
-			print "\tError: " + str(msg)
-			return False
-		else:
-			print "\tDone."
-			return True
-
-	def setupTables(self, db):
-		"Setup Accounts table on database 'db'."
-		print "\tSetup Tables:"
-		write("\tPostsLikes Table.. ")
-		if not self.createTable(db, "CREATE table if not exists PostsLikes (id text, reblogKey text, sourceBlog text, myBlog text, time time)"):
-			return False
-		write("\tFollow Table.. ")
-		if not self.createTable(db, "CREATE table if not exists Follow (sourceBlog text, myblog text, time time)"):
-			return False
-		write("\tFollowing Table.. ")
-		if not self.createTable(db, "CREATE table if not exists Following (myBlog text, followedBlog text, isFollowingBack boolean, time time)"):
-			return False
-		write("\tFstats Table.. ")
-		if not self.createTable(db, "CREATE table if not exists Fstats (myBlog text, followedBlog text, action text, time time)"):
-			return False
-		write("\tSetup Tables Complete!\n\n")
+			self.output.write("disconnected!\n")
 		
 
 	def add(self, table, args, silent=True):
@@ -82,10 +80,10 @@ class DbManager:
 			elif table == "Fstats":
 				c.execute('INSERT INTO Fstats VALUES (?,?,?,?)',args)
 		except sqlite3.IntegrityError, msg:
-			self.writeError("   Error" + str(msg))	
+			self.output.writeErrorLog("   Error" + str(msg) + "\n")	
 		else: 
 			if not silent:
-				self.write("   Created new entry in " + table + " table.")
+				self.output.writeLog("   Created new entry in " + table + " table.\n")
 		self.disconnectDB(db,silent)
 
 
@@ -104,11 +102,11 @@ class DbManager:
 				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?)',argsList)
 		except sqlite3.IntegrityError, msg:
 			c.execute("rollback")
-			self.writeError("   Error" + str(msg))	
+			self.output.writeErrorLog("   Error" + str(msg) + "\n")	
 		else: 
 			c.execute("commit")
 			if not silent:
-				self.write("   Created new entry in " + table + " table.")
+				self.output.writeLog("   Created new entry in " + table + " table.\n")
 		self.disconnectDB(db,silent)
 
 
@@ -126,13 +124,13 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ? AND followedBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.writeError("\tError" + str(msg))
+			self.output.writeErrorLog("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
-					self.write("\tDeleted " + str(rows) + " from " + table)
+					self.output.writeLog("\tDeleted " + str(rows) + " from " + table + "\n")
 				else:
-					self.write("\tThat entry does not exist in " + table + "!")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
 		self.disconnectDB(db,silent)
 
 
@@ -150,13 +148,13 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.writeError("\tError" + str(msg))
+			self.output.writeErrorLog("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
-					self.write("\tDeleted " + str(rows) + " from " + table)
+					self.output.writeLog("\tDeleted " + str(rows) + " from " + table + "\n")
 				else:
-					self.write("\tThat entry does not exist in " + table + "!")
+					self.outout.writeLog("\tThat entry does not exist in " + table + "!\n")
 		self.disconnectDB(db,silent)
 
 
@@ -167,13 +165,13 @@ class DbManager:
 		try:
 			rows = c.execute('DELETE FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + str(time)).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.writeError("\tError" + str(msg))
+			self.output.writeErrorLog("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
-					self.write("\tDeleted " + str(rows) + " from Fstats")
+					self.output.writeLog("\tDeleted " + str(rows) + " from Fstats\n")
 				else:
-					self.write("\tThat entry does not exist in Fstats!")
+					self.output.writeLog("\tThat entry does not exist in Fstats!\n")
 		self.disconnectDB(db,silent)
 
 
@@ -191,13 +189,13 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-			self.writeError("\tError" + str(msg))
+			self.output.writeErrorLog("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
-					self.write("\tUpdated " + str(rows) + " from " + table)
+					self.output.writeLog("\tUpdated " + str(rows) + " from " + table + "\n")
 				else:
-					self.write("\tThat entry does not exist in " + table + "!")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
 		self.disconnectDB(db,silent)
 
 
@@ -215,22 +213,14 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-			self.writeError("\tError" + str(msg))
+			self.output.writeErrorLog("\tError" + str(msg) + "\n")
 		else:
 			if not silent:
 				if rows > 0:
-					self.write("\tUpdated " + str(rows) + " from " + table)
+					self.output.writeLog("\tUpdated " + str(rows) + " from " + table + "\n")
 				else:
-					self.write("\tThat entry does not exist in " + table + "!")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
 		self.disconnectDB(db,silent)
-
-
-	def initDB(self):
-		self.write("\tCreating database:")
-		db = self.connectDB()
-		c = db.cursor() 
-		self.setupTables(c)
-		self.disconnectDB(db)
 
 
 	def count(self, tableName, silent=False):
@@ -276,10 +266,10 @@ class DbManager:
 		db = self.connectDB(silent)
 		c = db.cursor()
 		if not silent:
-			self.write("\tCounting entries in " + tableName + " database.. ")
+			self.output.writeLog("\tCounting entries in " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.write("\tdone!")
+			self.output.writeLog("\tdone!")
 		rows = len(c.fetchall())
 		self.disconnectDB(db,silent)
 		return rows
@@ -327,10 +317,10 @@ class DbManager:
 		db = self.connectDB(silent)
 		c = db.cursor()
 		if not silent:
-			self.write("\tDownload data from " + tableName + " database.. ")
+			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.write("\tdone!")
+			self.output.writeLog("\tdone!\n")
 		results = c.fetchall()
 		columns = c.description
 		col_names = []
@@ -352,10 +342,10 @@ class DbManager:
 		db.row_factory = lambda cursor, row: row[0]
 		c = db.cursor()
 		if not silent:
-			self.write("\tDownload data from " + tableName + " database.. ")
+			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.write("\tdone!")
+			self.output.writeLog("\tdone!\n")
 		result = c.fetchall()
 		self.disconnectDB(db,silent)
 		return result
@@ -365,10 +355,10 @@ class DbManager:
 		db = self.connectDB(silent)
 		c = db.cursor()
 		if not silent:
-			self.write("\tDownload data from " + tableName + " database.. ")
+			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.write("\tdone!")
+			self.output.writeLog("\tdone!\n")
 		result = c.fetchall()
 		self.disconnectDB(db,silent)
 		return result

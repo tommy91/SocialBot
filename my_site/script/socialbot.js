@@ -375,10 +375,15 @@ function fill_account_data(table, blog) {
                     var tags = JSON.parse(json_tags);
                     if (checkResponse(tags)) {
                         tags = tags['Result'];
+                        var sum_used_tags = 0;
                         for (var kt in tags) {
-                            $('#div-tags-modify').append('<li class="li-modify"><input class="li-input-tags-modify" value="' + tags[kt]['Name'] + '" old_value="' + tags[kt]['Name'] + '" new_tag="false"></input></li>');
+                            sum_used_tags += tags[kt]['Success'] / tags[kt]['Used'];
                         }
-                        $('#div-tags-modify').prepend('<li class="li-modify"><input class="li-input-tags-modify" value="..." old_value="..." new_tag="true"></input></li>');
+                        for (var kt in tags) {
+                            var tag_prob = parseFloat((tags[kt]['Success'] * 100) / ( tags[kt]['Used'] * sum_used_tags )).toFixed(2);
+                            $('#div-tags-modify').append('<li class="li-modify"><input class="li-input-tags-modify" value="' + tags[kt]['Name'] + '" old_value="' + tags[kt]['Name'] + '" new_tag="false"></input><div class="li-prob-tags">' + tags[kt]['Success'] + '</div><div class="li-prob-tags">' + tags[kt]['Used'] + '</div><div class="li-prob-tags li-prob-tags-last">' + tag_prob + '</div></li>');
+                        }
+                        $('#div-tags-modify').prepend('<li class="li-modify"><input class="li-input-tags-modify" value="..." old_value="..." new_tag="true"></input><div class="li-prob-tags"> S </div><div class="li-prob-tags"> U </div><div class="li-prob-tags li-prob-tags-last"> P </div></li>');
                         deleted_tags = [];
                         $.post("Receiver.php",
                         {
@@ -521,8 +526,7 @@ function addAccount(table) {
                     {
                         action: "add_tag",
                         id: id_blog,
-                        name: tags2add[kta],
-                        position: kta
+                        name: tags2add[kta]
                     },
                     function(result, status) {
                         if (result == 1){
@@ -674,8 +678,7 @@ function insertTags(id_blog) {
         {
             action: "add_tag",
             id: id_blog,
-            name: tags2update[ktu],
-            position: ktu
+            name: tags2update[ktu]
         },
         function(result, status) {
             if (result == 1){

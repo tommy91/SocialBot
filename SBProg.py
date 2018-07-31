@@ -5,10 +5,10 @@ import socket
 import datetime
 import threading
 
-from Utils import *
-from dbManager import DbManager
-from Output import Output
-from Accounts import Accounts
+import Utils
+import dbManager
+import Output
+import Accounts
 import Sender
 
 
@@ -22,9 +22,8 @@ class SBProg:
 
 	def __init__(self, isTest = False):
 		self.isTest = isTest
-		self.output = Output("sbprog.log")
-		self.write = self.output.write
-		self.writeError = self.output.writeError
+		self.output = Output.Output("sbprog")
+		self.dbManager = dbManager.DbManager()
 
 
 	def post_request(self, params):
@@ -38,14 +37,14 @@ class SBProg:
 	def runProgram(self):
 		# try:
 		self.printHello()
-		if not self.tryConnectToRemoteServer():
+		if not self.tryRemoteDBConnection():
 			print "Closing.. bye."
-		self.dbManager = DbManager()
-		self.tryConnectDB()
-		self.mainBOT()
-		self.newEntry()
+		else:
+			self.dbManager.tryDBConnection()
+			self.mainBOT()
+			self.newEntry()
 		# except Exception, e:
-		# 	self.writeError("Error: Global Error.\n" + str(e))
+		# 	self.output.writeError("Error: Global Error.\n" + str(e))
 		# 	print "Global Error"			
 		# 	print e
 
@@ -56,15 +55,15 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$   WELCOME SOCIAL BOT   $$$$$$$$$$$$$$$$$$$$$$$$$$\n\
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n"""
 
 
-	def tryConnectToRemoteServer(self):
+	def tryRemoteDBConnection(self):
 		"Look for the remote server"
-		write("Trying connecting to server online.. ")
+		self.output.write("Trying connecting to remote server and DB.. ")
 		resp = self.post_request({"action": "server_alive"})
 		if resp != None:
 			print "ok"
 		else:
 			return False
-		write("Trying connecting to insta server online.. ")
+		self.output.write("Trying connecting to insta server online.. ")
 		resp = self.post_insta_request({"action": "server_alive"})
 		if resp != None:
 			print "ok"
@@ -73,22 +72,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 			return False
 
 
-	def tryConnectDB(self):
-		"Look for database"
-		write("Look for database (" + self.dbManager.dbName + ").. ")
-		if (not os.path.exists(self.dbManager.dbName)):
-			print "not in path"
-			self.dbManager.initDB()
-		else:
-			print "already in path!"
-			self.dbManager.initDB()
-
-
 	def mainBOT(self):
 		print "Initializing the BOT:"
 		self.startSessionTime = datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')
 		print "Get data from online server:"
-		self.accounts = Accounts(self)
+		self.accounts = Accounts.Accounts(self)
 		print "Get data from online server complete!"
 		self.updateStatistics(firstTime=True)
 		if self.isTest:
@@ -104,15 +92,13 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				break
 			elif entry in ["help","info"]:
 				self.printHelpCmd()
-			elif (entry != "") and (entry.split()[0] in ["clear","Clear"]):
+			elif (entry != "") and (entry.split()[0] in ["clear"]):
 				self.accounts.clearDB4blog(entry)
-			elif (entry != "") and (entry.split()[0] in ["run","Run"]):
+			elif (entry != "") and (entry.split()[0] in ["run"]):
 				self.accounts.runBlogs(entry)
 				print "Running Blogs!"
-			elif (entry != "") and (entry.split()[0] in ["stop","Stop"]):
+			elif (entry != "") and (entry.split()[0] in ["stop"]):
 				self.accounts.stopBlogs(entry)
-			elif (entry != "") and (entry.split()[0] == "copy"):
-				self.copyBlog(entry)
 			else:
 				print "Unknown command '" + entry + "'"
 
@@ -121,12 +107,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 		"Print list of available commands"
 		print "List of commands:"
 		print "   - 'help': for list of instructions"
-		print "   - 'clean': clean directory"
-		print "   - 'f': fast print"
-		print "   - 'copy blog_to_copy my_blog': for copy an entire blog"
+		print "   - 'clear': clean directory"
 		print "   - 'run': for run a/all blog(s)"
 		print "   - 'stop': for stop a/all blog(s)"
-		print "   - 'quit': for quit"
+		print "   - 'quit/exit': for quit"
 
 
 	def closing_operations(self):
@@ -144,9 +128,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 	def updateStatistics(self, firstTime=False):
 		try:
 			if firstTime:
-				write("Update stats.. ")
+				self.output.write("Update stats.. ")
 			else:
-				self.write("\tUpdate stats.. ")
+				self.output.writeLog("\tUpdate stats.. ")
 			post_data_stats = {"action": "update_statistics",
 				"Session_Start": self.startSessionTime,
 				"Num_Threads": threading.activeCount(),
@@ -159,30 +143,17 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				if firstTime:
 					print "Error: Update stats NOT ok (None up_stat)"
 				else:
-					self.writeError("Error: Update stats NOT ok (None up_stat)")
+					self.output.writeErrorLog("Error: Update stats NOT ok (None up_stat)\n")
 			else:
 				if firstTime:
 					print "ok!"
 				else:
-					self.write("\tok!")
+					self.output.writeLog("\tok!\n")
 		except KeyError, msg:
 			if firstTime:
 				print "KeyError on Update stats:\n" + str(msg)
 			else:
-				self.writeError("Error: KeyError on Update stats:\n" + str(msg))
-
-
-	def copyBlog(self, entry):
-		try:
-			blog_to_copy = entry.split()[1]
-			my_blog = self.accounts[self.matches[entry.split()[2]]]
-			limit = int(entry.split()[3])
-			counter = int(entry.split()[4])
-			print "Creating new thread for copy the blog.. "
-			t = threading.Thread(target=my_blog.copyBlog, args=(blog_to_copy,limit,counter)).start()
-			self.updateStatistics()
-		except IndexError, msg:
-			print "   Syntax error: 'copy source myblog limit counter'"
+				self.output.writeErrorLog("Error: KeyError on Update stats:\n" + str(msg) + "\n")
 
 
 	def testConnectedBlogs(self):

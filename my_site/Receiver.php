@@ -69,9 +69,15 @@ if (isset($_POST['action'])) {
         echo json_encode(fetchSelectAndReturn($auth));
 	}
 
+    if ($request == "get_instagram_accounts") {
+        $q = 'SELECT * FROM sb_my_accounts WHERE Type=2 ORDER BY ID';
+        $auth = $data->query($q);
+        echo json_encode(fetchSelectAndReturn($auth));
+    }
+
 	if ($request == "get_tags") {
 		$id = $_POST['ID'];
-		$q = 'SELECT Name FROM sb_tags WHERE My_Account = '.intval($id).' ORDER BY Position';
+		$q = 'SELECT * FROM sb_tags WHERE My_Account = '.intval($id).' ORDER BY Success/Used DESC';
         $auth = $data->query($q);
         echo json_encode(fetchSelectAndReturn($auth));
 	}
@@ -295,6 +301,13 @@ if (isset($_POST['action'])) {
         echo json_encode(fetchSelectAndReturn($auth));
     }
 
+    if ($request == "get_account_by_id") {
+        $id = $_POST['id'];
+        $q = 'SELECT * FROM sb_my_accounts WHERE ID = '.intval($id);
+        $auth = $data->query($q);
+        echo json_encode(fetchSelectAndReturn($auth));
+    }
+
     if ($request == "delete_app_accounts_ID") {
         $id = intval($_POST['id']);
         $query = 'DELETE FROM sb_app_accounts WHERE ID='.$id;
@@ -397,11 +410,10 @@ if (isset($_POST['action'])) {
     if ($request == "add_tag"){
         $id = intval($_POST['id']);
         $name = $_POST['name'];
-        $pos = intval($_POST['position']);
 
         $t = "sb_tags";
-        $v = array ($id, $name, $pos);
-        $r = "My_Account, Name, Position";
+        $v = array ($id, $name);
+        $r = "My_Account, Name";
 
         $result = $data->inserisci($t,$v,$r);
 

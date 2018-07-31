@@ -189,7 +189,7 @@ body {
     border: 1px solid lawngreen;
     border-radius: 2px;
     height: 250px;
-    width: 150px;
+    /*width: 150px;*/
     margin: 0;
     margin-right: 5px;
     margin-left: 5px;
@@ -209,6 +209,20 @@ body {
     display: inline-block;
     margin-left: 5px;
     margin-right: 5px;
+}
+.li-input-tags-modify {
+    width: 120px;
+}
+.li-prob-tags {
+    background: black;
+    color: whitesmoke;
+    text-align: center;
+    border: 0;
+    display: inline-block;
+    width: 40px;
+}
+.li-prob-tags-last {
+    margin-right: 10px;
 }
 .li-input-tags-modify:hover, .li-input-blogs-modify:hover {
     color: lawngreen;

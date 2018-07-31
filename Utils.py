@@ -1,4 +1,5 @@
 import sys
+import random
 
 
 def seconds2timeStr(secs):
@@ -49,10 +50,10 @@ def date2str(objDate):
 
 
 def tags2list(tags):
-	tagsList = []
+	tagsDict = {}
 	for tag in tags:
-		tagsList.append(tag['Name'])
-	return tagsList
+		tagsDict[tag['Name']] = {'Used': tag['Used'], 'Success': tag['Success']}
+	return tagsDict
 
 
 def blogs2list(other_accounts):
@@ -74,8 +75,16 @@ def binarySearch(elem, lst):
 		return binarySearch(elem, lst[(index_pivot+1):])
 
 
-def write(s):
-	sys.stdout.write(s)
-	sys.stdout.flush()
+def selectWithProb(elems, probs):
+	seed = random.random()
+	counter = 0
+	sum_probs = probs[0]
+	while seed > sum_probs:
+		counter += 1
+		sum_probs += probs[counter]
+	return elems[counter]
+
+
+
 
 

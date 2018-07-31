@@ -86,7 +86,7 @@ function synchData {
 
 function changePermissions {
 	printf "Change all folder permissions.. "
-	chmod -R 755 my_site
+	chmod -R 755 $SOURCE
 	printf "ok\n\n"
 }
 
