@@ -42,6 +42,6 @@ class Output:
 
 
 	def write(self, res):
-		sys.stdout.write(res))
+		sys.stdout.write(res)
 		sys.stdout.flush()
 
