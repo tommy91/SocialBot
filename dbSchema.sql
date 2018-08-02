@@ -29,6 +29,7 @@ create table Following (
 create table Fstats (
     myBlog          text, 
     followedBlog    text, 
-    action          text, 
+    action          text,
+    gotBy           text, 
     time            time
 );

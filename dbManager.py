@@ -78,7 +78,7 @@ class DbManager:
 			elif table == "Following":
 				c.execute('INSERT INTO Following VALUES (?,?,?,?)',args)
 			elif table == "Fstats":
-				c.execute('INSERT INTO Fstats VALUES (?,?,?,?)',args)
+				c.execute('INSERT INTO Fstats VALUES (?,?,?,?,?)',args)
 		except sqlite3.IntegrityError, msg:
 			self.output.writeErrorLog("   Error" + str(msg) + "\n")	
 		else: 
@@ -99,7 +99,7 @@ class DbManager:
 			elif table == "Following":
 				c.executemany('INSERT INTO Following VALUES (?,?,?,?)',argsList)
 			elif table == "Fstats":
-				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?)',argsList)
+				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?,?)',argsList)
 		except sqlite3.IntegrityError, msg:
 			c.execute("rollback")
 			self.output.writeErrorLog("   Error" + str(msg) + "\n")	

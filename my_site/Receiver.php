@@ -154,6 +154,25 @@ if (isset($_POST['action'])) {
             echo json_encode($fetch_result);
     }
 
+    if ($request == "update_tags_stats") {
+        $id = intval($_POST['ID']);
+        $tag = $_POST['Tag'];
+        $success = intval($_POST['Success']);
+        $used = intval($_POST['Used']);
+
+        $q = "UPDATE sb_tags SET Success=".$success.", Used=".$used." WHERE My_Account=".$id." AND Name='".$tag."'";
+        $result = $data->query($q);
+        $fetch_result = fetchUpDelAndReturn($result);
+        if(!array_key_exists('Error', $fetch_result)) {
+            if(op2register(1, "sb_tags", $id, 2))
+                echo json_encode($fetch_result);
+            else
+                echo json_encode(array('Error' => " Error on saving to register for blog ".$id."."));
+        }
+        else
+            echo json_encode($fetch_result);
+    }
+
     if ($request == "synch_operations") {
         $q = 'SELECT max(ID) as max FROM sb_register WHERE Who=0';
         $auth = $data->query($q);

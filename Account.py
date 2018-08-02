@@ -25,6 +25,11 @@ class Account(object):
 	followersList = []
 	followingList = []
 
+	todayPosts = 0
+	todayLikes = 0
+	todayFollows = 0
+	todayUnfollows = 0
+
 
 	def __init__(self, accounts, account_id, mail, account_type):
 		self.accounts = accounts
@@ -38,6 +43,7 @@ class Account(object):
 		self.strID = str(account_id)
 		self.mail = mail
 		self.account_type = int(account_type)
+		self.today = datetime.date.today()
 
 
 	def updateStatus(self):
