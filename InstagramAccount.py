@@ -9,7 +9,7 @@ import Utils
 import Sender
 
 
-class InstagramAccount(Account):
+class InstagramAccount(Account.Account):
 
 	LIMITFOLLOW = 7000
 
