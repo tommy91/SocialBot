@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 
@@ -8,6 +9,9 @@ class Output:
 
 
 	def __init__(self, logname):
+		# setup log directory
+		if not os.path.exists(LOGFILE_PATH):
+			os.mkdir(LOGFILE_PATH)
 		self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname + ".log")
 		self.errorLog = self.setup_error_logger('error', LOGFILE_ERROR)
 
