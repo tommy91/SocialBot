@@ -78,7 +78,7 @@ class Accounts:
 			print "Update Accounts to DB:"
 		else: 
 			self.output.writeLog("\tUpdate Blogs to DB:\n")
-		for key, blog in self.accounts.iteritems():
+		for key, blog in self.instagramAccounts.iteritems():
 			blog.updateAccountData(firstTime)
 
 

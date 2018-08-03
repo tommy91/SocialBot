@@ -9,8 +9,7 @@ $ig = new \InstagramAPI\Instagram();
 
 function connect($username, $password){
 	global $ig;
-	$ig->setUser($username, $password);
-	$ig->login();
+	$ig->login($username, $password);
 	return $ig->getUsernameId($username);
 }
 
