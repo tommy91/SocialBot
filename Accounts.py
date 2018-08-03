@@ -297,7 +297,7 @@ class Accounts:
 			blog.updateAccount(firstTime)
 		self.updateAccountsData(firstTime)
 		self.synchOperations(firstTime)
-		if not self.isTest:
+		if not self.sbprog.isTest:
 			self.setUpdateTimer()
 		self.updateStatistics(firstTime)
 

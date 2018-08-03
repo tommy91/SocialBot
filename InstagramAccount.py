@@ -30,7 +30,6 @@ class InstagramAccount(Account.Account):
 
 	def __init__(self, accounts, account, tags, blogs):
 		super(InstagramAccount, self).__init__(accounts, account['ID'], account['Mail'], account['Type'])
-		self.post_insta_request = accounts.sbprog.post_insta_request
 		self.username = account['Username']
 		self.password = account['Password']
 		self.accountName = account['Name']
@@ -46,6 +45,10 @@ class InstagramAccount(Account.Account):
 		self.status = self.STATUS_STOP
 		self.loadStatistics()
 		self.initDailyStats()
+
+
+	def post_insta_request(self, params, firstTime=False):
+		return Sender.post_insta_request(self, params)
 
 
 	def getAccountName(self):
