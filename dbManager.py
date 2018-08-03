@@ -38,7 +38,7 @@ class DbManager:
 		db = self.connectDB()
 		c = db.cursor() 
 		self.output.write("\Setup tables.. ")
-		with open(dbSchema, 'rt') as f:
+		with open(self.dbSchema, 'rt') as f:
 			schema = f.read()
 		db.executescript(schema)
 		self.output.write("ok\n")
