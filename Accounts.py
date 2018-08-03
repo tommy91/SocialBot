@@ -49,7 +49,7 @@ class Accounts:
 				self.output.write("\t" + str(counter) + ") " + instaAccount["Mail"] + " -> tags.. ")
 				tags = self.post_request({"action": "get_tags", "ID": instaAccount['ID']})
 				blogs = self.post_request({"action": "get_blogs", "ID": instaAccount['ID']})
-				if (tags == None) or (otherAccounts == None):
+				if (tags == None) or (blogs == None):
 					# error in response
 					continue
 				self.addInstagramAccount(instaAccount,tags,blogs)
