@@ -242,7 +242,7 @@ class InstagramAccount(Account.Account):
 				self.output.writeErrorLog("Error Exception:\n" + str(msg) + "\n")
 						
 
-	def updateAccountData(self, firstTime):
+	def updateAccountData(self, firstTime=False):
 		if firstTime:
 			self.output.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
