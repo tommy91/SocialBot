@@ -125,7 +125,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 
 
 	def closing_operations(self):
-		print "Terminating program."
+		print "\nTerminating program."
 		self.accounts.closingOperations()
 		try:
 			self.timers["update"].cancel()
@@ -133,7 +133,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 			pass
 		self.updateStatistics()
 		resp = self.post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
-		print "   Bye!\n"
+		print "Bye!\n"
 
 
 	def updateStatistics(self, firstTime=False):

@@ -73,14 +73,14 @@ class Accounts:
 	def addInstagramAccount(self, account, tags, blogs):
 		new_insta_account = InstagramAccount.InstagramAccount(self, account, tags, blogs)
 		self.accounts[str(account['ID'])] = new_insta_account
-		self.matches[account['Name']] = account['ID']
+		self.matches[new_insta_account.getAccountName()] = account['ID']
 
 
 	def updateAccountsData(self, firstTime=False):
 		if firstTime:
 			print "Update Accounts to DB:"
 		else: 
-			self.output.writeLog("\tUpdate Blogs to DB:\n")
+			self.output.writeLog("\tUpdate Accounts to DB:\n")
 		for key, blog in self.accounts.iteritems():
 			blog.updateAccountData(firstTime)
 
