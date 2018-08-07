@@ -52,6 +52,7 @@ class SBProg:
 
 
 	def killAndExit(self):
+		print "Killing timers and exit."
 		for timer_name in self.timers:
 			self.timers[timer_name].cancel()
 		sys.exit(1)
