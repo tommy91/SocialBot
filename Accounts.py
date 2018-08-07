@@ -279,7 +279,7 @@ class Accounts:
 
 	def setUpdateTimer(self):
 		fiveMin = 60*5
-		tup = threading.Timer(fiveMin, self.updateBlogs)
+		tup = threading.Timer(fiveMin, self.updateAccounts)
 		tup.start()
 		self.timers["update"] = tup
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + fiveMin)).strftime('%H:%M:%S %d/%m')
