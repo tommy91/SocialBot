@@ -12,7 +12,7 @@ class Output:
 		# setup log directory
 		if not os.path.exists(LOGFILE_PATH):
 			os.mkdir(LOGFILE_PATH)
-		self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname + ".log")
+		self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
 		self.errorLog = self.setup_error_logger('error', LOGFILE_ERROR)
 
 
