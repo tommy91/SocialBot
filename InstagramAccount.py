@@ -52,7 +52,7 @@ class InstagramAccount(Account.Account):
 
 
 	def getAccountName(self):
-		return self.accountName
+		return self.username
 
 
 	def getSocialName(self):

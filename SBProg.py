@@ -45,9 +45,8 @@ class SBProg:
 				self.mainBOT()
 				self.newEntry()
 		except Exception, e:
-			self.output.writeErrorLog("Error: Global Error.\n" + str(e))
+			self.output.writeErrorLog("Error: Global Error.\n" + str(traceback.print_exc()))
 			print "Global Error"			
-			print e
 			traceback.print_exc()
 			self.killAndExit()
 
@@ -55,7 +54,7 @@ class SBProg:
 	def killAndExit(self):
 		print "Killing timers:"
 		for timer_name in self.timers:
-			print "\t" + timer_name
+			print " - " + timer_name
 			self.timers[timer_name].cancel()
 		print "exit."
 		sys.exit(1)

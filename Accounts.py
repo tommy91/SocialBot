@@ -18,7 +18,7 @@ class Accounts:
 	UPDATE_OPERATION = '2'
 
 	def __init__(self, sbprog):
-		self.instagramAccounts = {}
+		self.accounts = {}
 		self.matches = {}
 		self.sbprog = sbprog
 		self.output = sbprog.output
@@ -72,7 +72,7 @@ class Accounts:
 
 	def addInstagramAccount(self, account, tags, blogs):
 		new_insta_account = InstagramAccount.InstagramAccount(self, account, tags, blogs)
-		self.instagramAccounts[str(account['ID'])] = new_insta_account
+		self.accounts[str(account['ID'])] = new_insta_account
 		self.matches[account['Name']] = account['ID']
 
 
@@ -81,7 +81,7 @@ class Accounts:
 			print "Update Accounts to DB:"
 		else: 
 			self.output.writeLog("\tUpdate Blogs to DB:\n")
-		for key, blog in self.instagramAccounts.iteritems():
+		for key, blog in self.accounts.iteritems():
 			blog.updateAccountData(firstTime)
 
 
@@ -294,8 +294,8 @@ class Accounts:
 		else:
 			self.output.writeLog("Update blogs info..\n")
 			self.output.writeLog("Update social data:\n")
-		# update instagrama accounts
-		for kb,blog in self.instagramAccounts.iteritems():
+		# update accounts
+		for kb,blog in self.accounts.iteritems():
 			self.output.writeLog("\tUpdate " + blog.getAccountName() + "\n")
 			blog.updateAccount(firstTime)
 		self.updateAccountsData(firstTime)
