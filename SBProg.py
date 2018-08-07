@@ -4,6 +4,7 @@ import time
 import socket
 import datetime
 import traceback
+import threading
 
 import Utils
 import dbManager
@@ -52,9 +53,11 @@ class SBProg:
 
 
 	def killAndExit(self):
-		print "Killing timers and exit."
+		print "Killing timers:"
 		for timer_name in self.timers:
+			print "\t" + timer_name
 			self.timers[timer_name].cancel()
+		print "exit."
 		sys.exit(1)
 
 
