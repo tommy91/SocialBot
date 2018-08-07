@@ -185,7 +185,7 @@ class Account(object):
 		self.timers[self.strID + "-post"] = tp
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-post"] = deadline
-		self.output.writeLog("\tcreated new thread for post after " + seconds2timeStr(timer_post) + "\n")
+		self.output.writeLog("\tcreated new thread for post after " + Utils.seconds2timeStr(timer_post) + "\n")
 		self.updateStatistics()
 
 
@@ -196,7 +196,7 @@ class Account(object):
 		self.timers[self.strID + "-like"] = tl
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-like"] = deadline
-		self.output.writeLog("\tcreated new thread for like after " + seconds2timeStr(timer_like) + "\n")
+		self.output.writeLog("\tcreated new thread for like after " + Utils.seconds2timeStr(timer_like) + "\n")
 		self.updateStatistics()
 
 
@@ -207,7 +207,7 @@ class Account(object):
 		self.timers[self.strID + "-follow"] = tf
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-follow"] = deadline
-		self.output.writeLog("\tcreated new thread for follow after " + seconds2timeStr(timer_follow) + "\n")
+		self.output.writeLog("\tcreated new thread for follow after " + Utils.seconds2timeStr(timer_follow) + "\n")
 		self.updateStatistics()
 
 
