@@ -1,4 +1,5 @@
 import sys
+import datetime
 import threading
 
 import Utils
@@ -300,7 +301,7 @@ class Accounts:
 		self.synchOperations(firstTime)
 		if not self.sbprog.isTest:
 			self.setUpdateTimer()
-		self.updateStatistics(firstTime)
+		self.sbprog.updateStatistics(firstTime)
 
 
 	def closingOperations(self):

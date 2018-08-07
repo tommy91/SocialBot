@@ -3,6 +3,7 @@ import sys
 import time
 import socket
 import datetime
+import traceback
 
 import Utils
 import dbManager
@@ -46,6 +47,14 @@ class SBProg:
 			self.output.writeErrorLog("Error: Global Error.\n" + str(e))
 			print "Global Error"			
 			print e
+			traceback.print_exc()
+			self.killAndExit()
+
+
+	def killAndExit(self):
+		for timer_name in self.timers:
+			self.timers[timer_name].cancel()
+		sys.exit(1)
 
 
 	def printHello(self):
