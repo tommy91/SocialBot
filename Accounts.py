@@ -265,8 +265,8 @@ class Accounts:
 					if blog.getAccountName() != "not available":
 						blog.stopBlog()
 						print "Stopped '" + blog.getAccountName() + "'"
-				self.timers["update"].cancel()
-				self.timers = {}
+				self.sbprog.timers["update"].cancel()
+				self.sbprog.timers = {}
 			else: 
 				try:
 					self.accounts[self.matches[entry.split()[1]]].stopBlog()
@@ -281,9 +281,9 @@ class Accounts:
 		fiveMin = 60*5
 		tup = threading.Timer(fiveMin, self.updateAccounts)
 		tup.start()
-		self.timers["update"] = tup
+		self.sbprog.timers["update"] = tup
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + fiveMin)).strftime('%H:%M:%S %d/%m')
-		self.timersTime["update"] = deadline
+		self.sbprog.timersTime["update"] = deadline
 
 
 	def updateAccounts(self, firstTime=False):
