@@ -44,12 +44,12 @@ class Accounts:
 		else:
 			counter = 1
 			for instaAccount in instagramAccounts:
-				print "\t" + str(counter) + ") " + instaAccount["Mail"]
+				print "\t" + str(counter) + ") " + instaAccount["Username"]
 				counter += 1
 			print "Get Instagram Accounts Data:"
 			counter = 1
 			for instaAccount in instagramAccounts:
-				self.output.write("\t" + str(counter) + ") " + instaAccount["Mail"] + " -> tags.. ")
+				self.output.write("\t" + str(counter) + ") " + instaAccount["Username"] + " -> tags.. ")
 				tags = self.post_request({"action": "get_tags", "ID": instaAccount['ID']})
 				blogs = self.post_request({"action": "get_blogs", "ID": instaAccount['ID']})
 				if (tags == None) or (blogs == None):

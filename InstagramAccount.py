@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+import time
 import pickle
 from datetime import date
 
@@ -242,9 +243,9 @@ class InstagramAccount(Account.Account):
 
 	def updateAccountData(self, firstTime):
 		if firstTime:
-			self.output.write("\tUpdate " + self.data['name'] + ".. ")
+			self.output.write("\tUpdate " + self.getAccountName() + ".. ")
 		else:
-			self.output.writeLog("\tUpdate " + self.data['name'] + ".. ")
+			self.output.writeLog("\tUpdate " + self.getAccountName() + ".. ")
 		post_data_up = {"action": "update_blog_data_insta", 
 			"ID": self.account_id,
 			"Following": self.data['following'],
