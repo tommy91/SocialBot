@@ -3,7 +3,6 @@ import sys
 import time
 import socket
 import datetime
-import threading
 
 import Utils
 import dbManager

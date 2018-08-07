@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 'On');
+error_reporting(E_ALL | E_STRICT);
 
 require 'vendor/autoload.php';
 require 'logManager.php';
@@ -10,28 +12,29 @@ $ig = new \InstagramAPI\Instagram();
 function connect($username, $password){
 	global $ig;
 	$ig->login($username, $password);
-	return $ig->getUsernameId($username);
+	$userID = $ig->people->getUserIdForName($username);
+	return $userID;
 }
 
 function get_user_info($username, $password) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$info = $ig->getSelfUserInfo();
+		$response = $ig->people->getSelfInfo();
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password));
 	}
-	if ($info->status != 'ok')
-		return array('Error' => $info);
-	$userInfo = $info->user;
+	if (!$response->isOk())
+		return array('Error' => $response);
+	$userInfo = $response->getUser();
 	return array(
-					'follower' => $userInfo->follower_count,
-					'following' => $userInfo->following_count,
-					'name' => $userInfo->full_name,
-					'private' => $userInfo->is_private,
-					'post' => $userInfo->media_count,
-					'message' => $userInfo->message,
-					'usertags' => $userInfo->usertags_count
+					'follower' => $userInfo->getFollowerCount(),
+					'following' => $userInfo->getFollowingCount(),
+					'name' => $userInfo->getFullName(),
+					'private' => $userInfo->getIsPrivate(),
+					'post' => $userInfo->getMediaCount(),
+					'message' => $userInfo->getUnseenCount(),
+					'usertags' => $userInfo->getUsertagsCount()
 				);
 }
 
@@ -39,63 +42,61 @@ function get_id_by_username($username, $password, $user) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$info = $ig->getUserInfoByName($user);
+		$id = $ig->people->getUserIdForName($user);
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
 	}
-	if ($info->status != 'ok')
-		return array('Error' => $info);
-	return array($info->user->pk);
+	return array($id);
 }
 
-function get_insta_media($username, $password, $user, $max_num) {
+function get_insta_media($username, $password, $userID, $max_num) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$media = $ig->getUserFeed($user);
+		$response = $ig->timeline->getUserFeed($userID);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user, 'max_num' => $max_num));
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 	}
-	if ($media->status != 'ok')
-		return array('Error' => $media);
+	if (!$response->isOk())
+		return array('Error' => $response);
 	else {
-		$response = array();
+		$itemsIds = array();
 		$counter = 0;
-		foreach ($media->items as $key => $value) {
-			if (!($value->has_liked)) {
-				array_push($response, $value->caption->media_id);
+		foreach ($response->getItems() as $key => $item) {
+			if (!($item->getHasLiked())) {
+				array_push($itemsIds, $item->getCaption()->getMediaId());
 				$counter++;
 				if ($counter >= $max_num)
 					break;
 			}
 		}
-		return $response;
+		return $itemsIds;
 	}
 }
 
-function follow_insta($username, $password, $user) {
+function follow_insta($username, $password, $userID) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$follow_response = $ig->follow($user);
+		$follow_response = $ig->people->follow($userID);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	}
-	if ($follow_response->status != 'ok')
+	if (!$follow_response->isOk())
 		return array('Error' => $follow_response);
 	else
 		return array();
 }
 
-function unfollow_insta($username, $password, $user) {
+function unfollow_insta($username, $password, $userID) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$unfollow_response = $ig->unfollow($user);
+		$unfollow_response = $ig->people->unfollow($userID);
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'user' => $user));
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	}
-	if ($unfollow_response->status != 'ok')
+	if (!$unfollow_response->isOk())
 		return array('Error' => $unfollow_response);
 	else
 		return array();
@@ -105,11 +106,11 @@ function like_insta($username, $password, $postID) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$like_response = $ig->like($postID);
+		$like_response = $ig->media->like($postID);
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'postID' => $postID));
 	}
-	if ($like_response->status != 'ok')
+	if (!$like_response->isOk())
 		return array('Error' => $like_response);
 	else
 		return array();
@@ -118,71 +119,54 @@ function like_insta($username, $password, $postID) {
 function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 	global $ig;
 	connect($username,$password);
+	$rankToken = \InstagramAPI\Signatures::generateUUID(); 
 	try {
-		$hashtagFeed = $ig->getHashtagFeed($tag);
+		$hashtagFeed = $ig->hashtag->getFeed($tag,$rankToken);
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'tag' => $tag, 'is_popular' => $is_popular, 'max_num' => $max_num));
 	}
-	if ($hashtagFeed->status != 'ok')
+	if ($hashtagFeed->isOk() != 'ok')
 		return array('Error' => $hashtagFeed);
-	else {
-		$response = array();
-		$counter = 0;
-		if ($is_popular) {
-			foreach ($hashtagFeed->ranked_items as $key => $value) {
-				$is_private = $value->caption->user->is_private;
-				$followed_by = $value->caption->user->friendship_status->followed_by;
-				$following = $value->caption->user->friendship_status->following;
-				$outgoing_request = $value->caption->user->friendship_status->outgoing_request;
-				$has_liked = $value->has_liked;
-				if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
-					$post = array(	'mediaID' => $value->caption->media_id, 
-						  			'userID' => $value->caption->user_id
-						  			);
-					array_push($response, $post);
-					$counter++;
-					if ($counter >= $max_num)
-						break;
-				}
-			}
+	$response = array();
+	$counter = 0;
+	if ($is_popular)
+		$items = $hashtagFeed->getRankedItems();
+	else
+		$items = $hashtagFeed->getItems();
+	foreach ($items as $key => $item) {
+		$is_private = $item->getCaption()->getUser()->getIsPrivate();
+		$followed_by = $item->getCaption()->getUser()->getFriendshipStatus()->getFollowedBy();
+		$following = $item->getCaption()->getUser()->getFriendshipStatus()->getFollowing();
+		$outgoing_request = $item->getCaption()->getUser()->getFriendshipStatus()->getOutgoingRequest();
+		$has_liked = $item->getHasLiked();
+		if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
+			$post = array(	'mediaID' => $item->getCaption()->getMediaId(), 
+				  			'userID' => $item->getCaption()->getUserId()
+				  			);
+			array_push($response, $post);
+			$counter++;
+			if ($counter >= $max_num)
+				break;
 		}
-		else {
-			foreach ($hashtagFeed->items as $key => $value) {
-				$is_private = $value->caption->user->is_private;
-				$followed_by = $value->caption->user->friendship_status->followed_by;
-				$following = $value->caption->user->friendship_status->following;
-				$outgoing_request = $value->caption->user->friendship_status->outgoing_request;
-				$has_liked = $value->has_liked;
-				if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
-					$post = array(	'mediaID' => $value->caption->media_id, 
-						  			'userID' => $value->caption->user_id
-						  			);
-					array_push($response, $post);
-					$counter++;
-					if ($counter >= $max_num)
-						break;
-				}
-			}
-		}
-		return $response;
 	}
+	return $response;
 }
 
 function get_likers($username, $password, $mediaID, $max_num = NULL) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$likers = $ig->getMediaLikers($mediaID);
+		$likers = $ig->media->getLikers($mediaID);
 		$counter = 0;
-		if ($likers->status != 'ok')
+		if (!$likers->isOk())
 			return array('Error' => $likers);
 		else {
 			$response = array();
-			if ($likers->user_count > 0) {
-				foreach ($likers->users as $key => $value) {
-					if ($value->is_private)
+			if ($likers->getUserCount() > 0) {
+				foreach ($likers->getUsers() as $key => $user) {
+					if ($user->getIsPrivate())
 						continue;
-					array_push($response, $value->pk);
+					array_push($response, $user->getPk());
 					$counter++;
 					if (($max_num != NULL) && ($counter >= $max_num))
 						break;
@@ -199,17 +183,17 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 	global $ig;
 	connect($username,$password);
 	try {
-		$comments = $ig->getMediaComments($mediaID);
+		$comments = $ig->media->getComments($mediaID);
 		$counter = 0;
-		if ($comments->status != 'ok')
+		if (!$comments->isOk())
 			return array('Error' => $comments);
 		else {
 			$response = array();
-			if ($comments->comment_count > 0) {
-				foreach ($comments->comments as $key => $value) {
-					if ($value->user->is_private)
+			if ($comments->getCommentCount() > 0) {
+				foreach ($comments->getComments() as $key => $comment) {
+					if ($comment->getUser()->getIsPrivate())
 						continue;
-					array_push($response, $value->user_id);
+					array_push($response, $comment->getUserId());
 					$counter++;
 					if (($max_num != NULL) && ($counter >= $max_num))
 						break;
@@ -224,58 +208,73 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 
 function getFollowers($username, $password, $userID = NULL, $max_num = NULL) {
 	global $ig;
-	$getting_my = true;
-	if ($userID === NULL)
-		$userID = connect($username,$password);
-	else {
-		$getting_my = false;
-		connect($username,$password);
-	}
-	$maxId = null;
+	connect($username,$password);
+	$getting_my = ($userID === NULL);
 	$followers = array();
 	$counter = 0;
+	// Generate a random rank token
+	$rankToken = \InstagramAPI\Signatures::generateUUID(); 
+	$maxId = NULL;
 	try {
 		do {
-			$response = $ig->getUserFollowers($userID, $maxId);
-			if ($response->status != 'ok')
+			if ($getting_my)
+				$response = $ig->people->getSelfFollowers($rankToken, NULL, $maxId);
+			else
+				$response = $ig->people->getFollowers($userID, $rankToken, NULL, $maxId);
+			if (!$response->isOk())
 				return array('Error' => $response);
-			foreach ($response->getUsers() as $key => $value) {
-				if ((!$getting_my) && ($value->is_private))
+			foreach ($response->getUsers() as $key => $user) {
+				if ((!$getting_my) && ($user->getIsPrivate()))
 					continue;
-				array_push($followers, $value->pk);
+				array_push($followers, $user->getPk());
 				$counter++;
 				if (($max_num != NULL) && ($counter >= $max_num))
 						break;
 			}
-			$maxId = $response->getNextMaxId();
 			if (($max_num != NULL) && ($counter >= $max_num))
 					break;
-		} while ($maxId !== null);
+			$maxId = $response->getNextMaxId();
+			// sleeping for 5 seconds to avoid abuse API
+			sleep(5);
+		} while ($maxId !== NULL);
 		return $followers;
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage());
 	}
 }
 
-function getFollowings($username, $password, $userID = NULL) {
+function getFollowings($username, $password, $userID = NULL, $max_num = NULL) {
 	global $ig;
-	if ($userID === NULL)
-		$userID = connect($username,$password);
-	else
-		connect($username,$password);
-	$maxId = null;
-	$followings = array();
+	connect($username,$password);
+	$getting_my = ($userID === NULL);
+	$following = array();
+	$counter = 0;
+	// Generate a random rank token
+	$rankToken = \InstagramAPI\Signatures::generateUUID(); 
+	$maxId = NULL;
 	try {
 		do {
-			$response = $ig->getUserFollowings($userID, $maxId);
-			if ($response->status != 'ok')
+			if ($getting_my)
+				$response = $ig->people->getSelfFollowing($rankToken, NULL, $maxId);
+			else
+				$response = $ig->people->getFollowing($userID, $rankToken, NULL, $maxId);
+			if (!$response->isOk())
 				return array('Error' => $response);
-			foreach ($response->getUsers() as $key => $value) {
-				array_push($followings, $value->pk);
+			foreach ($response->getUsers() as $key => $user) {
+				if ((!$getting_my) && ($user->getIsPrivate()))
+					continue;
+				array_push($following, $user->getPk());
+				$counter++;
+				if (($max_num != NULL) && ($counter >= $max_num))
+						break;
 			}
+			if (($max_num != NULL) && ($counter >= $max_num))
+					break;
 			$maxId = $response->getNextMaxId();
-		} while ($maxId !== null);
-		return $followings;
+			// sleeping for 5 seconds to avoid abuse API
+			sleep(5);
+		} while ($maxId !== NULL);
+		return $following;
 	} catch (Exception $e) {
 		return array('Error' => $e->getMessage());
 	}
@@ -385,5 +384,69 @@ if (isset($_POST['action'])) {
     }
 
 }
+
+$username = "";
+$password = "";
+
+// echo "Test page:\r\n";
+
+// echo "connect: ";
+// $userID = connect($username, $password);
+// print_r($userID);
+
+// echo "get_user_info: ";
+// $response = get_user_info($username, $password);
+// print_r($response);
+
+// echo "get_id_by_username: ";
+// $user = "username";
+// $userID = get_id_by_username($username, $password, $user);
+// print_r($userID);
+
+// echo "get_insta_media: ";
+// $max_num = 1;
+// $media = get_insta_media($username, $password, $userID, $max_num);
+// print_r($media);
+
+// echo "follow_insta: ";
+// $response = follow_insta($username, $password, $userID);
+// print_r($response);
+
+// echo "unfollow_insta: ";
+// $response = unfollow_insta($username, $password, $userID);
+// print_r($response);
+
+// echo "like_insta: ";
+// $response = like_insta($username, $password, $media[0]);
+// print_r($response);
+
+// echo "getHashtagFeed: ";
+// $is_popular = true;
+// $tag = "hashtag";
+// $max_num = 1;
+// $response = getHashtagFeed($username, $password, $tag, $is_popular, $max_num);
+// print_r($response);
+
+// echo "get_likers: ";
+// $max_num = 1;
+// $response = get_likers($username, $password, $media[0], $max_num);
+// print_r($response);
+
+// echo "get_comments: ";
+// $max_num = 1;
+// $response = get_comments($username, $password, $media[0], $max_num);
+// print_r($response);
+
+// echo "getFollowers: ";
+// $userID = NULL;
+// $max_num = NULL;
+// $response = getFollowers($username, $password, $userID, $max_num);
+// print_r($response);
+
+// echo "getFollowings: ";
+// $userID = NULL;
+// $max_num = NULL;
+// $response = getFollowings($username, $password, $userID, $max_num);
+// print_r($response);
 
 ?>
