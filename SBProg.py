@@ -43,7 +43,7 @@ class SBProg:
 				self.mainBOT()
 				self.newEntry()
 		except Exception, e:
-			self.output.writeError("Error: Global Error.\n" + str(e))
+			self.output.writeErrorLog("Error: Global Error.\n" + str(e))
 			print "Global Error"			
 			print e
 
