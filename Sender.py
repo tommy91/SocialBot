@@ -24,14 +24,14 @@ def post_request(caller, post_data):
 		else:
 			resp.raise_for_status()
 	except ConnectionError as e:
-		caller.output.writeErrorLog("Error: 'ConnectionError'\n" + str(e) + "\n")
 		errors += 1
 		if errors >= caller.MAX_NUM_ERRORS:
+			caller.output.writeErrorLog("Error: 'ConnectionError'\n" + str(e) + "\n")
 			caller.output.writeErrorLog("Error: MAX NUM ERRORS reached (" + str(caller.MAX_NUM_ERRORS) + ")\n")
 			return None
 		else:
 			time.sleep(5)
-			caller.output.writeLog("Retry to send request!\n")
+			caller.output.writeLog("Retry to send request! Caused by 'ConnectionError':\n" + str(e) + "\n")
 			post_request(caller, post_data)
 	except Timeout as e:
 		caller.output.writeErrorLog("Error: 'TimeoutError'\n" + str(e) + "\n")
@@ -54,9 +54,9 @@ def post_insta_request(caller, post_data, firstTime=False):
 		post_data['password'] = caller.password
 	except AttributeError as e:
 		if firstTime:
-			print "AttributeError:\n" + str(e)
+			print "AttributeError:\n" + str(e) + "\nwith post data:\n" + str(post_data)
 		else:
-			caller.output.writeErrorLog("AttributeError:\n" + str(e) + "\n")
+			caller.output.writeErrorLog("AttributeError:\n" + str(e) + "\nwith post data:\n" + str(post_data) + "\n")
 	try:
 		resp = requests.post(Settings.PATH_TO_SERVER_INSTA + Settings.RECEIVER_INSTA, data = post_data)
 		if resp.status_code == 200:

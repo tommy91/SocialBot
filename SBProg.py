@@ -23,7 +23,7 @@ class SBProg:
 
 	def __init__(self, isTest = False):
 		self.isTest = isTest
-		self.output = Output.Output("sbprog")
+		self.output = Output.Output("sbprog.log")
 		self.dbManager = dbManager.DbManager()
 
 

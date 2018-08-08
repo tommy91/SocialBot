@@ -15,6 +15,7 @@ class Account(object):
 	STATUS_RUN = 1
 	STATUS_STOP = 0
 
+	TIMERFIRSTTIMEINTERVAL = 60
 	TIMERHALFWINDOW = 10
 	TIME_FACTOR = 1000000
 	FOLLOWING_TRASH_TIME = 60*60*24*20		# 20 giorni
@@ -31,9 +32,10 @@ class Account(object):
 	todayUnfollows = 0
 
 
-	def __init__(self, accounts, account_id, mail, account_type):
+	def __init__(self, accounts, account_id, mail, account_type, username):
 		self.accounts = accounts
-		self.output = Output.Output(mail + ".log")
+		self.output = Output.Output(username + ".log")
+		self.isTest = accounts.sbprog.isTest
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
 		self.updateStatistics = accounts.sbprog.updateStatistics
@@ -116,7 +118,7 @@ class Account(object):
 			self.accounts.setUpdateTimer()
 		self.initFollowers()
 		self.initFollowings()
-		self.setTimers()
+		self.setTimers(firstTime=True)
 		self.output.writeLog("\t" + self.getAccountName() + " is running.\n")
 		self.status = self.STATUS_RUN
 		self.updateAccountData()
@@ -148,19 +150,19 @@ class Account(object):
 		return Utils.selectWithProb(tags_names, tags_probs)
 
 
-	def setTimers(self):
+	def setTimers(self, firstTime=False):
 		if self.timer_post > 0:
-			self.set_post_timer()
+			self.set_post_timer(firstTime)
 			self.isPosting = True
 		else:
 			self.isPosting = False
 		if self.timer_follow > 0:
-			self.set_follow_timer()
+			self.set_follow_timer(firstTime)
 			self.isFollowing = True
 		else:
 			self.isFollowing = False
 		if self.timer_like > 0:
-			self.set_like_timer()
+			self.set_like_timer(firstTime)
 			self.isLiking = True
 		else:
 			self.isLiking = False
@@ -178,8 +180,11 @@ class Account(object):
 			del self.timers[self.strID + "-like"]
 
 
-	def set_post_timer(self):
-		timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
+	def set_post_timer(self, firstTime=False):
+		if firstTime:
+			timer_post = TIMERFIRSTTIMEINTERVAL
+		else:
+			timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
 		tp = threading.Timer(timer_post, self.post) # in seconds
 		tp.start() 
 		self.timers[self.strID + "-post"] = tp
@@ -189,8 +194,11 @@ class Account(object):
 		self.updateStatistics()
 
 
-	def set_like_timer(self):
-		timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
+	def set_like_timer(self, firstTime=False):
+		if firstTime:
+			timer_like = TIMERFIRSTTIMEINTERVAL * 2
+		else:
+			timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
 		tl = threading.Timer(timer_like, self.like) # in seconds
 		tl.start() 
 		self.timers[self.strID + "-like"] = tl
@@ -200,8 +208,11 @@ class Account(object):
 		self.updateStatistics()
 
 
-	def set_follow_timer(self):
-		timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
+	def set_follow_timer(self, firstTime=False):
+		if firstTime:
+			timer_follow = TIMERFIRSTTIMEINTERVAL * 3
+		else:
+			timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
 		tf = threading.Timer(timer_follow, self.follow) # in seconds
 		tf.start() 
 		self.timers[self.strID + "-follow"] = tf
