@@ -592,16 +592,16 @@ class InstagramAccount(Account.Account):
 				media = media[0]
 				if like_method == 'R_l':
 					self.justLike(media, like_method, gotBy, isDump)
-					num_l += 1
+					num_l_R += 1
 				elif like_method == 'R_l+f':
 					self.likeAndFollow(media, like_method, gotBy, isDump)
-					num_lf += 1
+					num_lf_R += 1
 				elif like_method == 'R_l+rl':
 					self.likeAndRandomLike(media, like_method, gotBy, isDump)
-					num_lrl += 1
+					num_lrl_R += 1
 				elif like_method == 'R_l+f+rl':
 					self.likeFollowAndRandomLike(media, like_method, gotBy, isDump)
-					num_lfrl += 1
+					num_lfrl_R += 1
 			else:
 				could_get, user = self.getNewFollowFromDB([])
 				if not could_get:
