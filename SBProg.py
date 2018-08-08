@@ -154,7 +154,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 				if firstTime:
 					print "Error: Update stats NOT ok (None up_stat)"
 				else:
-					self.output.writeErrorLog("Error: Update stats NOT ok (None up_stat)\n")
+					self.output.writeErrorLog("\tError: Update stats NOT ok (None up_stat)\n")
 			else:
 				if firstTime:
 					print "ok!"

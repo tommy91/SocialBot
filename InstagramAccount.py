@@ -106,13 +106,13 @@ class InstagramAccount(Account.Account):
 	def initDailyStats(self):
 		self.output.writeLog("Initialize daily statistics.. ")
 		if not os.path.exists(self.DUMP_DIRECTORY + "/daily_" + self.username + ".csv"):
-			self.output.writeLog("dump file not found, creating new one.. \n")
+			self.output.writeLog("dump file not found, creating new one.. ")
 			with open(self.DUMP_DIRECTORY + "/daily_" + self.username + ".csv", 'w') as f:
 				writer = csv.writer(f)
 				writer.writerow(["date", "posts", "likes", "follows", "unfollows", "followers", "followings"]) 
-			self.output.writeLog("ok\n")
+			self.output.writeLog("ok")
 		else:
-			self.output.writeLog("file already exists, ok\n")
+			self.output.writeLog("file already exists, ok")
 
 
 	def dumpDailyStats(self):
@@ -229,17 +229,17 @@ class InstagramAccount(Account.Account):
 				if firstTime:
 					print "ok."
 				else:
-					self.output.writeLog("ok.\n")
+					self.output.writeLog("ok.")
 			else:
 				if firstTime:
 					print "Error: cannot update."
 				else:
-					self.output.writeErrorLog("Error: cannot update.\n")
+					self.output.writeErrorLog("Error: cannot update.")
 		except Exception, msg:
 			if firstTime:
 				print "Error Exception:\n" + str(msg)
 			else:
-				self.output.writeErrorLog("Error Exception:\n" + str(msg) + "\n")
+				self.output.writeErrorLog("Error Exception:\n" + str(msg))
 						
 
 	def updateAccountData(self, firstTime=False):
@@ -281,21 +281,21 @@ class InstagramAccount(Account.Account):
 			if firstTime:
 				print "end of update."
 			else:
-				self.output.writeLog("end of update.\n")				
+				self.output.writeLog("end of update.")				
 
 
 	def updateUpOp(self, newAccount):
 		if self.username != newAccount['Username']:
-			self.output.writeLog("\t\t    Username: " + self.username + " -> " + newAccount['Username'] + "\n")
+			self.output.writeLog("\t\t    Username: " + self.username + " -> " + newAccount['Username'])
 			self.username = newAccount['Username']
 		if self.password != newAccount['Password']:
-			self.output.writeLog("\t\t    Password: " + self.password + " -> " + newAccount['Password'] + "\n")
+			self.output.writeLog("\t\t    Password: " + self.password + " -> " + newAccount['Password'])
 			self.password = newAccount['Password']
 		super(InstagramAccount, self).updateUpOp(newAccount)
 
 
 	def copyBlog(self, blog_to_copy, limitMax, counter):
-		self.output.writeLog("Method 'copyBlog' not implemented for Instagram account!\n")
+		self.output.writeLog("Method 'copyBlog' not implemented for Instagram account!")
 
 
 	def waitInsta(self, little=False):
@@ -303,9 +303,9 @@ class InstagramAccount(Account.Account):
 			secs = random.randint(1, 4)
 		else:
 			secs = random.randint(self.MIN_TIME_BETWEEN_ACTIONS, self.MAX_TIME_BETWEEN_ACTIONS)
-		self.output.writeLog("Wait " + str(secs) + "seconds\n")
+		self.output.writeLog("Wait " + str(secs) + "seconds")
 		time.sleep(secs)
-		self.output.writeLog("End wait.\n")
+		self.output.writeLog("End wait.")
 
 
 	def calc_time_post_follow(self):
@@ -315,17 +315,17 @@ class InstagramAccount(Account.Account):
 		nl = ((self.num_like_xd * f_tf) - (self.num_follow_xd * l_tf)) / float(self.num_like_xt * ((l_tl * f_tf) - (f_tl * l_tf)))
 		nf = ((self.num_follow_xd * l_tl) - (self.num_like_xd * f_tl)) / float(self.num_follow_xt * ((l_tl * f_tf) - (f_tl * l_tf)))
 
-		self.output.writeLog("\tCalcule timers for " + self.getAccountName() + ":\n")
+		self.output.writeLog("\tCalcule timers for " + self.getAccountName() + ":")
 		if self.num_post_xd == 0:
 			self.timer_post = 0
-			self.output.writeLog("\t\tnever post\n")
+			self.output.writeLog("\t\tnever post")
 		else:
 			self.timer_post = int((24*60*60/(self.num_post_xd/self.num_post_xt))+0.5)
-			self.output.writeLog("\t\tpost every " + Utils.seconds2timeStr(self.timer_post) + "\n")	
+			self.output.writeLog("\t\tpost every " + Utils.seconds2timeStr(self.timer_post))	
 		self.timer_follow = int((24*60*60/nf)+0.5)
-		self.output.writeLog("\t\tfollow every " + Utils.seconds2timeStr(self.timer_follow) + "\n")
+		self.output.writeLog("\t\tfollow every " + Utils.seconds2timeStr(self.timer_follow))
 		self.timer_like = int((24*60*60/nl)+0.5)
-		self.output.writeLog("\t\tlike every " + Utils.seconds2timeStr(self.timer_like) + "\n")
+		self.output.writeLog("\t\tlike every " + Utils.seconds2timeStr(self.timer_like))
 
 
 	def calc_expected_FL_TF(self):
@@ -355,9 +355,9 @@ class InstagramAccount(Account.Account):
 		follows = self.dbManager.countFollow(bn)
 		self.output.writeLog("\t   check #follow.. ")
 		if follows >= self.num_follow_xt:
-			self.output.writeLog("found " + str(follows) + ", ok\n")
+			self.output.writeLog("found " + str(follows) + ", ok")
 		else:
-			self.output.writeLog("found " + str(follows) + ", needed at least " + str(self.num_follow_xt) + "\n")
+			self.output.writeLog("found " + str(follows) + ", needed at least " + str(self.num_follow_xt))
 			self.searchNewFollows(self.num_follow_xt-follows)
 
 
@@ -370,23 +370,23 @@ class InstagramAccount(Account.Account):
 			followXblog = int(num_follows/num_following_blogs)+1
 		else:
 			followXblog = 0
-		self.output.writeLog("\t      Getting follows..\n")
+		self.output.writeLog("\t      Getting follows..")
 		for blog in self.blogs:
 			# take some new followers from that blog
 			counter = 0
 			blog_id = self.getIdByUsernameInsta(blog)
 			if blog_id == None:
-				self.output.writeErrorLog("\t         Error (None response) for '" + blog + "' -> skip!\n")
+				self.output.writeErrorLog("\t         Error (None response) for '" + blog + "' -> skip!")
 				continue
 			followers = self.getFollowersSocial(user=blog_id, maxNum=followXblog)
 			if followers == None:
-				self.output.writeErrorLog("\t         Error (None response getFollowersSocial) for '" + blog + "'\n")
+				self.output.writeErrorLog("\t         Error (None response getFollowersSocial) for '" + blog + "'")
 			else:
 				for follow in followers:
 					if (not follow in self.followersList) and (not follow in self.followingList):
 						self.addFollowToDB(follow)
 						counter += 1
-						self.output.writeLog("\t         from " + blog + ".. " + str(counter) + "\n")
+						self.output.writeLog("\t         from " + blog + ".. " + str(counter))
 			self.waitInsta(little=True)
 		if len(self.tags) > 0:
 			tag = self.selectTag()
@@ -399,40 +399,40 @@ class InstagramAccount(Account.Account):
 			counterComments = 0
 			media = self.getTaggedPopularInsta(tag, popularPosts)
 			if media == None:
-				self.output.writeErrorLog("\t         error on getTaggedPopularInsta\n")
+				self.output.writeErrorLog("\t         error on getTaggedPopularInsta")
 			else:
 				for post in media:
 					if (not post['userID'] in self.followingList) and (not post['userID'] in self.followersList):
 						self.addFollowToDB(post['userID'])
 						counterMedia += 1
-						self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments) + "\n")
+						self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 					likers = self.getMediaLikersInsta(post['mediaID'], self.MAX_RETRIEVED_LIKE)
 					if likers == None:
-						self.output.writeErrorLog("\t         Error: None response for getMediaLikersInsta\n")
+						self.output.writeErrorLog("\t         Error: None response for getMediaLikersInsta")
 					else:
 						for liker in likers: 
 							if (not liker in self.followingList) and (not liker in self.followersList):
 								self.addFollowToDB(liker)
 								counterLikers += 1
-								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments) + "\n")
+								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 					comments = self.getMediaCommentsInsta(post['mediaID'], self.MAX_RETRIEVED_COMMENTS)
 					if comments == None:
-						self.output.writeErrorLog("\t         Error: None response for getMediaCommentsInsta\n")
+						self.output.writeErrorLog("\t         Error: None response for getMediaCommentsInsta")
 					else:
 						for comment in comments: 
 							if (not comment in self.followingList) and (not comment in self.followersList):
 								self.addFollowToDB(comment)
 								counterComments += 1
-								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments) + "\n")
+								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
 					self.waitInsta(little=True)
 		else:
-			self.output.writeLog("\t         No Tags inserted.. cannot get new follows!\n")
+			self.output.writeLog("\t         No Tags inserted.. cannot get new follows!")
 
 
 	def postSocial(self, post):
-		self.output.writeLog("Method 'post' not implemented for Instagram account!\n")
+		self.output.writeLog("Method 'post' not implemented for Instagram account!")
 
 
 	def followSocial(self, num_follows, isDump):
@@ -449,30 +449,41 @@ class InstagramAccount(Account.Account):
 				could_get, follow = self.getNewFollowFromDB(alreadyFollowed)
 				if not could_get:
 					errors += 1
-					self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_follows) + ": " + str(num_f_P) + " f_P, " + str(num_frl_P) + " f+rl_P, " + str(num_f_R) + " f_R, " + str(num_frl_R) + " frl_R" + " ( " + str(errors) + " errors )\n")
+					self.prettyLogFollow(counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=False)
 					continue
 				alreadyFollowed.append(follow)
 				if follow_method == "P_f+rl":
+					self.output.writeLog("Follow Method for " + str(counter + 1) + ": " + follow_method)
 					self.followAndRandomLike(follow, follow_method, "", isDump)
 					num_frl_P += 1
 				else:
+					self.output.writeLog("Follow Method for " + str(counter + 1) + ": " + follow_method)
 					self.justFollow(follow, follow_method, "", isDump)
 					num_f_P += 1
 			else:
 				could_get, follow, tag = self.getNewFollowFromSearch(alreadyFollowed)
 				if not could_get:
 					errors += 1
-					self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_follows) + ": " + str(num_f_P) + " f_P, " + str(num_frl_P) + " f+rl_P, " + str(num_f_R) + " f_R, " + str(num_frl_R) + " frl_R" + " ( " + str(errors) + " errors )\n")
+					self.prettyLogFollow(counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=False)
 					continue
 				alreadyFollowed.append(follow)
 				gotBy = "t_" + tag
 				if follow_method == "R_f+rl":
+					self.output.writeLog("Follow Method for " + str(counter + 1) + ": " + follow_method)
 					self.followAndRandomLike(follow, follow_method, gotBy, isDump)
 					num_frl_R += 1
 				else:
+					self.output.writeLog("Follow Method for " + str(counter + 1) + ": " + follow_method)
 					self.justFollow(follow, follow_method, gotBy, isDump)
 					num_f_R += 1
-			self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_follows) + ": " + str(num_f_P) + " f_P, " + str(num_frl_P) + " f+rl_P, " + str(num_f_R) + " f_R, " + str(num_frl_R) + " frl_R" + " ( " + str(errors) + " errors )\n")
+			self.prettyLogFollow(counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=True)
+
+
+	def prettyLogFollow(self, counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=True):
+		toLog = "\tFollow " + str(counter + 1) + " of " + str(num_follows) + " (FM: " + follow_method + ", CG: " + could_get + "):"
+		toLog += str(num_f_P) + " f_P, " + str(num_frl_P) + " f+rl_P, " + str(num_f_R) + " f_R, " + str(num_frl_R) + " frl_R"
+		toLog += " ( " + str(errors) + " errors )"
+		self.output.writeLog(toLog)
 
 
 	def getNewFollowFromDB(self, alreadyFollowed):
@@ -480,11 +491,11 @@ class InstagramAccount(Account.Account):
 		while True:
 			follow = self.dbManager.getFollows(blogname,1)
 			if follow == []:
-				self.output.writeErrorLog("Error: no follow in DB!\n")
+				self.output.writeErrorLog("Error: no follow in DB!")
 				return False, None
 			if follow[0] == None:
-				self.output.writeErrorLog("Error: follow[0] = None!\n")
-				self.output.writeErrorLog(str(follow) + "\n")
+				self.output.writeErrorLog("Error: follow[0] = None!")
+				self.output.writeErrorLog(str(follow))
 				return False, None
 			if not follow[0] in alreadyFollowed:
 				return True, follow[0]
@@ -512,22 +523,22 @@ class InstagramAccount(Account.Account):
 			tag = self.selectTag()
 			follow = self.getTaggedRecentInsta(tag, 1)
 			if follow == None:
-				self.output.writeErrorLog("Error: 'None' response for find recent media tagged '" + tag + "'\n")
+				self.output.writeErrorLog("Error: 'None' response for find recent media tagged '" + tag + "'")
 				num_errors += 1
 				if num_errors >= max_errors:
-					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!\n")
+					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
 					return False, None
 				else:
 					self.waitInsta(little=True)
 			elif follow == []:
-				self.output.writeErrorLog("Error: cannot find recent media tagged '" + tag + "'\n")
+				self.output.writeErrorLog("Error: cannot find recent media tagged '" + tag + "'")
 				return False, None
 			elif not follow[0]['userID'] in alreadyFollowed:
 				return True, follow[0]['userID'], tag
 			else:
 				num_errors += 1
 				if num_errors >= max_errors:
-					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!\n")
+					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
 					return False, None
 				else:
 					self.waitInsta(little=True)
@@ -535,7 +546,7 @@ class InstagramAccount(Account.Account):
 
 	def followAndRandomLike(self, follow, follow_method, gotBy, isDump):
 		if isDump:
-			self.output.writeLog("follow and random like: " + str(follow) + "\n")
+			self.output.writeLog("follow and random like: " + str(follow))
 		self.followInsta(follow)
 		self.randomMediaLikeInsta(follow)
 		self.deleteFollowFromDB(follow)
@@ -544,7 +555,7 @@ class InstagramAccount(Account.Account):
 
 	def justFollow(self, follow, follow_method, gotBy, isDump):
 		if isDump:
-			self.output.writeLog("just follow: " + str(follow) + "\n")
+			self.output.writeLog("just follow: " + str(follow))
 		self.followInsta(follow)
 		self.deleteFollowFromDB(follow)
 		self.addStatistics(follow, follow_method, gotBy)
@@ -580,40 +591,54 @@ class InstagramAccount(Account.Account):
 				media = self.getTaggedRecentInsta(tag,1)
 				if media == None:
 					errors += 1
-					self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_likes) + ": " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, " + str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
+					self.prettyLogLike(counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors)
 					continue
 				elif media == []:
-					self.output.writeLog("no recent tag for '" + tag + "'!\n")
+					self.output.writeLog("no recent tag for '" + tag + "'!")
 					errors += 1
-					self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_likes) + ": " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, " + str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
+					self.prettyLogLike(counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors)
 					continue
 				else:
-					self.output.writeLog("ok\n")
+					self.output.writeLog("ok")
 				media = media[0]
 				if like_method == 'R_l':
+					self.output.writeLog("Like Method for " + str(counter + 1) + ": " + like_method)
 					self.justLike(media, like_method, gotBy, isDump)
 					num_l_R += 1
 				elif like_method == 'R_l+f':
+					self.output.writeLog("Like Method for " + str(counter + 1) + ": " + like_method)
 					self.likeAndFollow(media, like_method, gotBy, isDump)
 					num_lf_R += 1
 				elif like_method == 'R_l+rl':
+					self.output.writeLog("Like Method for " + str(counter + 1) + ": " + like_method)
 					self.likeAndRandomLike(media, like_method, gotBy, isDump)
 					num_lrl_R += 1
 				elif like_method == 'R_l+f+rl':
+					self.output.writeLog("Like Method for " + str(counter + 1) + ": " + like_method)
 					self.likeFollowAndRandomLike(media, like_method, gotBy, isDump)
 					num_lfrl_R += 1
 			else:
 				could_get, user = self.getNewFollowFromDB([])
 				if not could_get:
-					self.output.writeLog("no follow in DB!\n")
+					self.output.writeLog("no follow in DB!")
 					errors += 1
-					self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_likes) + ": " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, " + str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
+					self.prettyLogLike(counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors, could_get)
 					continue
+				self.output.writeLog("Like Method for " + str(counter + 1) + ": " + like_method)
 				self.randomLike(user, like_method, "", isDump)
 				num_rl += 1
-			self.output.writeLog("\t" + str(counter + 1) + " of " + str(num_likes) + ": " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, " + str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )\n")
+			self.prettyLogLike(counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors, could_get=None)
 
 
+	def prettyLogLike(self, counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors, could_get=None):
+		toLog = "\tLike " + str(counter + 1) + " of " + str(num_likes) + " (LM: " + like_method 
+		if could_get is not None:
+			toLog += ", CG: " + could_get
+		toLog += "): " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, "
+		toLog += str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )"
+		self.output.writeLog(toLog)
+
+	
 	def justLike(self, media, like_method, gotBy, isDump):
 		self.likeInsta(media['mediaID'])
 		self.addStatistics(media['userID'], like_method, gotBy)
@@ -670,9 +695,9 @@ class InstagramAccount(Account.Account):
 		followers = self.post_insta_request(params)
 		if user == None:
 			if followers == None:
-				self.output.writeErrorLog("\t\tGet Followers List.. Error: None response.\n")
+				self.output.writeErrorLog("\t\tGet Followers List.. Error: None response.")
 			else:
-				self.output.writeLog("\t\tGet Followers List.. " + str(len(followers)) + "/" + str(self.data['followers']) + "\n")
+				self.output.writeLog("\t\tGet Followers List.. " + str(len(followers)) + "/" + str(self.data['followers']))
 		return followers
 
 
@@ -683,9 +708,9 @@ class InstagramAccount(Account.Account):
 		else:
 			following = self.post_insta_request({'action': 'get_followings_insta', 'userID': str(user)})
 		if following != None:
-			self.output.writeLog("\t\tGet Following List.. " + str(len(following)) + "/" + str(self.data['following']) + "\n")
+			self.output.writeLog("\t\tGet Following List.. " + str(len(following)) + "/" + str(self.data['following']))
 		else:
-			self.output.writeLog("\t\tError: None following\n" + str(following) + "\n")
+			self.output.writeLog("\t\tError: None following\n" + str(following))
 		return following
 
 
@@ -712,9 +737,9 @@ class InstagramAccount(Account.Account):
 	def randomMediaLikeInsta(self, user, howMany=1):
 		media = self.getMediaInsta(user, self.MAX_RETRIEVED_MEDIA)
 		if media == None:
-			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'\n")
+			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'")
 		elif media == []:
-			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'\n")
+			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'")
 		else:
 			self.waitInsta(little=True)
 			for count in range(0,howMany):

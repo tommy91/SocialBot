@@ -90,18 +90,18 @@ class Account(object):
 			self.calc_time_post_follow()
 			self.output.writeLog("ok")
 		else:
-			self.output.writeLog("\t\t    No need to setup new timers!\n")
+			self.output.writeLog("\t\t    No need to setup new timers!")
 		if int(newAccount['State']) > self.STATUS_RUN:
 			if self.status == self.STATUS_STOP:
-				self.output.writeLog("\t\t    Need to run the blog:\n")
+				self.output.writeLog("\t\t    Need to run the blog:")
 				self.post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_RUN})
 				self.runBlog()
 			elif self.status == self.STATUS_RUN:
-				self.output.writeLog("\t\t    Need to stop the blog:\n")
+				self.output.writeLog("\t\t    Need to stop the blog:")
 				self.post_request({"action": "set_status", "id": self.account_id, "status": self.STATUS_STOP})
 				self.stopBlog()
 		else:
-			self.output.writeLog("\t\t    No need to change the status of the blog!\n")
+			self.output.writeLog("\t\t    No need to change the status of the blog!")
 
 
 	def runBlog(self):
@@ -110,7 +110,7 @@ class Account(object):
 
 
 	def initRun(self):
-		self.output.writeLog("Run " + self.getAccountName() + "on thread '" + self.init_tread.getName() + "'" + ":\n")
+		self.output.writeLog("Run " + self.getAccountName() + "on thread '" + self.init_tread.getName() + "'" + ":")
 		self.calc_time_post_follow()
 		self.checkData()
 		self.updateAccount()
@@ -119,23 +119,23 @@ class Account(object):
 		self.initFollowers()
 		self.initFollowings()
 		self.setTimers(firstTime=True)
-		self.output.writeLog("\t" + self.getAccountName() + " is running.\n")
+		self.output.writeLog("\t" + self.getAccountName() + " is running.")
 		self.status = self.STATUS_RUN
 		self.updateAccountData()
 		self.updateStatistics()
-		self.output.writeLog("\tThread '" + self.init_tread.getName() + "' is done.\n")
+		self.output.writeLog("\tThread '" + self.init_tread.getName() + "' is done.")
 
 
 	def stopBlog(self):
-		self.output.writeLog("Stop " + self.getAccountName() + ".. \n")
+		self.output.writeLog("Stop " + self.getAccountName() + ".. ")
 		if self.init_tread.isAlive():
-			self.output.writeLog("\tWaiting thread '" + self.init_tread.getName() + "' to stop..\n")
+			self.output.writeLog("\tWaiting thread '" + self.init_tread.getName() + "' to stop..")
 			self.init_tread.join()
 		self.status = self.STATUS_STOP
 		self.updateAccountData()
 		self.stopTimers()
 		self.updateStatistics()
-		self.output.writeLog("\t" + self.getAccountName() + " stopped.\n")
+		self.output.writeLog("\t" + self.getAccountName() + " stopped.")
 
 
 	def selectTag(self):
@@ -190,7 +190,7 @@ class Account(object):
 		self.timers[self.strID + "-post"] = tp
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-post"] = deadline
-		self.output.writeLog("\tcreated new thread for post after " + Utils.seconds2timeStr(timer_post) + "\n")
+		self.output.writeLog("\tcreated new thread for post after " + Utils.seconds2timeStr(timer_post))
 		self.updateStatistics()
 
 
@@ -204,7 +204,7 @@ class Account(object):
 		self.timers[self.strID + "-like"] = tl
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-like"] = deadline
-		self.output.writeLog("\tcreated new thread for like after " + Utils.seconds2timeStr(timer_like) + "\n")
+		self.output.writeLog("\tcreated new thread for like after " + Utils.seconds2timeStr(timer_like))
 		self.updateStatistics()
 
 
@@ -218,14 +218,14 @@ class Account(object):
 		self.timers[self.strID + "-follow"] = tf
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-follow"] = deadline
-		self.output.writeLog("\tcreated new thread for follow after " + Utils.seconds2timeStr(timer_follow) + "\n")
+		self.output.writeLog("\tcreated new thread for follow after " + Utils.seconds2timeStr(timer_follow))
 		self.updateStatistics()
 
 
 	def checkData(self):
 		bn = self.getAccountName()
 		if bn != "not available":
-			self.output.writeLog("\tCheck data in DB for " + bn + ":\n")
+			self.output.writeLog("\tCheck data in DB for " + bn + ":")
 			self.checkNeedNewPosts()
 			self.checkNeedNewFollows()
 
@@ -234,11 +234,11 @@ class Account(object):
 		bn = self.getAccountName()
 		# Check num Post
 		posts = self.dbManager.countPost(bn)
-		self.output.writeLog("\t   check #post.. needed " + str(self.num_post_xt) + ".. \n")
+		self.output.writeLog("\t   check #post.. needed " + str(self.num_post_xt) + ".. ")
 		if posts >= self.num_post_xt:
-			self.output.writeLog("\t\tfound " + str(posts) + ", ok\n")
+			self.output.writeLog("\t\tfound " + str(posts) + ", ok")
 		else:
-			self.output.writeLog("\t\tfound " + str(posts) + ", needed at least " + str(self.num_post_xt) + "\n")
+			self.output.writeLog("\t\tfound " + str(posts) + ", needed at least " + str(self.num_post_xt))
 			self.search_post(num_post=(self.num_post_xt-posts))  
 
 
@@ -246,25 +246,25 @@ class Account(object):
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_post_timer()
-		self.output.writeLog("Posting " + blogname + ":\n")
+		self.output.writeLog("Posting " + blogname + ":")
 		if num_posts == -1:
 			num_posts = self.num_post_xt
 		posts = self.dbManager.getPosts(blogname,num_posts)
 		if isDump:
-			self.output.writeLog(str(posts) + "\n") 
+			self.output.writeLog(str(posts)) 
 		counter = 0
 		for post in posts:
 			try:
 				if isDump:
-					self.output.writeLog(str(post) + "\n") 
+					self.output.writeLog(str(post)) 
 				self.postSocial(post)
 				args = (post['id'],blogname)
 				self.dbManager.delete("PostsLikes",args)
 				counter += 1
-				self.output.writeLog("\tposted " + str(counter) + "/" + str(num_posts) + "\n")
+				self.output.writeLog("\tposted " + str(counter) + "/" + str(num_posts))
 			except Exception,msg:
-				self.output.writeErrorLog("\tError: exception on " + blogname + " reblogging\n" + str(msg) + "\n")
-		self.output.writeLog("\tposted " + str(counter) + " posts!\n")
+				self.output.writeErrorLog("\tError: exception on " + blogname + " reblogging\n" + str(msg))
+		self.output.writeLog("\tposted " + str(counter) + " posts!")
 		if not self.isTest:
 			self.checkNeedNewPosts()
 		self.updateAccountData()
@@ -274,7 +274,7 @@ class Account(object):
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_follow_timer()
-		self.output.writeLog("Following " + blogname + ":\n")
+		self.output.writeLog("Following " + blogname + ":")
 		if num_follows == -1:
 			num_follows = self.num_follow_xt
 		# Check if need to update following
@@ -287,7 +287,7 @@ class Account(object):
 
 	def unfollow(self):
 		blogname = self.getAccountName()
-		self.output.writeLog("Unfollowing " + blogname + ":\n")
+		self.output.writeLog("Unfollowing " + blogname + ":")
 		counterUnfollow = 0
 		while counterUnfollow <= self.num_follow_xt + self.OVER_UNFOLLOW:
 			try:
@@ -299,15 +299,15 @@ class Account(object):
 					args = (blogname, blog_name_unfollow)
 					self.dbManager.delete("Following",args)
 					counterUnfollow += 1
-					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt) + "\n")
+					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
 				else:
 					# else re-append at the end
 					self.followingList.append(blog_name_unfollow)
 			except IndexError, msg:
-				self.output.writeErrorLog("\tError: " + str(msg) + "\n")
+				self.output.writeErrorLog("\tError: " + str(msg))
 			except Exception, msg:
-				self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow!" + "\n")
-		self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.\n")
+				self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow!")
+		self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.")
 
 
 	def canUnfollow(self,blog2unfollow):
@@ -318,7 +318,7 @@ class Account(object):
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_like_timer()
-		self.output.writeLog("Liking " + blogname + ":\n")
+		self.output.writeLog("Liking " + blogname + ":")
 		if num_likes == -1:
 			num_likes = self.num_like_xt
 		self.likeSocial(num_likes, isDump)
@@ -328,11 +328,11 @@ class Account(object):
 	def checkFollowingStatus(self):
 		blogname = self.getAccountName()
 		if time.time() >= self.updateFollowersTime:
-			self.output.writeLog("Time to update follower and following status..\n")
+			self.output.writeLog("Time to update follower and following status..")
 			# Get Followers
 			self.getFollowers()
 			# Update following status in db
-			self.output.writeLog("\tUpdate Following status.. \n")
+			self.output.writeLog("\tUpdate Following status.. ")
 			self.dbManager.setAllFollowingUnfollowed(blogname)
 			for follower in self.followersList:
 				if follower in self.followingList:
@@ -343,7 +343,7 @@ class Account(object):
 			self.output.writeLog("\tUnfollow who did not follow me back after a while.. ")
 			timeLimit = int((time.time() - self.FOLLOWING_TRASH_TIME) * self.TIME_FACTOR)
 			toUnfollow = self.dbManager.getFollowingTrash(blogname, timeLimit)
-			self.output.writeLog(str(len(toUnfollow)) + " to unfollow.. ")
+			self.output.writeLog("\t" + str(len(toUnfollow)) + " to unfollow.. ")
 			counterUnfollowed = 0
 			for toUnfollowName in toUnfollow:
 				try:
@@ -353,19 +353,19 @@ class Account(object):
 					self.dbManager.delete("Following",args)
 					counterUnfollowed += 1
 				except Exception, msg:
-					self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow for time!\n")
-			self.output.writeLog("unfollowed " + str(counterUnfollowed) + ".\n")
+					self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow for time!")
+			self.output.writeLog("unfollowed " + str(counterUnfollowed) + ".")
 		# Check if too many follow and unfollow in that case
 		if len(self.followingList) >= self.LIMITFOLLOW:
-			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " >= max # following (" + str(self.LIMITFOLLOW) + ") -> need to unfollow!\n")
+			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " >= max # following (" + str(self.LIMITFOLLOW) + ") -> need to unfollow!")
 			self.unfollow()
 		else:
-			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " < max # following (" + str(self.LIMITFOLLOW) + ") -> NO need to unfollow!\n")
+			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " < max # following (" + str(self.LIMITFOLLOW) + ") -> NO need to unfollow!")
 			
 
 
 	def initFollowings(self):
-		self.output.writeLog("\tInitialize Following.. \n")
+		self.output.writeLog("\tInitialize Following.. ")
 		self.followingList = []
 		blogname = self.getAccountName()
 		current_num_followings = self.dbManager.countFollowing(blogname)
@@ -374,11 +374,11 @@ class Account(object):
 		else:
 			self.output.writeLog("\t\tGet Following List from DB.. ")
 			following = self.dbManager.getFollowing(blogname)
-			self.output.writeLog("ok\n")
+			self.output.writeLog("\t\tok")
 		args = (blogname,)
 		self.dbManager.deleteAll("Following",args)
 		self.checkFollowingFollowed(following)
-		self.output.writeLog("\tDone.\n")
+		self.output.writeLog("\tDone.")
 
 
 	def initFollowers(self):
@@ -386,17 +386,17 @@ class Account(object):
 		self.followersList = []
 		self.getFollowers()
 		self.orderedFollowersList = sorted(self.followersList)
-		self.output.writeLog("\tDone.\n")
+		self.output.writeLog("\tDone.")
 
 
 	def getFollowers(self):
-		self.output.writeLog("\t\tGet Followers List.. \n")
+		self.output.writeLog("\t\tGet Followers List.. ")
 		self.followersList = self.getFollowersSocial()
 		self.updateFollowersTime = time.time() + self.FOLLOWERS_UPDATE_TIME
 
 
 	def getFollowing(self):
-		self.output.writeLog("\t\tGet Following List.. \n")
+		self.output.writeLog("\t\tGet Following List.. ")
 		return self.getFollowingsSocial()
 
 
@@ -408,7 +408,7 @@ class Account(object):
 		while following != []:
 			follow = following.pop()
 			counter += 1
-			self.output.writeLog("\t\tCheck following " + str(counter) + "/" + count_final_str + "\n")
+			self.output.writeLog("\t\tCheck following " + str(counter) + "/" + count_final_str)
 			if Utils.binarySearch(follow, self.orderedFollowersList):
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:
@@ -416,7 +416,7 @@ class Account(object):
 			following2insert.append(args)
 		self.output.writeLog("\t\tInsert following in DB.. ")
 		self.dbManager.addList("Following", following2insert)
-		self.output.writeLog("ok!\n")
+		self.output.writeLog("\t\tok!")
 		self.followingList = self.dbManager.getFollowing(blogname)
 
 
@@ -424,7 +424,7 @@ class Account(object):
 		blogname = self.getAccountName()
 		self.output.writeLog("Clear DB tables for " + blogname + ".. ")
 		self.dbManager.clearDB(blogname)
-		self.output.writeLog("done.\n")
+		self.output.writeLog("done.")
 
 
 

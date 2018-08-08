@@ -80,10 +80,10 @@ class DbManager:
 			elif table == "Fstats":
 				c.execute('INSERT INTO Fstats VALUES (?,?,?,?,?)',args)
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("   Error" + str(msg) + "\n")	
+			self.output.writeErrorLog("   Error" + str(msg))	
 		else: 
 			if not silent:
-				self.output.writeLog("   Created new entry in " + table + " table.\n")
+				self.output.writeLog("   Created new entry in " + table + " table.")
 		self.disconnectDB(db,silent)
 
 
@@ -102,11 +102,11 @@ class DbManager:
 				c.executemany('INSERT INTO Fstats VALUES (?,?,?,?,?)',argsList)
 		except sqlite3.IntegrityError, msg:
 			c.execute("rollback")
-			self.output.writeErrorLog("   Error" + str(msg) + "\n")	
+			self.output.writeErrorLog("   Error" + str(msg))	
 		else: 
 			c.execute("commit")
 			if not silent:
-				self.output.writeLog("   Created new entry in " + table + " table.\n")
+				self.output.writeLog("   Created new entry in " + table + " table.")
 		self.disconnectDB(db,silent)
 
 
@@ -124,13 +124,13 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ? AND followedBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("\tError" + str(msg) + "\n")
+			self.output.writeErrorLog("\tError" + str(msg))
 		else:
 			if not silent:
 				if rows > 0:
-					self.output.writeLog("\tDeleted " + str(rows) + " from " + table + "\n")
+					self.output.writeLog("\tDeleted " + str(rows) + " from " + table)
 				else:
-					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!")
 		self.disconnectDB(db,silent)
 
 
@@ -148,13 +148,13 @@ class DbManager:
 			elif table == "Fstats":
 				rows = c.execute('DELETE FROM Fstats WHERE myBlog = ?',args).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("\tError" + str(msg) + "\n")
+			self.output.writeErrorLog("\tError" + str(msg))
 		else:
 			if not silent:
 				if rows > 0:
-					self.output.writeLog("\tDeleted " + str(rows) + " from " + table + "\n")
+					self.output.writeLog("\tDeleted " + str(rows) + " from " + table)
 				else:
-					self.outout.writeLog("\tThat entry does not exist in " + table + "!\n")
+					self.outout.writeLog("\tThat entry does not exist in " + table + "!")
 		self.disconnectDB(db,silent)
 
 
@@ -165,13 +165,13 @@ class DbManager:
 		try:
 			rows = c.execute('DELETE FROM Fstats WHERE myBlog = "' + blogname + '" AND time<=' + str(time)).rowcount
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("\tError" + str(msg) + "\n")
+			self.output.writeErrorLog("\tError" + str(msg))
 		else:
 			if not silent:
 				if rows > 0:
-					self.output.writeLog("\tDeleted " + str(rows) + " from Fstats\n")
+					self.output.writeLog("\tDeleted " + str(rows) + " from Fstats")
 				else:
-					self.output.writeLog("\tThat entry does not exist in Fstats!\n")
+					self.output.writeLog("\tThat entry does not exist in Fstats!")
 		self.disconnectDB(db,silent)
 
 
@@ -189,13 +189,13 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("\tError" + str(msg) + "\n")
+			self.output.writeErrorLog("\tError" + str(msg))
 		else:
 			if not silent:
 				if rows > 0:
-					self.output.writeLog("\tUpdated " + str(rows) + " from " + table + "\n")
+					self.output.writeLog("\tUpdated " + str(rows) + " from " + table)
 				else:
-					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!")
 		self.disconnectDB(db,silent)
 
 
@@ -213,13 +213,13 @@ class DbManager:
 			elif table == "Fstats":
 				pass
 		except sqlite3.IntegrityError, msg:
-			self.output.writeErrorLog("\tError" + str(msg) + "\n")
+			self.output.writeErrorLog("\tError" + str(msg))
 		else:
 			if not silent:
 				if rows > 0:
-					self.output.writeLog("\tUpdated " + str(rows) + " from " + table + "\n")
+					self.output.writeLog("\tUpdated " + str(rows) + " from " + table)
 				else:
-					self.output.writeLog("\tThat entry does not exist in " + table + "!\n")
+					self.output.writeLog("\tThat entry does not exist in " + table + "!")
 		self.disconnectDB(db,silent)
 
 
@@ -320,7 +320,7 @@ class DbManager:
 			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.output.writeLog("\tdone!\n")
+			self.output.writeLog("\tdone!")
 		results = c.fetchall()
 		columns = c.description
 		col_names = []
@@ -345,7 +345,7 @@ class DbManager:
 			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.output.writeLog("\tdone!\n")
+			self.output.writeLog("\tdone!")
 		result = c.fetchall()
 		self.disconnectDB(db,silent)
 		return result
@@ -358,7 +358,7 @@ class DbManager:
 			self.output.writeLog("\tDownload data from " + tableName + " database.. ")
 		c.execute(query)
 		if not silent:
-			self.output.writeLog("\tdone!\n")
+			self.output.writeLog("\tdone!")
 		result = c.fetchall()
 		self.disconnectDB(db,silent)
 		return result

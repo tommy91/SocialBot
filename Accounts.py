@@ -72,7 +72,7 @@ class Accounts:
 		elif account['Type'] == TYPE_INSTAGRAM:
 			self.addInstagramAccount(account, tags, blogs)
 		else:
-			self.output.writeErrorLog("Error: account type '" + account['Type'] + "' for " + account['Name'] + " unknown!\n")
+			self.output.writeErrorLog("Error: account type '" + account['Type'] + "' for " + account['Name'] + " unknown!")
 
 
 
@@ -86,7 +86,7 @@ class Accounts:
 		if firstTime:
 			print "Update Accounts to DB:"
 		else: 
-			self.output.writeLog("\tUpdate Accounts to DB:\n")
+			self.output.writeLog("\tUpdate Accounts to DB:")
 		for key, blog in self.accounts.iteritems():
 			blog.updateAccountData(firstTime)
 
@@ -101,7 +101,7 @@ class Accounts:
 			if firstTime:
 				print "Error: None response"
 			else:
-				self.output.writeErrorLog("Error: None response\n")
+				self.output.writeErrorLog("\tError: None response")
 		else:
 			if firstTime:
 				print "ok"
@@ -112,7 +112,7 @@ class Accounts:
 					for up_row in synch_req:
 						self.updateData(up_row)
 				else:
-					self.output.writeLog("\talready synch!\n")
+					self.output.writeLog("\talready synch!")
 
 
 	def updateData(self, row):
@@ -123,7 +123,7 @@ class Accounts:
 		elif row['Operation'] == self.UPDATE_OPERATION:
 			self.updateUpOp(row['Table'],row['Blog'])
 		else:
-			self.output.writeErrorLog("\t\tError: operation " + str(row['Operation']) + "unknown!\n")
+			self.output.writeErrorLog("\t\tError: operation " + str(row['Operation']) + "unknown!")
 
 
 	def updateAddOp(self, table, id_blog):
@@ -133,58 +133,58 @@ class Accounts:
 				newTags = self.post_request({"action": "get_tags", "ID": id_blog})
 				newBlogs = self.post_request({"action": "get_blogs", "ID": id_blog})
 				self.addAccount(newMyAccount[0], newTags, newBlogs)
-				self.output.writeLog("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'\n")
+				self.output.writeLog("\t\tCreated new " + self.accounts[str(id_blog)].getSocialName() + " account: '" + self.accounts[str(id_blog)].getAccountName() + "'")
 				if newMyAccount[0]['State'] == self.accounts[str(id_blog)].STATUS_RUN:
 					self.accounts[str(id_blog)].runBlog()
 			else:
-				self.output.writeErrorLog("\t\t   Error: received empty list when try to get account!\n")
+				self.output.writeErrorLog("\t\t   Error: received empty list when try to get account!")
 		elif (table == "sb_other_accounts") or (table == "sb_tags"):
-			self.output.writeErrorLog("\t\tError: Trying to add tags or blogs, operation not permitted!!! WTF is happening???\n")
+			self.output.writeErrorLog("\t\tError: Trying to add tags or blogs, operation not permitted!!! WTF is happening???")
 		else:
-			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!\n")
+			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!")
 
 
 	def updateDelOp(self, table, id_blog):
 		if table == "sb_my_accounts":
-			self.output.writeLog("\t\tRemoving " + self.accounts[str(id_blog)].getSocialName() + " account '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+			self.output.writeLog("\t\tRemoving " + self.accounts[str(id_blog)].getSocialName() + " account '" + self.accounts[str(id_blog)].getAccountName() + "':")
 			if self.accounts[str(id_blog)].status == self.accounts[str(id_blog)].STATUS_RUN:
 				self.accounts[str(id_blog)].stopBlog()
 				self.accounts[str(id_blog)].clearDB()
 			del self.matches[self.accounts[str(id_blog)].getAccountName()]
 			del self.accounts[str(id_blog)]
-			self.output.writeLog("\t\tRemoved!\n")
+			self.output.writeLog("\t\tRemoved!")
 		elif (table == "sb_other_accounts") or (table == "sb_tags"):
-			self.output.writeErrorLog("\t\tError: Trying to delete tags or blogs, operation not permitted!!! WTF is happening???\n")
+			self.output.writeErrorLog("\t\tError: Trying to delete tags or blogs, operation not permitted!!! WTF is happening???")
 		else:
-			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!\n")
+			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!")
 
 
 	def updateUpOp(self, table, id_blog):
 		if table == "sb_my_accounts":
-			self.output.writeLog("\t\tUpdate account for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+			self.output.writeLog("\t\tUpdate account for '" + self.accounts[str(id_blog)].getAccountName() + "':")
 			newAccount = self.post_request({"action": "get_account_by_id", "id": id_blog})
 			if newAccount != []:
 				self.accounts[str(id_blog)].updateUpOp(newAccount[0])
 			else:
-				self.output.writeErrorLog("\t\t   Error: received empty list when try to get account!\n")
+				self.output.writeErrorLog("\t\t   Error: received empty list when try to get account!")
 		elif table == "sb_other_accounts": 
 			if not id_blog in self.alreadySynchBlogs:
-				self.output.writeLog("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+				self.output.writeLog("\t\tUpdate blogs for '" + self.accounts[str(id_blog)].getAccountName() + "':")
 				newBlogs = self.post_request({"action": "get_blogs", "ID": id_blog})
 				self.accounts[str(id_blog)].blogs = Utils.blogs2list(newBlogs)
 				for blog in self.accounts[str(id_blog)].blogs:
-					self.output.writeLog("\t\t    " + blog + "\n")
+					self.output.writeLog("\t\t    " + blog)
 				self.alreadySynchBlogs.append(id_blog)
 		elif table == "sb_tags":
 			if not id_blog in self.alreadySynchTags:
-				self.output.writeLog("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':\n")
+				self.output.writeLog("\t\tUpdate tags for '" + self.accounts[str(id_blog)].getAccountName() + "':")
 				newTags = self.post_request({"action": "get_tags", "ID": id_blog})
 				self.accounts[str(id_blog)].tags = Utils.tags2list(newTags)
 				for tag in self.accounts[str(id_blog)].tags:
-					self.output.writeLog("\t\t    " + tag + "\n")
+					self.output.writeLog("\t\t    " + tag)
 				self.alreadySynchTags.append(id_blog)
 		else:
-			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!\n")
+			self.output.writeErrorLog("\t\tError: '" + table + "' is no a valid table!")
 
 
 	def clearDB4blog(self, entry):
@@ -298,11 +298,11 @@ class Accounts:
 		if firstTime:
 			print "Update blogs info..\n" + "Update social data:"
 		else:
-			self.output.writeLog("Update blogs info..\n")
-			self.output.writeLog("Update social data:\n")
+			self.output.writeLog("Update blogs info..")
+			self.output.writeLog("Update social data:")
 		# update accounts
 		for kb,blog in self.accounts.iteritems():
-			self.output.writeLog("\tUpdate " + blog.getAccountName() + "\n")
+			self.output.writeLog("\tUpdate " + blog.getAccountName())
 			blog.updateAccount(firstTime)
 		self.updateAccountsData(firstTime)
 		self.synchOperations(firstTime)
