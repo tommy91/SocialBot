@@ -64,7 +64,12 @@ function get_insta_media($username, $password, $userID, $max_num) {
 		$counter = 0;
 		foreach ($response->getItems() as $key => $item) {
 			if (!($item->getHasLiked())) {
-				array_push($itemsIds, $item->getCaption()->getMediaId());
+				try {
+					$mediaID = $item->getMediaId();
+				} catch (Exception $e) {
+					return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num, 'item' => $item));
+				}
+				array_push($itemsIds, $mediaID);
 				$counter++;
 				if ($counter >= $max_num)
 					break;
