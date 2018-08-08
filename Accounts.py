@@ -51,9 +51,15 @@ class Accounts:
 			for instaAccount in instagramAccounts:
 				self.output.write("\t" + str(counter) + ") " + instaAccount["Username"] + " -> tags.. ")
 				tags = self.post_request({"action": "get_tags", "ID": instaAccount['ID']})
-				blogs = self.post_request({"action": "get_blogs", "ID": instaAccount['ID']})
-				if (tags == None) or (blogs == None):
+				if tags == None:
 					# error in response
+					print "None response"
+					continue
+				self.output.write("blogs.. ")
+				blogs = self.post_request({"action": "get_blogs", "ID": instaAccount['ID']})
+				if blogs == None:
+					# error in response
+					print "None response"
 					continue
 				self.addInstagramAccount(instaAccount,tags,blogs)
 				counter += 1
