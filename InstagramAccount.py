@@ -168,6 +168,7 @@ class InstagramAccount(Account.Account):
 
 
 	def addStatistics(self, followedBlog, action, gotBy):
+		self.output.writeLog("Add satistics: blog=" + followedBlog + " action=" + action + " gotBy=" + gotBy)
 		if action[2] == 'f':
 			group = 'timer_follow'
 		else:
@@ -480,7 +481,7 @@ class InstagramAccount(Account.Account):
 
 
 	def prettyLogFollow(self, counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=True):
-		toLog = "\tFollow " + str(counter + 1) + " of " + str(num_follows) + " (FM: " + follow_method + ", CG: " + could_get + "):"
+		toLog = "\tFollow " + str(counter + 1) + " of " + str(num_follows) + " (FM: " + follow_method + ", CG: " + str(could_get) + "):"
 		toLog += str(num_f_P) + " f_P, " + str(num_frl_P) + " f+rl_P, " + str(num_f_R) + " f_R, " + str(num_frl_R) + " frl_R"
 		toLog += " ( " + str(errors) + " errors )"
 		self.output.writeLog(toLog)
