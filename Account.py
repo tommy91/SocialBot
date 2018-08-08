@@ -182,7 +182,7 @@ class Account(object):
 
 	def set_post_timer(self, firstTime=False):
 		if firstTime:
-			timer_post = TIMERFIRSTTIMEINTERVAL
+			timer_post = self.TIMERFIRSTTIMEINTERVAL
 		else:
 			timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
 		tp = threading.Timer(timer_post, self.post) # in seconds
@@ -196,7 +196,7 @@ class Account(object):
 
 	def set_like_timer(self, firstTime=False):
 		if firstTime:
-			timer_like = TIMERFIRSTTIMEINTERVAL * 2
+			timer_like = self.TIMERFIRSTTIMEINTERVAL * 2
 		else:
 			timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
 		tl = threading.Timer(timer_like, self.like) # in seconds
@@ -210,7 +210,7 @@ class Account(object):
 
 	def set_follow_timer(self, firstTime=False):
 		if firstTime:
-			timer_follow = TIMERFIRSTTIMEINTERVAL * 3
+			timer_follow = self.TIMERFIRSTTIMEINTERVAL * 3
 		else:
 			timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
 		tf = threading.Timer(timer_follow, self.follow) # in seconds
