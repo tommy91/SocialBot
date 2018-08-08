@@ -132,7 +132,7 @@ class Account(object):
 			self.output.writeLog("\tWaiting thread '" + self.init_tread.getName() + "' to stop..\n")
 			self.init_tread.join()
 		self.status = self.STATUS_STOP
-		self.updateBlogData()
+		self.updateAccountData()
 		self.stopTimers()
 		self.updateStatistics()
 		self.output.writeLog("\t" + self.getAccountName() + " stopped.\n")
@@ -267,7 +267,7 @@ class Account(object):
 		self.output.writeLog("\tposted " + str(counter) + " posts!\n")
 		if not self.isTest:
 			self.checkNeedNewPosts()
-		self.updateBlogData()
+		self.updateAccountData()
 
 
 	def follow(self, num_follows = -1, isDump = False):
@@ -282,7 +282,7 @@ class Account(object):
 		self.followSocial(num_follows, isDump)
 		if not self.isTest:
 			self.checkNeedNewFollows()
-		self.updateBlogData()
+		self.updateAccountData()
 
 
 	def unfollow(self):
@@ -322,7 +322,7 @@ class Account(object):
 		if num_likes == -1:
 			num_likes = self.num_like_xt
 		self.likeSocial(num_likes, isDump)
-		self.updateBlogData()
+		self.updateAccountData()
 
 
 	def checkFollowingStatus(self):
