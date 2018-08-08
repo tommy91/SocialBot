@@ -52,7 +52,7 @@ def date2str(objDate):
 def tags2list(tags):
 	tagsDict = {}
 	for tag in tags:
-		tagsDict[tag['Name']] = {'Used': tag['Used'], 'Success': tag['Success']}
+		tagsDict[tag['Name']] = {'Used': int(tag['Used']), 'Success': int(tag['Success'])}
 	return tagsDict
 
 
