@@ -681,9 +681,10 @@ class InstagramAccount(Account.Account):
 
 
 	def likeInsta(self, postID):
-		self.post_insta_request({'action': 'like_insta', 'postID': str(postID)})
+		response = self.post_insta_request({'action': 'like_insta', 'postID': str(postID)})
 		self.todayLikes += 1
 		self.waitInsta()
+		return (response is None)
 
 
 	def getFollowersSocial(self, user=None, maxNum=None):
@@ -737,6 +738,7 @@ class InstagramAccount(Account.Account):
 
 	def randomMediaLikeInsta(self, user, howMany=1):
 		media = self.getMediaInsta(user, self.MAX_RETRIEVED_MEDIA)
+		self.output.writeLog("RandomMedias for '" + str(user) + "': " + str(media))
 		if media == None:
 			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'")
 		elif media == []:
@@ -745,7 +747,9 @@ class InstagramAccount(Account.Account):
 			self.waitInsta(little=True)
 			for count in range(0,howMany):
 				key = random.randint(0, len(media)-1)
-				self.likeInsta(media.pop(key))
+				selectedMedia = media.pop(key)
+				self.output.writeLog("SelectedMedia: " + str(selectedMedia))
+				self.likeInsta(selectedMedia)
 
 
 	def getIdByUsernameInsta(self, user):
