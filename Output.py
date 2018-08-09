@@ -13,7 +13,7 @@ class Output:
 		if not os.path.exists(LOGFILE_PATH):
 			os.mkdir(LOGFILE_PATH)
 		if (subdir is not None) and (not os.path.exists(LOGFILE_PATH + subdir + "/")):
-			os.mkdir(LOGFILE_PATH)
+			os.mkdir(LOGFILE_PATH + subdir + "/")
 		if subdir is None:
 			self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
 		else:
