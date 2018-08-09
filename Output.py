@@ -8,11 +8,16 @@ from Settings import LOGFILE_PATH, LOGFILE_ERROR
 class Output:
 
 
-	def __init__(self, logname):
+	def __init__(self, logname, subdir=None):
 		# setup log directory
 		if not os.path.exists(LOGFILE_PATH):
 			os.mkdir(LOGFILE_PATH)
-		self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
+		if (subdir is not None) and (not os.path.exists(LOGFILE_PATH + subdir + "/")):
+			os.mkdir(LOGFILE_PATH)
+		if subdir is None:
+			self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
+		else:
+			self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + subdir + "/" + logname)
 		self.errorLog = self.setup_error_logger('error', LOGFILE_ERROR)
 
 

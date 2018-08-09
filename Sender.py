@@ -65,8 +65,10 @@ def post_insta_request(caller, post_data, firstTime=False):
 				if 'Error' in parsed:
 					if firstTime:
 						print "Error: 'Error'\n" + str(parsed['Error'])
+						print "Dump: \n" + str(parsed['Dump'])
 					else:
 						caller.output.writeErrorLog("Error: 'Error'\n" + str(parsed['Error']))
+						caller.output.writeErrorLog("Dump: \n" + str(parsed['Dump']))
 					return None
 				else:
 					return parsed['Result']

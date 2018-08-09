@@ -169,10 +169,10 @@ class InstagramAccount(Account.Account):
 
 	def addStatistics(self, followedBlog, action, gotBy):
 		self.output.writeLog("Add satistics: blog=" + followedBlog + " action=" + action + " gotBy=" + gotBy)
-		if action[2] == 'f':
-			group = 'timer_follow'
-		else:
+		if (action == 'rl') or (action[2] == 'l'):
 			group = 'timer_like'
+		else:
+			group = 'timer_follow'
 		self.updateTotStatistics(group, action)
 		self.updateTotTagsBlogsStats(gotBy)
 		args = (self.getAccountName(), followedBlog, action, gotBy, int(time.time() * self.TIME_FACTOR))

@@ -34,7 +34,7 @@ class Account(object):
 
 	def __init__(self, accounts, account_id, mail, account_type, username):
 		self.accounts = accounts
-		self.output = Output.Output(username + ".log")
+		self.output = Output.Output(username + ".log", subdir=username)
 		self.isTest = accounts.sbprog.isTest
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
@@ -151,18 +151,22 @@ class Account(object):
 
 
 	def setTimers(self, firstTime=False):
+		username = self.getAccountName()
 		if self.timer_post > 0:
-			self.set_post_timer(firstTime)
+			outputPost = Output.Output(username + "_post.log", subdir=username)
+			self.set_post_timer(outputPost,firstTime)
 			self.isPosting = True
 		else:
 			self.isPosting = False
 		if self.timer_follow > 0:
-			self.set_follow_timer(firstTime)
+			outputFollow = Output.Output(username + "_follow.log", subdir=username)
+			self.set_follow_timer(outputFollow, firstTime)
 			self.isFollowing = True
 		else:
 			self.isFollowing = False
 		if self.timer_like > 0:
-			self.set_like_timer(firstTime)
+			outputLike = Output.Output(username + "_like.log", subdir=username)
+			self.set_like_timer(outputLike, firstTime)
 			self.isLiking = True
 		else:
 			self.isLiking = False
@@ -180,12 +184,12 @@ class Account(object):
 			del self.timers[self.strID + "-like"]
 
 
-	def set_post_timer(self, firstTime=False):
+	def set_post_timer(self, outputPost, firstTime=False):
 		if firstTime:
 			timer_post = self.TIMERFIRSTTIMEINTERVAL
 		else:
 			timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
-		tp = threading.Timer(timer_post, self.post) # in seconds
+		tp = threading.Timer(timer_post, self.post, [outputPost]) # in seconds
 		tp.start() 
 		self.timers[self.strID + "-post"] = tp
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
@@ -194,12 +198,12 @@ class Account(object):
 		self.updateStatistics()
 
 
-	def set_like_timer(self, firstTime=False):
+	def set_like_timer(self, outputLike, firstTime=False):
 		if firstTime:
 			timer_like = self.TIMERFIRSTTIMEINTERVAL * 2
 		else:
 			timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
-		tl = threading.Timer(timer_like, self.like) # in seconds
+		tl = threading.Timer(timer_like, self.like, [outputLike]) # in seconds
 		tl.start() 
 		self.timers[self.strID + "-like"] = tl
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
@@ -208,12 +212,12 @@ class Account(object):
 		self.updateStatistics()
 
 
-	def set_follow_timer(self, firstTime=False):
+	def set_follow_timer(self, outputFollow, firstTime=False):
 		if firstTime:
 			timer_follow = self.TIMERFIRSTTIMEINTERVAL * 3
 		else:
 			timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
-		tf = threading.Timer(timer_follow, self.follow) # in seconds
+		tf = threading.Timer(timer_follow, self.follow, [outputFollow]) # in seconds
 		tf.start() 
 		self.timers[self.strID + "-follow"] = tf
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
@@ -242,10 +246,11 @@ class Account(object):
 			self.search_post(num_post=(self.num_post_xt-posts))  
 
 
-	def post(self, num_posts = -1, isDump = False):
+	def post(self, outputPost, num_posts = -1, isDump = False):
+		self.output = outputPost
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_post_timer()
+			self.set_post_timer(outputPost)
 		self.output.writeLog("Posting " + blogname + ":")
 		if num_posts == -1:
 			num_posts = self.num_post_xt
@@ -270,10 +275,11 @@ class Account(object):
 		self.updateAccountData()
 
 
-	def follow(self, num_follows = -1, isDump = False):
+	def follow(self, outputFollow, num_follows = -1, isDump = False):
+		self.output = outputFollow
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_follow_timer()
+			self.set_follow_timer(outputFollow)
 		self.output.writeLog("Following " + blogname + ":")
 		if num_follows == -1:
 			num_follows = self.num_follow_xt
@@ -314,10 +320,11 @@ class Account(object):
 		return True
 
 
-	def like(self, num_likes = -1, isDump = False):
+	def like(self, outputLike, num_likes = -1, isDump = False):
+		self.output = outputLike
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_like_timer()
+			self.set_like_timer(outputLike)
 		self.output.writeLog("Liking " + blogname + ":")
 		if num_likes == -1:
 			num_likes = self.num_like_xt

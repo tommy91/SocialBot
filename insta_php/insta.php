@@ -25,7 +25,7 @@ function get_user_info($username, $password) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password));
 	}
 	if (!$response->isOk())
-		return array('Error' => $response);
+		return array('Error' => $response, 'Dump' => array('username' => $username, 'password' => $password));
 	$userInfo = $response->getUser();
 	return array(
 					'follower' => $userInfo->getFollowerCount(),
@@ -58,7 +58,7 @@ function get_insta_media($username, $password, $userID, $max_num) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 	}
 	if (!$response->isOk())
-		return array('Error' => $response);
+		return array('Error' => $response, 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 	else {
 		$itemsIds = array();
 		$counter = 0;
@@ -88,7 +88,7 @@ function follow_insta($username, $password, $userID) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	}
 	if (!$follow_response->isOk())
-		return array('Error' => $follow_response);
+		return array('Error' => $follow_response, 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	else
 		return array();
 }
@@ -102,7 +102,7 @@ function unfollow_insta($username, $password, $userID) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	}
 	if (!$unfollow_response->isOk())
-		return array('Error' => $unfollow_response);
+		return array('Error' => $unfollow_response, 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID));
 	else
 		return array();
 }
@@ -116,7 +116,7 @@ function like_insta($username, $password, $postID) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'postID' => $postID));
 	}
 	if (!$like_response->isOk())
-		return array('Error' => $like_response);
+		return array('Error' => $like_response, 'Dump' => array('username' => $username, 'password' => $password, 'postID' => $postID));
 	else
 		return array();
 }
@@ -131,7 +131,7 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'tag' => $tag, 'is_popular' => $is_popular, 'max_num' => $max_num));
 	}
 	if ($hashtagFeed->isOk() != 'ok')
-		return array('Error' => $hashtagFeed);
+		return array('Error' => $hashtagFeed, 'Dump' => array('username' => $username, 'password' => $password, 'tag' => $tag, 'is_popular' => $is_popular, 'max_num' => $max_num));
 	$response = array();
 	$counter = 0;
 	if ($is_popular)
@@ -164,7 +164,7 @@ function get_likers($username, $password, $mediaID, $max_num = NULL) {
 		$likers = $ig->media->getLikers($mediaID);
 		$counter = 0;
 		if (!$likers->isOk())
-			return array('Error' => $likers);
+			return array('Error' => $likers, 'Dump' => array('username' => $username, 'password' => $password, 'mediaID' => $mediaID, 'max_num' => $max_num));
 		else {
 			$response = array();
 			if ($likers->getUserCount() > 0) {
@@ -180,7 +180,7 @@ function get_likers($username, $password, $mediaID, $max_num = NULL) {
 			return $response;
 		}
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'mediaID' => $mediaID, 'max_num' => $max_num));
 	}
 }
 
@@ -191,7 +191,7 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 		$comments = $ig->media->getComments($mediaID);
 		$counter = 0;
 		if (!$comments->isOk())
-			return array('Error' => $comments);
+			return array('Error' => $comments, 'Dump' => array('username' => $username, 'password' => $password, 'mediaID' => $mediaID, 'max_num' => $max_num));
 		else {
 			$response = array();
 			if ($comments->getCommentCount() > 0) {
@@ -207,7 +207,7 @@ function get_comments($username, $password, $mediaID, $max_num = NULL) {
 			return $response;
 		}
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'mediaID' => $mediaID, 'max_num' => $max_num));
 	}
 }
 
@@ -227,7 +227,7 @@ function getFollowers($username, $password, $userID = NULL, $max_num = NULL) {
 			else
 				$response = $ig->people->getFollowers($userID, $rankToken, NULL, $maxId);
 			if (!$response->isOk())
-				return array('Error' => $response);
+				return array('Error' => $response, 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 			foreach ($response->getUsers() as $key => $user) {
 				if ((!$getting_my) && ($user->getIsPrivate()))
 					continue;
@@ -244,7 +244,7 @@ function getFollowers($username, $password, $userID = NULL, $max_num = NULL) {
 		} while ($maxId !== NULL);
 		return $followers;
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 	}
 }
 
@@ -264,7 +264,7 @@ function getFollowings($username, $password, $userID = NULL, $max_num = NULL) {
 			else
 				$response = $ig->people->getFollowing($userID, $rankToken, NULL, $maxId);
 			if (!$response->isOk())
-				return array('Error' => $response);
+				return array('Error' => $response, 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 			foreach ($response->getUsers() as $key => $user) {
 				if ((!$getting_my) && ($user->getIsPrivate()))
 					continue;
@@ -281,7 +281,7 @@ function getFollowings($username, $password, $userID = NULL, $max_num = NULL) {
 		} while ($maxId !== NULL);
 		return $following;
 	} catch (Exception $e) {
-		return array('Error' => $e->getMessage());
+		return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num));
 	}
 }
 
