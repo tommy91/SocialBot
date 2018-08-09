@@ -563,14 +563,18 @@ class InstagramAccount(Account.Account):
 
 
 	def followInsta(self, blog2follow):
+		self.output.writeLog("Following '" + str(blog2follow) + "'")
 		self.post_insta_request({'action': 'follow_insta', 'user': str(blog2follow)})
+		self.output.writeLog("Followed.")
 		self.followingList.append(blog2follow)
 		self.todayFollows += 1
 		self.waitInsta()
 
 
 	def unfollowSocial(self, blog2unfollow):
+		self.output.writeLog("Unfollowing '" + str(blog2unfollow) + "'")
 		self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
+		self.output.writeLog("Unfollowed.")
 		self.todayUnfollows += 1
 		self.waitInsta()
 
@@ -681,7 +685,9 @@ class InstagramAccount(Account.Account):
 
 
 	def likeInsta(self, postID):
+		self.output.writeLog("Liking '" + str(postID) + "'")
 		response = self.post_insta_request({'action': 'like_insta', 'postID': str(postID)})
+		self.output.writeLog("Liked.")
 		self.todayLikes += 1
 		self.waitInsta()
 		return (response is None)

@@ -65,7 +65,7 @@ function get_insta_media($username, $password, $userID, $max_num) {
 		foreach ($response->getItems() as $key => $item) {
 			if (!($item->getHasLiked())) {
 				try {
-					$mediaID = $item->getMediaId();
+					$mediaID = $item->getPk();
 				} catch (Exception $e) {
 					return array('Error' => $e->getMessage(), 'Dump' => array('username' => $username, 'password' => $password, 'userID' => $userID, 'max_num' => $max_num, 'item' => $item));
 				}
@@ -145,7 +145,7 @@ function getHashtagFeed($username, $password, $tag, $is_popular, $max_num) {
 		$outgoing_request = $item->getCaption()->getUser()->getFriendshipStatus()->getOutgoingRequest();
 		$has_liked = $item->getHasLiked();
 		if ((!$is_private) && (!$followed_by) && (!$following) && (!$outgoing_request) && (!$has_liked)) {
-			$post = array(	'mediaID' => $item->getCaption()->getMediaId(), 
+			$post = array(	'mediaID' => $item->getPk(), 
 				  			'userID' => $item->getCaption()->getUserId()
 				  			);
 			array_push($response, $post);
