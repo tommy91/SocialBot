@@ -744,7 +744,7 @@ class InstagramAccount(Account.Account):
 
 	def randomMediaLikeInsta(self, user, howMany=1):
 		media = self.getMediaInsta(user, self.MAX_RETRIEVED_MEDIA)
-		self.output.writeLog("RandomMedias for '" + str(user) + "': " + str(media))
+		# self.output.writeLog("RandomMedias for '" + str(user) + "': " + str(media))
 		if media == None:
 			self.output.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'")
 		elif media == []:
@@ -754,7 +754,7 @@ class InstagramAccount(Account.Account):
 			for count in range(0,howMany):
 				key = random.randint(0, len(media)-1)
 				selectedMedia = media.pop(key)
-				self.output.writeLog("SelectedMedia: " + str(selectedMedia))
+				# self.output.writeLog("SelectedMedia: " + str(selectedMedia))
 				self.likeInsta(selectedMedia)
 
 

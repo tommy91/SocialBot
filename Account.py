@@ -248,6 +248,7 @@ class Account(object):
 
 	def post(self, outputPost, num_posts = -1, isDump = False):
 		self.output = outputPost
+		self.output.writeLog("Output log: " + self.output.getLogName())
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_post_timer(outputPost)
@@ -277,6 +278,7 @@ class Account(object):
 
 	def follow(self, outputFollow, num_follows = -1, isDump = False):
 		self.output = outputFollow
+		self.output.writeLog("Output log: " + self.output.getLogName())
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_follow_timer(outputFollow)
@@ -322,6 +324,7 @@ class Account(object):
 
 	def like(self, outputLike, num_likes = -1, isDump = False):
 		self.output = outputLike
+		self.output.writeLog("Output log: " + self.output.getLogName())
 		blogname = self.getAccountName()
 		if not self.isTest:
 			self.set_like_timer(outputLike)

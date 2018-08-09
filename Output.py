@@ -9,29 +9,34 @@ class Output:
 
 
 	def __init__(self, logname, subdir=None):
+		self.logname = logname
 		# setup log directory
 		if not os.path.exists(LOGFILE_PATH):
 			os.mkdir(LOGFILE_PATH)
 		if (subdir is not None) and (not os.path.exists(LOGFILE_PATH + subdir + "/")):
 			os.mkdir(LOGFILE_PATH + subdir + "/")
 		if subdir is None:
-			self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + logname)
+			self.infoLog = self.setupInfoLogger(logname, LOGFILE_PATH + logname)
 		else:
-			self.infoLog = self.setup_info_logger(logname, LOGFILE_PATH + subdir + "/" + logname)
-		self.errorLog = self.setup_error_logger('error', LOGFILE_ERROR)
+			self.infoLog = self.setupInfoLogger(logname, LOGFILE_PATH + subdir + "/" + logname)
+		self.errorLog = self.setupErrorLogger('error', LOGFILE_ERROR)
 
 
-	def setup_info_logger(self, name, log_file):
+	def getLogName(self):
+		return self.logname
+
+
+	def setupInfoLogger(self, name, log_file):
 		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
-		return self.setup_logger(name, log_file, formatter, logging.INFO)
+		return self.setupLogger(name, log_file, formatter, logging.INFO)
 
 
-	def setup_error_logger(self, name, log_file):
+	def setupErrorLogger(self, name, log_file):
 		formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(funcName)s: %(message)s', datefmt='%m/%d/%y %H:%M:%S')
-		return self.setup_logger(name, log_file, formatter, logging.DEBUG)
+		return self.setupLogger(name, log_file, formatter, logging.DEBUG)
 
 
-	def setup_logger(self, name, log_file, formatter, level):
+	def setupLogger(self, name, log_file, formatter, level):
 		"""Function setup as many loggers as you want"""
 		handler = logging.FileHandler(log_file)        
 		handler.setFormatter(formatter)
