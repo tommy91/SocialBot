@@ -445,6 +445,7 @@ class InstagramAccount(Account.Account):
 		num_frl_R = 0
 		errors = 0
 		for counter in range(0,num_follows):
+			self.output.writeLog("Output log: " + self.output.getLogName())
 			follow_method = Utils.selectWithProb(self.statistics['timer_follow_prob'].keys(),self.statistics['timer_follow_prob'].values())
 			if follow_method[0] == 'P':
 				could_get, follow = self.getNewFollowFromDB(alreadyFollowed)
@@ -588,6 +589,7 @@ class InstagramAccount(Account.Account):
 		num_rl = 0
 		errors = 0
 		for counter in range(0,num_likes):
+			self.output.writeLog("Output log: " + self.output.getLogName())
 			like_method = Utils.selectWithProb(self.statistics['timer_like_prob'].keys(),self.statistics['timer_like_prob'].values())
 			if like_method[0] == 'R':
 				tag = self.selectTag()
