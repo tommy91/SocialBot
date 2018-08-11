@@ -142,7 +142,7 @@ class InstagramAccount(Account.Account):
 						self.updateMatchStatistics('timer_follow', fstat['action'])
 					else:
 						self.updateMatchStatistics('timer_like', fstat['action'])
-					updateMatchTagsBlogsStats(fstat['gotBy'])
+					self.updateMatchTagsBlogsStats(fstat['gotBy'])
 				args = (bn,follow)
 				self.dbManager.delete('Fstats',args)
 		# Delete old ones:
