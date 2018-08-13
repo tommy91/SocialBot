@@ -529,19 +529,19 @@ class InstagramAccount(Account.Account):
 				num_errors += 1
 				if num_errors >= max_errors:
 					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
-					return False, None
+					return False, None, tag
 				else:
 					self.waitInsta(little=True)
 			elif follow == []:
 				self.output.writeErrorLog("Error: cannot find recent media tagged '" + tag + "'")
-				return False, None
+				return False, None, tag
 			elif not follow[0]['userID'] in alreadyFollowed:
 				return True, follow[0]['userID'], tag
 			else:
 				num_errors += 1
 				if num_errors >= max_errors:
 					self.output.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
-					return False, None
+					return False, None, tag
 				else:
 					self.waitInsta(little=True)
 
@@ -640,7 +640,7 @@ class InstagramAccount(Account.Account):
 	def prettyLogLike(self, counter, num_likes, like_method, num_l_R, num_lf_R, num_lrl_R, num_lfrl_R, num_rl, errors, could_get=None):
 		toLog = "\tLike " + str(counter + 1) + " of " + str(num_likes) + " (LM: " + like_method 
 		if could_get is not None:
-			toLog += ", CG: " + could_get
+			toLog += ", CG: " + str(could_get)
 		toLog += "): " + str(num_l_R) + " l_R, " + str(num_lf_R) + " l+f_R, " + str(num_lrl_R) + " l+rl_R, "
 		toLog += str(num_lfrl_R) + " l+f+rl_R, " + str(num_rl) + " rl ( " + str(errors) + " errors )"
 		self.output.writeLog(toLog)
