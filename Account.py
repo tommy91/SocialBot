@@ -35,6 +35,10 @@ class Account(object):
 	def __init__(self, accounts, account_id, mail, account_type, username):
 		self.accounts = accounts
 		self.output = Output.Output(username + ".log", subdir=username)
+		self.outputPost = Output.Output(username + "_post.log", subdir=username)
+		self.outputLike = Output.Output(username + "_like.log", subdir=username)
+		self.outputFollow = Output.Output(username + "_follow.log", subdir=username)
+		self.outputUnfollow = Output.Output(username + "_unfollow.log", subdir=username)
 		self.isTest = accounts.sbprog.isTest
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
@@ -153,20 +157,17 @@ class Account(object):
 	def setTimers(self, firstTime=False):
 		username = self.getAccountName()
 		if self.timer_post > 0:
-			outputPost = Output.Output(username + "_post.log", subdir=username)
-			self.set_post_timer(outputPost,firstTime)
+			self.set_post_timer(firstTime)
 			self.isPosting = True
 		else:
 			self.isPosting = False
 		if self.timer_follow > 0:
-			outputFollow = Output.Output(username + "_follow.log", subdir=username)
-			self.set_follow_timer(outputFollow, firstTime)
+			self.set_follow_timer(firstTime)
 			self.isFollowing = True
 		else:
 			self.isFollowing = False
 		if self.timer_like > 0:
-			outputLike = Output.Output(username + "_like.log", subdir=username)
-			self.set_like_timer(outputLike, firstTime)
+			self.set_like_timer(firstTime)
 			self.isLiking = True
 		else:
 			self.isLiking = False
@@ -184,45 +185,45 @@ class Account(object):
 			del self.timers[self.strID + "-like"]
 
 
-	def set_post_timer(self, outputPost, firstTime=False):
+	def set_post_timer(self, firstTime=False):
 		if firstTime:
 			timer_post = self.TIMERFIRSTTIMEINTERVAL
 		else:
 			timer_post = random.randint((self.timer_post) - (self.TIMERHALFWINDOW*60), (self.timer_post) + (self.TIMERHALFWINDOW*60))
-		tp = threading.Timer(timer_post, self.post, [outputPost]) # in seconds
+		tp = threading.Timer(timer_post, self.post) # in seconds
 		tp.start() 
 		self.timers[self.strID + "-post"] = tp
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_post)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-post"] = deadline
-		self.output.writeLog("\tcreated new thread for post after " + Utils.seconds2timeStr(timer_post))
+		self.outputPost.writeLog("\tcreated new thread for post after " + Utils.seconds2timeStr(timer_post))
 		self.updateStatistics()
 
 
-	def set_like_timer(self, outputLike, firstTime=False):
+	def set_like_timer(self, firstTime=False):
 		if firstTime:
 			timer_like = self.TIMERFIRSTTIMEINTERVAL * 2
 		else:
 			timer_like = random.randint((self.timer_like) - (self.TIMERHALFWINDOW*60), (self.timer_like) + (self.TIMERHALFWINDOW*60))
-		tl = threading.Timer(timer_like, self.like, [outputLike]) # in seconds
+		tl = threading.Timer(timer_like, self.like) # in seconds
 		tl.start() 
 		self.timers[self.strID + "-like"] = tl
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_like)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-like"] = deadline
-		self.output.writeLog("\tcreated new thread for like after " + Utils.seconds2timeStr(timer_like))
+		self.outputLike.writeLog("\tcreated new thread for like after " + Utils.seconds2timeStr(timer_like))
 		self.updateStatistics()
 
 
-	def set_follow_timer(self, outputFollow, firstTime=False):
+	def set_follow_timer(self, firstTime=False):
 		if firstTime:
 			timer_follow = self.TIMERFIRSTTIMEINTERVAL * 3
 		else:
 			timer_follow = random.randint((self.timer_follow) - (self.TIMERHALFWINDOW*60), (self.timer_follow) + (self.TIMERHALFWINDOW*60))
-		tf = threading.Timer(timer_follow, self.follow, [outputFollow]) # in seconds
+		tf = threading.Timer(timer_follow, self.follow) # in seconds
 		tf.start() 
 		self.timers[self.strID + "-follow"] = tf
 		deadline = datetime.datetime.fromtimestamp(float(int(time.time()) + timer_follow)).strftime('%H:%M:%S %d/%m')
 		self.timersTime[self.strID + "-follow"] = deadline
-		self.output.writeLog("\tcreated new thread for follow after " + Utils.seconds2timeStr(timer_follow))
+		self.outputFollow.writeLog("\tcreated new thread for follow after " + Utils.seconds2timeStr(timer_follow))
 		self.updateStatistics()
 
 
@@ -246,43 +247,39 @@ class Account(object):
 			self.search_post(num_post=(self.num_post_xt-posts))  
 
 
-	def post(self, outputPost, num_posts = -1, isDump = False):
-		self.output = outputPost
-		self.output.writeLog("Output log: " + self.output.getLogName())
+	def post(self, num_posts = -1, isDump = False):
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_post_timer(outputPost)
-		self.output.writeLog("Posting " + blogname + ":")
+			self.set_post_timer()
+		self.outputPost.writeLog("Posting " + blogname + ":")
 		if num_posts == -1:
 			num_posts = self.num_post_xt
 		posts = self.dbManager.getPosts(blogname,num_posts)
 		if isDump:
-			self.output.writeLog(str(posts)) 
+			self.outputPost.writeLog(str(posts)) 
 		counter = 0
 		for post in posts:
 			try:
 				if isDump:
-					self.output.writeLog(str(post)) 
+					self.outputPost.writeLog(str(post)) 
 				self.postSocial(post)
 				args = (post['id'],blogname)
 				self.dbManager.delete("PostsLikes",args)
 				counter += 1
-				self.output.writeLog("\tposted " + str(counter) + "/" + str(num_posts))
+				self.outputPost.writeLog("\tposted " + str(counter) + "/" + str(num_posts))
 			except Exception,msg:
-				self.output.writeErrorLog("\tError: exception on " + blogname + " reblogging\n" + str(msg))
-		self.output.writeLog("\tposted " + str(counter) + " posts!")
+				self.outputPost.writeErrorLog("\tError: exception on " + blogname + " reblogging\n" + str(msg))
+		self.outputPost.writeLog("\tposted " + str(counter) + " posts!")
 		if not self.isTest:
 			self.checkNeedNewPosts()
 		self.updateAccountData()
 
 
-	def follow(self, outputFollow, num_follows = -1, isDump = False):
-		self.output = outputFollow
-		self.output.writeLog("Output log: " + self.output.getLogName())
+	def follow(self, num_follows = -1, isDump = False):
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_follow_timer(outputFollow)
-		self.output.writeLog("Following " + blogname + ":")
+			self.set_follow_timer()
+		self.outputFollow.writeLog("Following " + blogname + ":")
 		if num_follows == -1:
 			num_follows = self.num_follow_xt
 		# Check if need to update following
@@ -295,7 +292,7 @@ class Account(object):
 
 	def unfollow(self):
 		blogname = self.getAccountName()
-		self.output.writeLog("Unfollowing " + blogname + ":")
+		self.outputUnfollow.writeLog("Unfollowing " + blogname + ":")
 		counterUnfollow = 0
 		while counterUnfollow <= self.num_follow_xt + self.OVER_UNFOLLOW:
 			try:
@@ -307,28 +304,26 @@ class Account(object):
 					args = (blogname, blog_name_unfollow)
 					self.dbManager.delete("Following",args)
 					counterUnfollow += 1
-					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
+					self.outputUnfollow.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
 				else:
 					# else re-append at the end
 					self.followingList.append(blog_name_unfollow)
 			except IndexError, msg:
-				self.output.writeErrorLog("\tError: " + str(msg))
+				self.outputUnfollow.writeErrorLog("\tError: " + str(msg))
 			except Exception, msg:
-				self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow!")
-		self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.")
+				self.outputUnfollow.writeErrorLog("\tError: exception on " + blogname + " unfollow!")
+		self.outputUnfollow.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.")
 
 
 	def canUnfollow(self,blog2unfollow):
 		return True
 
 
-	def like(self, outputLike, num_likes = -1, isDump = False):
-		self.output = outputLike
-		self.output.writeLog("Output log: " + self.output.getLogName())
+	def like(self, num_likes = -1, isDump = False):
 		blogname = self.getAccountName()
 		if not self.isTest:
-			self.set_like_timer(outputLike)
-		self.output.writeLog("Liking " + blogname + ":")
+			self.set_like_timer()
+		self.outputLike.writeLog("Liking " + blogname + ":")
 		if num_likes == -1:
 			num_likes = self.num_like_xt
 		self.likeSocial(num_likes, isDump)

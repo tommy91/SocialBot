@@ -7,7 +7,6 @@ import Settings
 
 
 def post_request(caller, post_data):
-	errors = 0
 	try:
 		resp = requests.post(Settings.PATH_TO_SERVER + Settings.RECEIVER, data = post_data)
 		if resp.status_code == 200:
@@ -24,25 +23,11 @@ def post_request(caller, post_data):
 		else:
 			resp.raise_for_status()
 	except ConnectionError as e:
-		errors += 1
-		if errors >= caller.MAX_NUM_ERRORS:
-			caller.output.writeErrorLog("Error: 'ConnectionError'\n" + str(e))
-			caller.output.writeErrorLog("Error: MAX NUM ERRORS reached (" + str(caller.MAX_NUM_ERRORS) + ")")
-			return None
-		else:
-			time.sleep(5)
-			caller.output.writeLog("Retry to send request! Caused by 'ConnectionError':\n" + str(e) + "")
-			post_request(caller, post_data)
+		caller.output.writeErrorLog("Error: 'ConnectionError'\n" + str(e))
+		return None
 	except Timeout as e:
 		caller.output.writeErrorLog("Error: 'TimeoutError'\n" + str(e))
-		errors += 1
-		if errors >= caller.MAX_NUM_ERRORS:
-			caller.output.writeErrorLog("Error: MAX NUM ERRORS reached (" + str(caller.MAX_NUM_ERRORS) + ")")
-			return None
-		else:
-			time.sleep(5)
-			caller.output.writeLog("Retry to send request!")
-			post_request(caller, post_data)
+		return None
 	except HTTPError as e:
 		caller.output.writeErrorLog("Error: 'HTTPError'\n" + str(e))
 		return None
@@ -77,6 +62,13 @@ def post_insta_request(caller, post_data, firstTime=False):
 					print "Error: 'ValueError'\n" + str(resp.content)
 				else:
 					caller.output.writeErrorLog("Error: 'ValueError'\n" + str(resp.content))
+				if str(resp.content).find("curl") and str(resp.content).find("28"):
+					if firstTime:
+						print "Waiting and retring.. "
+					else:
+						caller.output.writeErrorLog("Waiting and retring.. ")
+					time.sleep(5)
+					post_insta_request(caller, post_data, firstTime)
 				return None
 		else:
 			resp.raise_for_status()
