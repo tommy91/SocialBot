@@ -2,11 +2,14 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL & ~E_NOTICE);
 
+set_time_limit(0);
+
+
 require 'vendor/autoload.php';
 require 'logManager.php';
 
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-$ig = new \InstagramAPI\Instagram();
+$ig = new \InstagramAPI\Instagram(true);
 
 
 function connect($username, $password){

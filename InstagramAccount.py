@@ -302,14 +302,14 @@ class InstagramAccount(Account.Account):
 		self.output.writeLog("Method 'copyBlog' not implemented for Instagram account!")
 
 
-	def waitInsta(self, little=False):
+	def waitInsta(self, output, little=False):
 		if little:
 			secs = random.randint(1, 4)
 		else:
 			secs = random.randint(self.MIN_TIME_BETWEEN_ACTIONS, self.MAX_TIME_BETWEEN_ACTIONS)
-		self.output.writeLog("Wait " + str(secs) + "seconds")
+		output.writeLog("Wait " + str(secs) + "seconds")
 		time.sleep(secs)
-		self.output.writeLog("End wait.")
+		output.writeLog("End wait.")
 
 
 	def calc_time_post_follow(self):
@@ -391,7 +391,7 @@ class InstagramAccount(Account.Account):
 						self.addFollowToDB(follow)
 						counter += 1
 						self.output.writeLog("\t         from " + blog + ".. " + str(counter))
-			self.waitInsta(little=True)
+			self.waitInsta(self.output, little=True)
 		if len(self.tags) > 0:
 			tag = self.selectTag()
 			if self.MAX_RETRIEVED_COMMENTS + self.MAX_RETRIEVED_LIKE >= num_follows:
@@ -410,7 +410,7 @@ class InstagramAccount(Account.Account):
 						self.addFollowToDB(post['userID'])
 						counterMedia += 1
 						self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-					self.waitInsta(little=True)
+					self.waitInsta(self.output, little=True)
 					likers = self.getMediaLikersInsta(post['mediaID'], self.MAX_RETRIEVED_LIKE)
 					if likers == None:
 						self.output.writeErrorLog("\t         Error: None response for getMediaLikersInsta")
@@ -420,7 +420,7 @@ class InstagramAccount(Account.Account):
 								self.addFollowToDB(liker)
 								counterLikers += 1
 								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-					self.waitInsta(little=True)
+					self.waitInsta(self.output, little=True)
 					comments = self.getMediaCommentsInsta(post['mediaID'], self.MAX_RETRIEVED_COMMENTS)
 					if comments == None:
 						self.output.writeErrorLog("\t         Error: None response for getMediaCommentsInsta")
@@ -430,7 +430,7 @@ class InstagramAccount(Account.Account):
 								self.addFollowToDB(comment)
 								counterComments += 1
 								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
-					self.waitInsta(little=True)
+					self.waitInsta(self.output, little=True)
 		else:
 			self.output.writeLog("\t         No Tags inserted.. cannot get new follows!")
 
@@ -465,7 +465,7 @@ class InstagramAccount(Account.Account):
 					self.justFollow(follow, follow_method, "", isDump)
 					num_f_P += 1
 			else:
-				could_get, follow, tag = self.getNewFollowFromSearch(alreadyFollowed)
+				could_get, follow, tag = self.getNewFollowFromSearch(alreadyFollowed, self.outputFollow)
 				if not could_get:
 					errors += 1
 					self.prettyLogFollow(counter, num_follows, follow_method, num_f_P, num_frl_P, num_f_R, num_frl_R, errors, could_get=False)
@@ -519,7 +519,7 @@ class InstagramAccount(Account.Account):
 		self.dbManager.add("Follow",args)
 
 
-	def getNewFollowFromSearch(self, alreadyFollowed):
+	def getNewFollowFromSearch(self, alreadyFollowed, output):
 		max_errors = 10
 		num_errors = 0
 		blogname = self.getAccountName()
@@ -533,7 +533,7 @@ class InstagramAccount(Account.Account):
 					self.outputFollow.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
 					return False, None, tag
 				else:
-					self.waitInsta(little=True)
+					self.waitInsta(output, little=True)
 			elif follow == []:
 				self.outputFollow.writeErrorLog("Error: cannot find recent media tagged '" + tag + "'")
 				return False, None, tag
@@ -545,7 +545,7 @@ class InstagramAccount(Account.Account):
 					self.outputFollow.writeErrorLog("Error: max num errors reached for getNewFollowFromSearch!")
 					return False, None, tag
 				else:
-					self.waitInsta(little=True)
+					self.waitInsta(output, little=True)
 
 
 	def followAndRandomLike(self, follow, follow_method, gotBy, isDump):
@@ -571,15 +571,15 @@ class InstagramAccount(Account.Account):
 		output.writeLog("Followed.")
 		self.followingList.append(blog2follow)
 		self.todayFollows += 1
-		self.waitInsta()
+		self.waitInsta(output)
 
 
 	def unfollowSocial(self, blog2unfollow):
-		self.outputUnfollow.writeLog("Unfollowing '" + str(blog2unfollow) + "'")
+		self.output.writeLog("Unfollowing '" + str(blog2unfollow) + "'")
 		self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
-		self.outputUnfollow.writeLog("Unfollowed.")
+		self.output.writeLog("Unfollowed.")
 		self.todayUnfollows += 1
-		self.waitInsta()
+		self.waitInsta(self.output)
 
 
 	def likeSocial(self, num_likes, isDump):
@@ -758,7 +758,7 @@ class InstagramAccount(Account.Account):
 				key = random.randint(0, len(media)-1)
 				selectedMedia = media.pop(key)
 				# self.output.writeLog("SelectedMedia: " + str(selectedMedia))
-				self.likeInsta(selectedMedia)
+				self.likeInsta(selectedMedia, output)
 
 
 	def getIdByUsernameInsta(self, user):

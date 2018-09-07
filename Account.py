@@ -38,7 +38,6 @@ class Account(object):
 		self.outputPost = Output.Output(username + "_post.log", subdir=username)
 		self.outputLike = Output.Output(username + "_like.log", subdir=username)
 		self.outputFollow = Output.Output(username + "_follow.log", subdir=username)
-		self.outputUnfollow = Output.Output(username + "_unfollow.log", subdir=username)
 		self.isTest = accounts.sbprog.isTest
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
@@ -283,7 +282,9 @@ class Account(object):
 		if num_follows == -1:
 			num_follows = self.num_follow_xt
 		# Check if need to update following
+		self.outputFollow.writeLog("Checking following status.. ")
 		self.checkFollowingStatus()
+		self.outputFollow.writeLog("Checking following status complete!")
 		self.followSocial(num_follows, isDump)
 		if not self.isTest:
 			self.checkNeedNewFollows()
@@ -292,7 +293,7 @@ class Account(object):
 
 	def unfollow(self):
 		blogname = self.getAccountName()
-		self.outputUnfollow.writeLog("Unfollowing " + blogname + ":")
+		self.output.writeLog("Unfollowing " + blogname + ":")
 		counterUnfollow = 0
 		while counterUnfollow <= self.num_follow_xt + self.OVER_UNFOLLOW:
 			try:
@@ -304,15 +305,15 @@ class Account(object):
 					args = (blogname, blog_name_unfollow)
 					self.dbManager.delete("Following",args)
 					counterUnfollow += 1
-					self.outputUnfollow.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
+					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
 				else:
 					# else re-append at the end
 					self.followingList.append(blog_name_unfollow)
 			except IndexError, msg:
-				self.outputUnfollow.writeErrorLog("\tError: " + str(msg))
+				self.output.writeErrorLog("\tError: " + str(msg))
 			except Exception, msg:
-				self.outputUnfollow.writeErrorLog("\tError: exception on " + blogname + " unfollow!")
-		self.outputUnfollow.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.")
+				self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow!")
+		self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + " blogs.")
 
 
 	def canUnfollow(self,blog2unfollow):
