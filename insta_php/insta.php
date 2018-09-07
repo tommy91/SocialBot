@@ -9,7 +9,7 @@ require 'vendor/autoload.php';
 require 'logManager.php';
 
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
-$ig = new \InstagramAPI\Instagram(true);
+$ig = new \InstagramAPI\Instagram();
 
 
 function connect($username, $password){
