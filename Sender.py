@@ -67,9 +67,10 @@ def post_insta_request(caller, post_data, firstTime=False):
 						print "Waiting and retring.. "
 					else:
 						caller.output.writeErrorLog("Waiting and retring.. ")
-					time.sleep(5)
+					time.sleep(10)
 					post_insta_request(caller, post_data, firstTime)
-				return None
+				else:
+					return None
 		else:
 			resp.raise_for_status()
 	except ConnectionError as e:
