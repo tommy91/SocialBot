@@ -692,7 +692,7 @@ class InstagramAccount(Account.Account):
 		response = self.post_insta_request({'action': 'like_insta', 'postID': str(postID)})
 		output.writeLog("Liked.")
 		self.todayLikes += 1
-		self.waitInsta()
+		self.waitInsta(output)
 		return (response is None)
 
 
@@ -753,7 +753,7 @@ class InstagramAccount(Account.Account):
 		elif media == []:
 			output.writeErrorLog("\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'")
 		else:
-			self.waitInsta(little=True)
+			self.waitInsta(output, little=True)
 			for count in range(0,howMany):
 				key = random.randint(0, len(media)-1)
 				selectedMedia = media.pop(key)

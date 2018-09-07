@@ -411,15 +411,16 @@ class Account(object):
 		counter = 0
 		count_final_str = str(len(following))
 		following2insert = []
+		self.output.writeLog("\t\tCheck following.. ")
 		while following != []:
 			follow = following.pop()
 			counter += 1
-			self.output.writeLog("\t\tCheck following " + str(counter) + "/" + count_final_str)
 			if Utils.binarySearch(follow, self.orderedFollowersList):
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
 			following2insert.append(args)
+		self.output.writeLog("\t\tChecked " + str(counter) + "/" + count_final_str + " following.")
 		self.output.writeLog("\t\tInsert following in DB.. ")
 		self.dbManager.addList("Following", following2insert)
 		self.output.writeLog("\t\tok!")
