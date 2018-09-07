@@ -706,9 +706,9 @@ class InstagramAccount(Account.Account):
 		followers = self.post_insta_request(params)
 		if user == None:
 			if followers == None:
-				self.output.writeErrorLog("\t\tGet Followers List.. Error: None response.")
+				self.output.writeErrorLog("\t\tGet Followers List -> Error: None response.")
 			else:
-				self.output.writeLog("\t\tGet Followers List.. " + str(len(followers)) + "/" + str(self.data['followers']))
+				self.output.writeLog("\t\tGet Followers List -> " + str(len(followers)) + "/" + str(self.data['followers']))
 		return followers
 
 

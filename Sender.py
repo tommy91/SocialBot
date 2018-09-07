@@ -68,7 +68,7 @@ def post_insta_request(caller, post_data, firstTime=False):
 					else:
 						caller.output.writeErrorLog("Waiting and retring.. ")
 					time.sleep(10)
-					post_insta_request(caller, post_data, firstTime)
+					return post_insta_request(caller, post_data, firstTime)
 				else:
 					return None
 		else:
