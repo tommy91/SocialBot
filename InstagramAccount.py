@@ -118,6 +118,7 @@ class InstagramAccount(Account.Account):
 	def dumpDailyStats(self):
 		now = date.today()
 		if self.today < now:
+			self.output.writeLog("Dump daily statistics.. ")
 			with open(self.DUMP_DIRECTORY + "/daily_" + self.username + ".csv", 'a') as f:
 				writer = csv.writer(f)
 				writer.writerow([self.today, self.todayPosts, self.todayLikes, self.todayFollows, self.todayUnfollows, self.data['followers'], self.data['following']]) 
@@ -126,6 +127,7 @@ class InstagramAccount(Account.Account):
 			self.todayLikes = 0
 			self.todayFollows = 0
 			self.todayUnfollows = 0
+			self.output.writeLog("daily statistics saved!")
 
 	def updateMatchStatistics(self, group, action):
 		self.statistics[group + "_match"][action] += 1
@@ -167,8 +169,8 @@ class InstagramAccount(Account.Account):
 		self.dumpStatistics()
 
 
-	def addStatistics(self, followedBlog, action, gotBy):
-		self.output.writeLog("Add satistics: blog=" + followedBlog + " action=" + action + " gotBy=" + gotBy)
+	def addStatistics(self, followedBlog, action, gotBy, output):
+		output.writeLog("Add satistics: blog=" + followedBlog + " action=" + action + " gotBy=" + gotBy)
 		if (action == 'rl') or (action[2] == 'l'):
 			group = 'timer_like'
 		else:
@@ -282,7 +284,8 @@ class InstagramAccount(Account.Account):
 			if firstTime:
 				print "end of update."
 			else:
-				self.output.writeLog("end of update.")				
+				self.output.writeLog("end of update.")		
+		self.dumpDailyStats()		
 
 
 	def updateUpOp(self, newAccount):
@@ -548,24 +551,24 @@ class InstagramAccount(Account.Account):
 	def followAndRandomLike(self, follow, follow_method, gotBy, isDump):
 		if isDump:
 			self.outputFollow.writeLog("follow and random like: " + str(follow))
-		self.followInsta(follow)
-		self.randomMediaLikeInsta(follow)
+		self.followInsta(follow, self.outputFollow)
+		self.randomMediaLikeInsta(follow, self.outputFollow)
 		self.deleteFollowFromDB(follow)
-		self.addStatistics(follow, follow_method, gotBy)
+		self.addStatistics(follow, follow_method, gotBy, self.outputFollow)
 
 
 	def justFollow(self, follow, follow_method, gotBy, isDump):
 		if isDump:
 			self.outputFollow.writeLog("just follow: " + str(follow))
-		self.followInsta(follow)
+		self.followInsta(follow, self.outputFollow)
 		self.deleteFollowFromDB(follow)
-		self.addStatistics(follow, follow_method, gotBy)
+		self.addStatistics(follow, follow_method, gotBy, self.outputFollow)
 
 
-	def followInsta(self, blog2follow):
-		self.outputFollow.writeLog("Following '" + str(blog2follow) + "'")
+	def followInsta(self, blog2follow, output):
+		output.writeLog("Following '" + str(blog2follow) + "'")
 		self.post_insta_request({'action': 'follow_insta', 'user': str(blog2follow)})
-		self.outputFollow.writeLog("Followed.")
+		output.writeLog("Followed.")
 		self.followingList.append(blog2follow)
 		self.todayFollows += 1
 		self.waitInsta()
@@ -645,49 +648,49 @@ class InstagramAccount(Account.Account):
 
 	
 	def justLike(self, media, like_method, gotBy, isDump):
-		self.likeInsta(media['mediaID'])
-		self.addStatistics(media['userID'], like_method, gotBy)
+		self.likeInsta(media['mediaID'], self.outputLike)
+		self.addStatistics(media['userID'], like_method, gotBy, self.outputLike)
 		if isDump:
 			self.outputLike.writeLog(like_method)
 
 
 	def likeAndFollow(self, media, like_method, gotBy, isDump):
-		self.likeInsta(media['mediaID'])
-		self.followInsta(media['userID'])
-		self.addStatistics(media['userID'], like_method, gotBy)
+		self.likeInsta(media['mediaID'], self.outputLike)
+		self.followInsta(media['userID'], self.outputLike)
+		self.addStatistics(media['userID'], like_method, gotBy, self.outputLike)
 		if isDump:
 			self.outputLike.writeLog(like_method)
 
 
 	def likeAndRandomLike(self, media, like_method, gotBy, isDump):
-		self.likeInsta(media['mediaID'])
-		self.randomMediaLikeInsta(media['userID'])
-		self.addStatistics(media['userID'], like_method, gotBy)
+		self.likeInsta(media['mediaID'], self.outputLike)
+		self.randomMediaLikeInsta(media['userID'], self.outputLike)
+		self.addStatistics(media['userID'], like_method, gotBy, self.outputLike)
 		if isDump:
 			self.outputLike.writeLog(like_method)
 
 
 	def likeFollowAndRandomLike(self, media, like_method, gotBy, isDump):
-		self.likeInsta(media['mediaID'])
-		self.followInsta(media['userID'])
-		self.randomMediaLikeInsta(media['userID'])
-		self.addStatistics(media['userID'], like_method, gotBy)
+		self.likeInsta(media['mediaID'], self.outputLike)
+		self.followInsta(media['userID'], self.outputLike)
+		self.randomMediaLikeInsta(media['userID'], self.outputLike)
+		self.addStatistics(media['userID'], like_method, gotBy, self.outputLike)
 		if isDump:
 			self.outputLike.writeLog(like_method)
 		
 
 	def randomLike(self, userID, like_method, gotBy, isDump):
-		self.randomMediaLikeInsta(userID)
+		self.randomMediaLikeInsta(userID, self.outputLike)
 		self.deleteFollowFromDB(userID)
-		self.addStatistics(userID, like_method, gotBy)
+		self.addStatistics(userID, like_method, gotBy, self.outputLike)
 		if isDump:
 			self.outputLike.writeLog(like_method)
 
 
-	def likeInsta(self, postID):
-		self.outputLike.writeLog("Liking '" + str(postID) + "'")
+	def likeInsta(self, postID, output):
+		output.writeLog("Liking '" + str(postID) + "'")
 		response = self.post_insta_request({'action': 'like_insta', 'postID': str(postID)})
-		self.outputLike.writeLog("Liked.")
+		output.writeLog("Liked.")
 		self.todayLikes += 1
 		self.waitInsta()
 		return (response is None)
@@ -742,13 +745,13 @@ class InstagramAccount(Account.Account):
 		return self.post_insta_request({'action': 'get_insta_media', 'user': str(user), 'maxNum': maxNum})
 
 
-	def randomMediaLikeInsta(self, user, howMany=1):
+	def randomMediaLikeInsta(self, user, output, howMany=1):
 		media = self.getMediaInsta(user, self.MAX_RETRIEVED_MEDIA)
 		# self.output.writeLog("RandomMedias for '" + str(user) + "': " + str(media))
 		if media == None:
-			self.outputLike.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'")
+			output.writeErrorLog("\tError: randomMediaLikeInsta media=None for user '" + str(user) + "'")
 		elif media == []:
-			self.outputLike.writeErrorLog("\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'")
+			output.writeErrorLog("\tError: randomMediaLikeInsta media=[] for user '" + str(user) + "'")
 		else:
 			self.waitInsta(little=True)
 			for count in range(0,howMany):
