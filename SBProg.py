@@ -131,6 +131,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n""
 			self.timers["update"].cancel()
 		except KeyError, msg:
 			pass
+		print "\tActive Threads: " + str(threading.activeCount())
 		self.updateStatistics()
 		resp = self.post_request({"action": "closing_operations", "stop_session_time": datetime.datetime.fromtimestamp(float(int(time.time()))).strftime('%H:%M:%S %d/%m')})
 		print "Bye!\n"
