@@ -31,6 +31,9 @@ def post_request(caller, post_data):
 	except HTTPError as e:
 		caller.output.writeErrorLog("Error: 'HTTPError'\n" + str(e))
 		return None
+	except Exception as e:
+		caller.output.writeErrorLog("Error: 'Exception'\n" + str(e))
+		return None
 
 
 def post_insta_request(caller, post_data, firstTime=False):
