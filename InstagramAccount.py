@@ -140,10 +140,10 @@ class InstagramAccount(Account.Account):
 			fstats = self.dbManager.getFstats(bn,follow)
 			if fstats != []:
 				for fstat in fstats:
-					if fstat['action'][2] == 'f':
-						self.updateMatchStatistics('timer_follow', fstat['action'])
-					else:
+					if (fstat['action'] == 'rl') or (fstat['action'][2] == 'l'):
 						self.updateMatchStatistics('timer_like', fstat['action'])
+					else:
+						self.updateMatchStatistics('timer_follow', fstat['action'])
 					self.updateMatchTagsBlogsStats(fstat['gotBy'])
 				args = (bn,follow)
 				self.dbManager.delete('Fstats',args)
