@@ -416,10 +416,10 @@ class DbManager:
 		return result
 
 
-	def isUnfollowed(self, myBlog, blogToCheck):
+	def isUnfollowed(self, myBlog, blogToCheck, silent=True):
 		result = self.execute_get_one('SELECT count(*) as num FROM Unfollowed WHERE myBlog = "' + myBlog + '" AND unfollowedBlog = "' + blogToCheck + '"', silent, "Unfollowed")
 		return int(result['num']) > 0
-		
+
 
 	def clearDB(self, blogname):
 		self.clearPostsLikes4Blog(blogname)
