@@ -11,17 +11,19 @@ create table PostsLikes (
 -- Table Follow
 create table Follow (
     sourceBlog      text, 
-    myblog          text, 
-    time            time
+    myBlog          text, 
+    time            time,
+    PRIMARY KEY (sourceBlog, myBlog)
 );
 
 
--- table Following
+-- Table Following
 create table Following (
     myBlog          text, 
     followedBlog    text, 
     isFollowingBack boolean, 
-    time            time
+    time            time,
+    PRIMARY KEY (myBlog, followedBlog)
 );
 
 
@@ -32,4 +34,13 @@ create table Fstats (
     action          text,
     gotBy           text, 
     time            time
+);
+
+
+-- Table Unfollowed
+create table Unfollowed (
+    myBlog          text,
+    unfollowedBlog  text,
+    time            time,
+    PRIMARY KEY (myBlog, unfollowedBlog)
 );

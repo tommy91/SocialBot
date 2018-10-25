@@ -145,7 +145,7 @@ class InstagramAccount(Account.Account):
 					else:
 						self.updateMatchStatistics('timer_follow', fstat['action'])
 					self.updateMatchTagsBlogsStats(fstat['gotBy'])
-				args = (bn,follow)
+				args = (bn,follow,)
 				self.dbManager.delete('Fstats',args)
 		# Delete old ones:
 		timeLimit = int((time.time() - self.FSTATS_TRASH_TIME) * self.TIME_FACTOR)
@@ -366,6 +366,8 @@ class InstagramAccount(Account.Account):
 
 
 	def searchNewFollows(self, num_follows):
+		blogname = self.getAccountName()
+		followingOrderedList = self.getFollowingOrderedList()
 		# count how many follow take for every blog
 		num_following_blogs = len(self.blogs)
 		if num_following_blogs >= num_follows:
@@ -387,7 +389,7 @@ class InstagramAccount(Account.Account):
 				self.output.writeErrorLog("\t         Error (None response getFollowersSocial) for '" + blog + "'")
 			else:
 				for follow in followers:
-					if (not follow in self.followersList) and (not follow in self.followingList):
+					if (not follow in self.followersList) and (not follow in followingOrderedList) and (not self.dbManager.isUnfollowed(blogname, follow)):
 						self.addFollowToDB(follow)
 						counter += 1
 						self.output.writeLog("\t         from " + blog + ".. " + str(counter))
@@ -406,7 +408,7 @@ class InstagramAccount(Account.Account):
 				self.output.writeErrorLog("\t         error on getTaggedPopularInsta")
 			else:
 				for post in media:
-					if (not post['userID'] in self.followingList) and (not post['userID'] in self.followersList):
+					if (not post['userID'] in followingOrderedList) and (not post['userID'] in self.followersList) and (not self.dbManager.isUnfollowed(blogname, post['userID'])):
 						self.addFollowToDB(post['userID'])
 						counterMedia += 1
 						self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
@@ -416,7 +418,7 @@ class InstagramAccount(Account.Account):
 						self.output.writeErrorLog("\t         Error: None response for getMediaLikersInsta")
 					else:
 						for liker in likers: 
-							if (not liker in self.followingList) and (not liker in self.followersList):
+							if (not liker in followingOrderedList) and (not liker in self.followersList) and (not self.dbManager.isUnfollowed(blogname, liker)):
 								self.addFollowToDB(liker)
 								counterLikers += 1
 								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
@@ -426,7 +428,7 @@ class InstagramAccount(Account.Account):
 						self.output.writeErrorLog("\t         Error: None response for getMediaCommentsInsta")
 					else:
 						for comment in comments: 
-							if (not comment in self.followingList) and (not comment in self.followersList):
+							if (not comment in followingOrderedList) and (not comment in self.followersList) and (not self.dbManager.isUnfollowed(blogname, comment)):
 								self.addFollowToDB(comment)
 								counterComments += 1
 								self.output.writeLog("\t         from posts: " + str(counterMedia) + ", from likes: " + str(counterLikers) + ", from comments: " + str(counterComments))
@@ -509,14 +511,22 @@ class InstagramAccount(Account.Account):
 
 	def deleteFollowFromDB(self, follow):
 		blogname = self.getAccountName()
-		args = (follow,blogname)
-		self.dbManager.delete("Follow",args)
+		args = (follow, blogname,)
+		self.dbManager.delete("Follow", args)
 
 
 	def addFollowToDB(self, follow):
 		blogname = self.getAccountName()
-		args = (follow,blogname,int(time.time()))
-		self.dbManager.add("Follow",args)
+		args = (follow, blogname, int(time.time()))
+		self.dbManager.add("Follow", args)
+
+
+	def addFollowingToDB(self, following):
+		blogname = self.getAccountName()
+		time = int(time.time() * self.TIME_FACTOR)
+		args = (blogname, following, False, time)
+		self.dbManager.add("Following", args)
+		self.followingList.append({'myBlog': blogname, 'followedBlog': following, 'isFollowingBack': False, 'time': time})
 
 
 	def getNewFollowFromSearch(self, alreadyFollowed, output):
@@ -537,7 +547,7 @@ class InstagramAccount(Account.Account):
 			elif follow == []:
 				self.outputFollow.writeErrorLog("Error: cannot find recent media tagged '" + tag + "'")
 				return False, None, tag
-			elif not follow[0]['userID'] in alreadyFollowed:
+			elif (not follow[0]['userID'] in alreadyFollowed) and  (not self.dbManager.isUnfollowed(blogname, follow[0]['userID'])):
 				return True, follow[0]['userID'], tag
 			else:
 				num_errors += 1
@@ -569,7 +579,8 @@ class InstagramAccount(Account.Account):
 		output.writeLog("Following '" + str(blog2follow) + "'")
 		self.post_insta_request({'action': 'follow_insta', 'user': str(blog2follow)})
 		output.writeLog("Followed.")
-		self.followingList.append(blog2follow)
+		self.addFollowingToDB(blog2follow)
+		self.logFollowing(str(time.time()) + "   -->   " + str(blog2follow))
 		self.todayFollows += 1
 		self.waitInsta(output)
 
@@ -578,6 +589,7 @@ class InstagramAccount(Account.Account):
 		self.output.writeLog("Unfollowing '" + str(blog2unfollow) + "'")
 		self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
 		self.output.writeLog("Unfollowed.")
+		self.logUnfollowing(str(time.time()) + "   -->   " + str(blog2unfollow))
 		self.todayUnfollows += 1
 		self.waitInsta(self.output)
 

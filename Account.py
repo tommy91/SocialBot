@@ -38,6 +38,8 @@ class Account(object):
 		self.outputPost = Output.Output(username + "_post.log", subdir=username)
 		self.outputLike = Output.Output(username + "_like.log", subdir=username)
 		self.outputFollow = Output.Output(username + "_follow.log", subdir=username)
+		self.logFollowing = Output.Output(username + "_log_following.log", subdir=username)
+		self.logUnfollowing = Output.Output(username + "_log_unfollowing.log", subdir=username)
 		self.isTest = accounts.sbprog.isTest
 		self.timers = accounts.sbprog.timers
 		self.timersTime = accounts.sbprog.timersTime
@@ -298,14 +300,16 @@ class Account(object):
 		while counterUnfollow <= self.num_follow_xt + self.OVER_UNFOLLOW:
 			try:
 				# pop the first
-				blog_name_unfollow = self.followingList.pop(0)
-				if self.canUnfollow(blog_name_unfollow):
+				blog_to_unfollow = self.followingList.pop(0)
+				if self.canUnfollow(blog_to_unfollow):
 					# if can unfollow then unfollow
-					self.unfollowSocial(blog_name_unfollow)
-					args = (blogname, blog_name_unfollow)
+					self.unfollowSocial(blog_to_unfollow['followedBlog'])
+					args = (blogname, blog_to_unfollow['followedBlog'],)
 					self.dbManager.delete("Following",args)
+					args += (time.time(),)
+					self.dbManager.add("Unfollowed",args)
 					counterUnfollow += 1
-					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt))
+					self.output.writeLog("\tUnfollowed " + str(counterUnfollow) + "/" + str(self.num_follow_xt + self.OVER_UNFOLLOW))
 				else:
 					# else re-append at the end
 					self.followingList.append(blog_name_unfollow)
@@ -333,38 +337,43 @@ class Account(object):
 
 	def checkFollowingStatus(self):
 		blogname = self.getAccountName()
+		counterUnfollowed = 0
 		if time.time() >= self.updateFollowersTime:
 			self.output.writeLog("Time to update follower and following status..")
 			# Get Followers
 			self.getFollowers()
 			# Update following status in db
+			followingOrderedList = self.getFollowingOrderedList()
 			self.output.writeLog("\tUpdate Following status.. ")
 			self.dbManager.setAllFollowingUnfollowed(blogname)
 			for follower in self.followersList:
-				if follower in self.followingList:
+				if follower in followingOrderedList:
 					self.dbManager.setFollowingFollowed(blogname, follower, True)
 			self.updateMatchesStatistics()
-			self.followingList = self.dbManager.getFollowing(blogname)
 			# Unfollow who did not follow me back after a while
 			self.output.writeLog("\tUnfollow who did not follow me back after a while.. ")
 			timeLimit = int((time.time() - self.FOLLOWING_TRASH_TIME) * self.TIME_FACTOR)
 			toUnfollow = self.dbManager.getFollowingTrash(blogname, timeLimit)
 			self.output.writeLog("\t" + str(len(toUnfollow)) + " to unfollow.. ")
-			counterUnfollowed = 0
 			for toUnfollowName in toUnfollow:
 				try:
 					self.unfollowSocial(toUnfollowName)
-					self.followingList.remove(toUnfollowName)
-					args = (blogname, toUnfollowName)
+					args = (blogname, toUnfollowName,)
 					self.dbManager.delete("Following",args)
 					counterUnfollowed += 1
+					if counterUnfollowed > (self.num_follow_xt + self.OVER_UNFOLLOW):
+						break
 				except Exception, msg:
 					self.output.writeErrorLog("\tError: exception on " + blogname + " unfollow for time!")
 			self.output.writeLog("unfollowed " + str(counterUnfollowed) + ".")
+			self.followingList = self.dbManager.getFollowing(blogname)
 		# Check if too many follow and unfollow in that case
 		if len(self.followingList) >= self.LIMITFOLLOW:
 			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " >= max # following (" + str(self.LIMITFOLLOW) + ") -> need to unfollow!")
-			self.unfollow()
+			if counterUnfollowed < (self.num_follow_xt + self.OVER_UNFOLLOW):
+				self.unfollow()
+			else:
+				self.output.writeLog("\tCannot unfollow: already reached the maximum number (" + str(self.num_follow_xt + self.OVER_UNFOLLOW) + ").")
 		else:
 			self.output.writeLog("\t#Following: " + str(len(self.followingList)) + " < max # following (" + str(self.LIMITFOLLOW) + ") -> NO need to unfollow!")
 			
@@ -374,16 +383,11 @@ class Account(object):
 		self.output.writeLog("\tInitialize Following.. ")
 		self.followingList = []
 		blogname = self.getAccountName()
-		current_num_followings = self.dbManager.countFollowing(blogname)
-		if current_num_followings != self.data['following']:
-			following = self.getFollowing()
-		else:
-			self.output.writeLog("\t\tGet Following List from DB.. ")
-			following = self.dbManager.getFollowing(blogname)
-			self.output.writeLog("\t\tok")
-		args = (blogname,)
-		self.dbManager.deleteAll("Following",args)
-		self.checkFollowingFollowed(following)
+		following_from_social = self.getFollowing()
+		self.output.writeLog("\t\tGet Following List from DB.. ")
+		following_from_db = self.dbManager.getFollowing(blogname)
+		self.output.writeLog("\t\tok")
+		self.checkFollowingFollowed(sorted(following_from_social), following_from_db)
 		self.output.writeLog("\tDone.")
 
 
@@ -406,21 +410,50 @@ class Account(object):
 		return self.getFollowingsSocial()
 
 
-	def checkFollowingFollowed(self, following): 
+	def getFollowingOrderedList(self):
+		return sorted([ follow['followedBlog'] for follow in self.followingList ])
+
+
+	def checkFollowingFollowed(self, following_from_social, following_from_db): 
 		blogname = self.getAccountName()
 		counter = 0
-		count_final_str = str(len(following))
+		count_final_str = str(len(following_from_db))
 		following2insert = []
-		self.output.writeLog("\t\tCheck following.. ")
-		while following != []:
-			follow = following.pop()
+		following2remove = []
+		following2update = []
+		self.output.writeLog("\t\tCheck following.. (" + count_final_str + " in DB, " + str(len(following_from_social)) + " from social)")
+		while following_from_db != []:
+			follow = following_from_db.pop()
 			counter += 1
+			isFollowOnSocial, posFollowInSocial = Utils.binarySearchWithPos(follow['followedBlog'], following_from_social)
+			if isFollowOnSocial:
+				following_from_social.pop(posFollowInSocial)
+				if Utils.binarySearch(follow['followedBlog'], self.orderedFollowersList):
+					if not follow['isFollowingBack']:
+						args = (True, blogname, follow['followedBlog'],)
+						following2update.append(args)
+				else:
+					if follow['isFollowingBack']:
+						args = (False, blogname, follow['followedBlog'],)
+						following2update.append(args)
+			else:
+				args = (blogname, follow['followedBlog'],)
+				following2remove.append(args)
+			self.output.writeLog("\t\tChecked " + str(counter) + "/" + count_final_str + " following in DB")
+		self.output.writeLog("\t\tRemaining " + str(len(following_from_social)) + " from social")
+		for follow in following_from_social:
 			if Utils.binarySearch(follow, self.orderedFollowersList):
 				args = (blogname, follow, True, int(time.time() * self.TIME_FACTOR))
+				following2insert.append(args)
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
-			following2insert.append(args)
-		self.output.writeLog("\t\tChecked " + str(counter) + "/" + count_final_str + " following.")
+				following2insert.append(args)
+		self.output.writeLog("\t\tRemove following in DB.. ")
+		self.dbManager.deleteList("Following", following2remove)
+		self.output.writeLog("\t\tok!")
+		self.output.writeLog("\t\tUpdate following in DB.. ")
+		self.dbManager.updateList("Following", following2update)
+		self.output.writeLog("\t\tok!")		
 		self.output.writeLog("\t\tInsert following in DB.. ")
 		self.dbManager.addList("Following", following2insert)
 		self.output.writeLog("\t\tok!")

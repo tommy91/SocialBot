@@ -77,6 +77,8 @@ class DbManager:
 				c.execute('INSERT INTO Follow VALUES (?,?,?)',args)
 			elif table == "Following":
 				c.execute('INSERT INTO Following VALUES (?,?,?,?)',args)
+			elif table == "Unfollowed":
+				c.execute('INSERT INTO Unfollowed VALUES (?,?,?)',args)
 			elif table == "Fstats":
 				c.execute('INSERT INTO Fstats VALUES (?,?,?,?,?)',args)
 		except sqlite3.IntegrityError, msg:
@@ -131,6 +133,30 @@ class DbManager:
 					self.output.writeLog("\tDeleted " + str(rows) + " from " + table)
 				else:
 					self.output.writeLog("\tThat entry does not exist in " + table + "!")
+		self.disconnectDB(db,silent)
+
+
+	def deleteList(self, table, argsList, silent=True):
+		db = self.connectDB(silent)
+		c = db.cursor() 
+		c.execute("begin")
+		rows = 0 
+		try:
+			if table == "PostsLikes":
+				rows = c.executemany('DELETE FROM PostsLikes WHERE id = ? AND myBlog = ?',argsList).rowcount
+			elif table == "Follow":
+				rows = c.executemany('DELETE FROM Follow WHERE sourceBlog = ? AND myBlog = ?',argsList).rowcount
+			elif table == "Following":
+				rows = c.executemany('DELETE FROM Following WHERE myBlog = ? AND followedBlog = ?',argsList).rowcount
+			elif table == "Fstats":
+				rows = c.executemany('DELETE FROM WHERE myBlog = ? AND followedBlog = ?',argsList).rowcount
+		except sqlite3.IntegrityError, msg:
+			c.execute("rollback")
+			self.output.writeErrorLog("   Error" + str(msg))	
+		else: 
+			c.execute("commit")
+			if not silent:
+				self.output.writeLog("   Deleted " + str(rows) + " entries from " + table + " table.")
 		self.disconnectDB(db,silent)
 
 
@@ -196,6 +222,30 @@ class DbManager:
 					self.output.writeLog("\tUpdated " + str(rows) + " from " + table)
 				else:
 					self.output.writeLog("\tThat entry does not exist in " + table + "!")
+		self.disconnectDB(db,silent)
+
+
+	def updateList(self, table, argsList, silent=True):
+		db = self.connectDB(silent)
+		c = db.cursor() 
+		c.execute("begin")
+		rows = 0 
+		try:
+			if table == "PostsLikes":
+				pass
+			elif table == "Follow":
+				pass
+			elif table == "Following":
+				rows = c.executemany('UPDATE Following SET isFollowingBack = ? WHERE myBlog = ? AND followedBlog = ?',argsList).rowcount
+			elif table == "Fstats":
+				pass
+		except sqlite3.IntegrityError, msg:
+			c.execute("rollback")
+			self.output.writeErrorLog("   Error" + str(msg))	
+		else: 
+			c.execute("commit")
+			if not silent:
+				self.output.writeLog("   Updated " + str(rows) + " from " + table + " table.")
 		self.disconnectDB(db,silent)
 
 
@@ -294,7 +344,7 @@ class DbManager:
 
 
 	def getFollowing(self, blogname, silent=True):
-		return self.execute_get_one('SELECT followedBlog FROM Following WHERE myBlog = "' + blogname + '" ORDER BY isFollowingBack, time', silent, "Following")
+		return self.execute_get_all('SELECT * FROM Following WHERE myBlog = "' + blogname + '" ORDER BY isFollowingBack, time', silent, "Following")
 
 
 	def getFstats(self, blogname, followedBlog, silent=True):
@@ -314,6 +364,7 @@ class DbManager:
 	
 
 	def execute_get_all(self, query, silent, tableName):
+		""" return list of dicts with keys and values"""
 		db = self.connectDB(silent)
 		c = db.cursor()
 		if not silent:
@@ -338,6 +389,7 @@ class DbManager:
 
 
 	def execute_get_one(self, query, silent, tableName):
+		""" return list without keys """
 		db = self.connectDB(silent)
 		db.row_factory = lambda cursor, row: row[0]
 		c = db.cursor()
@@ -363,6 +415,11 @@ class DbManager:
 		self.disconnectDB(db,silent)
 		return result
 
+
+	def isUnfollowed(self, myBlog, blogToCheck):
+		result = self.execute_get_one('SELECT count(*) as num FROM Unfollowed WHERE myBlog = "' + blogname + '" AND unfollowedBlog = "' + blogToCheck + '"', silent, "Unfollowed")
+		return int(result['num']) > 0
+		
 
 	def clearDB(self, blogname):
 		self.clearPostsLikes4Blog(blogname)
