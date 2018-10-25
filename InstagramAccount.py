@@ -523,10 +523,10 @@ class InstagramAccount(Account.Account):
 
 	def addFollowingToDB(self, following):
 		blogname = self.getAccountName()
-		time = int(time.time() * self.TIME_FACTOR)
-		args = (blogname, following, False, time)
+		following_time = int(time.time() * self.TIME_FACTOR)
+		args = (blogname, following, False, following_time)
 		self.dbManager.add("Following", args)
-		self.followingList.append({'myBlog': blogname, 'followedBlog': following, 'isFollowingBack': False, 'time': time})
+		self.followingList.append({'myBlog': blogname, 'followedBlog': following, 'isFollowingBack': False, 'time': following_time})
 
 
 	def getNewFollowFromSearch(self, alreadyFollowed, output):
