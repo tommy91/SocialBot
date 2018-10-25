@@ -82,9 +82,9 @@ def binarySearchWithPos(elem, lst):
 	if lst[index_pivot] == elem:
 		return True, index_pivot
 	elif lst[index_pivot] > elem:
-		return binarySearch(elem, lst[:index_pivot])
+		return binarySearchWithPos(elem, lst[:index_pivot])
 	else:
-		return binarySearch(elem, lst[(index_pivot+1):])
+		return binarySearchWithPos(elem, lst[(index_pivot+1):])
 
 
 def selectWithProb(elems, probs):
