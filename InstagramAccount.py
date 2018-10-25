@@ -580,7 +580,7 @@ class InstagramAccount(Account.Account):
 		self.post_insta_request({'action': 'follow_insta', 'user': str(blog2follow)})
 		output.writeLog("Followed.")
 		self.addFollowingToDB(blog2follow)
-		self.logFollowing.writeLog(str(time.time()) + "   -->   " + str(blog2follow))
+		self.logFollowing.writeLog(str(blog2follow))
 		self.todayFollows += 1
 		self.waitInsta(output)
 
@@ -589,7 +589,7 @@ class InstagramAccount(Account.Account):
 		self.output.writeLog("Unfollowing '" + str(blog2unfollow) + "'")
 		self.post_insta_request({'action': 'unfollow_insta', 'user': str(blog2unfollow)})
 		self.output.writeLog("Unfollowed.")
-		self.logUnfollowing.writeLog(str(time.time()) + "   -->   " + str(blog2unfollow))
+		self.logUnfollowing.writeLog(str(blog2unfollow))
 		self.todayUnfollows += 1
 		self.waitInsta(self.output)
 
