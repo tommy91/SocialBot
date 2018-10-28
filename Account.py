@@ -133,7 +133,7 @@ class Account(object):
 
 	def stopBlog(self):
 		self.output.writeLog("Stop " + self.getAccountName() + ".. ")
-		if self.init_tread.isAlive():
+		if hasattr(self, init_tread) and self.init_tread.isAlive():
 			self.output.writeLog("\tWaiting thread '" + self.init_tread.getName() + "' to stop..")
 			self.init_tread.join()
 		self.status = self.STATUS_STOP
@@ -439,7 +439,7 @@ class Account(object):
 			else:
 				args = (blogname, follow['followedBlog'],)
 				following2remove.append(args)
-			self.output.writeLog("\t\tChecked " + str(counter) + "/" + count_final_str + " following in DB")
+		self.output.writeLog("\t\tChecked " + str(counter) + "/" + count_final_str + " following in DB")
 		self.output.writeLog("\t\tRemaining " + str(len(following_from_social)) + " from social")
 		for follow in following_from_social:
 			if Utils.binarySearch(follow, self.orderedFollowersList):
@@ -448,13 +448,13 @@ class Account(object):
 			else:
 				args = (blogname, follow, False, int(time.time() * self.TIME_FACTOR))
 				following2insert.append(args)
-		self.output.writeLog("\t\tRemove following in DB.. ")
+		self.output.writeLog("\t\tRemove (" + str(len(following2remove)) + ") following in DB.. ")
 		self.dbManager.deleteList("Following", following2remove)
 		self.output.writeLog("\t\tok!")
-		self.output.writeLog("\t\tUpdate following in DB.. ")
+		self.output.writeLog("\t\tUpdate (" + str(len(following2update)) + ") following in DB.. ")
 		self.dbManager.updateList("Following", following2update)
 		self.output.writeLog("\t\tok!")		
-		self.output.writeLog("\t\tInsert following in DB.. ")
+		self.output.writeLog("\t\tInsert (" + str(len(following2insert)) + ") following in DB.. ")
 		self.dbManager.addList("Following", following2insert)
 		self.output.writeLog("\t\tok!")
 		self.followingList = self.dbManager.getFollowing(blogname)
