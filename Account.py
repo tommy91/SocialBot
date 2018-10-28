@@ -458,6 +458,7 @@ class Account(object):
 		self.dbManager.addList("Following", following2insert)
 		self.output.writeLog("\t\tok!")
 		self.followingList = self.dbManager.getFollowing(blogname)
+		self.output.writeLog("\t\tThere are now " + str(len(self.followingList)) + " following in DB.")
 
 
 	def clearDB(self):
