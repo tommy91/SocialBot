@@ -133,7 +133,7 @@ class Account(object):
 
 	def stopBlog(self):
 		self.output.writeLog("Stop " + self.getAccountName() + ".. ")
-		if hasattr(self, init_tread) and self.init_tread.isAlive():
+		if hasattr(self, "init_tread") and self.init_tread.isAlive():
 			self.output.writeLog("\tWaiting thread '" + self.init_tread.getName() + "' to stop..")
 			self.init_tread.join()
 		self.status = self.STATUS_STOP
