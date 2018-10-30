@@ -287,7 +287,8 @@ class Account(object):
 		self.outputFollow.writeLog("Checking following status.. ")
 		self.checkFollowingStatus()
 		self.outputFollow.writeLog("Checking following status complete!")
-		self.followSocial(num_follows, isDump)
+		if len(self.followingList) < self.LIMITFOLLOW:
+			self.followSocial(num_follows, isDump)
 		if not self.isTest:
 			self.checkNeedNewFollows()
 		self.updateAccountData()
