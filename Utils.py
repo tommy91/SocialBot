@@ -59,19 +59,15 @@ def tags2list(tags):
     return tagsList
 
 
-def blogs2list(other_accounts):
-    oaList = []
-    for oa in other_accounts:
-        oaList.append(oa['Name'])
-    return oaList
+def blogs2list(blogs):
+    blogsList = []
+    for blog in blogs:
+        blogsList.append(blog['Name'])
+    return blogsList
 
 
 def post_request(post_data):
-    try:
-        return send_and_check_request(post_data)
-    except HTTPError as e:
-        print e
-        return None
+    return send_and_check_request(post_data)
 
 
 def send_and_check_request(post_data):
@@ -86,16 +82,24 @@ def send_and_check_request(post_data):
                 else:
                     return parsed['Result']
             except ValueError as e:
-                print "Errore:"
+                print "Errore: ValueError"
                 print resp.content
                 return None
         else:
             resp.raise_for_status()
     except ConnectionError as e:
-        print "Errore:"
+        print "Errore: ConnectionError"
         print e
         return None 
     except Timeout as e:
-        print "Errore:"
+        print "Errore: Timeout"
         print e
         return None
+    except HTTPError as e:
+        print "Errore: HTTPError"
+        print e
+        return None
+    except Exception as e:
+        print "Errore: Exception"
+        print e
+        return None 

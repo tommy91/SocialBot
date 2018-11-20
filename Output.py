@@ -1,4 +1,3 @@
-import time
 import datetime
 import threading
 
@@ -7,23 +6,15 @@ import Utils
 
 class Output:
 
-	sleepCharDefault = 0.02
-	sleepLineDefault = 0.3
 	lastline = ""
 	startSimble = "-> "
 	canWrite = True
 
 
-	def __init__(self, sleepChar = None, sleepLine = None):
-		if sleepChar != None:
-			self.sleepChar = sleepChar
-		else:
-			self.sleepChar = sleepCharDefault
-		if sleepLine != None:
-			self.sleepLine = sleepLine
-		else:
-			self.sleepLine = sleepLineDefault
+	def __init__(self):
+		print "Creating new Output object.."
 		self.lock = threading.RLock()
+		print "Output object created."
 
 
 	def writeln(self, res, force = False):
@@ -48,12 +39,8 @@ class Output:
 	    self.lock.acquire()
 	    self.lastline = res
 	    try:
-	        time.sleep(self.sleepLine)
-	        for c in res:
-	            sys.stdout.write('%s' % c)
-	            sys.stdout.flush()
-	            time.sleep(self.sleepChar)
-
+	        sys.stdout.write(res)
+	        sys.stdout.flush()
 	    finally:
 	        self.lock.release()
 
@@ -69,45 +56,4 @@ class Output:
 	    finally:
 	        sys.stdout.flush()
 	        self.lock.release()
-
-
-	def changeSpeed(self, entry):
-	    e = entry.split()
-	    l = len(entry.split())
-	    if (l > 1) and (l < 6):
-	        c = 1
-	        while c < l:
-	            if e[c] == "-c":
-	                c = c + 1
-	                if e[c] == "default":
-	                    self.sleepChar = self.sleepCharDefault
-	                else:
-	                    try:
-	                        self.sleepChar = float(e[c])
-	                    except ValueError, msg:
-	                        self.write("   Error: " + str(msg) + "\n",True)
-	                        break
-	                self.write("New speed char: " + str(self.sleepChar) + "\n",True)
-	                c = c + 1
-	            elif e[c] == "-l":
-	                c = c + 1
-	                if e[c] == "default":
-	                    self.sleepLine = self.sleepLineDefault
-	                else:
-	                    try:
-	                        self.sleepLine = float(e[c])
-	                    except ValueError, msg:
-	                        self.write("   Error: " + str(msg) + "\n",True)
-	                        break
-	                self.write("New speed line: " + str(self.sleepLine) + "\n",True)
-	                c = c + 1 
-	            else:
-	                self.write("Error: expecting '-c' or '-l' at " + str(c) + " position!\n",True)
-	                break
-	    elif l >= 6:
-	        self.write("Error: too many arguments!\n",True)
-	    else:
-	        self.write("Current speeds:\n   char: " + str(self.sleepChar) + "\n   line: " + str(self.sleepLine) + "\n",True)
-	        self.write("For modify this values enter:\n",True)
-	        self.write("   changeSpeed -c 'float_value/default' -l 'float_value/default'\n",True)
 

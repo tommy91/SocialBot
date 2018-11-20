@@ -6,6 +6,8 @@ require_once 'insta.php';
 $data = new MysqlClass(); 
 $data->connetti();
 
+$INSTAGRAM_TYPE = 2;
+
 
 function op2register($from, $table, $blog, $op) {   // from: 0=php, 1=python    op: 0=add, 1=delete, 2=update
 	global $data;
@@ -73,11 +75,17 @@ if (isset($_POST['action'])) {
         echo json_encode(fetchSelectAndReturn($auth));
 	}
 
-	if ($request == "get_my_accounts") {
-		$q = 'SELECT * FROM sb_my_accounts ORDER BY ID';
+	// if ($request == "get_my_accounts") {
+	// 	$q = 'SELECT * FROM sb_my_accounts ORDER BY ID';
+ //        $auth = $data->query($q);
+ //        echo json_encode(fetchSelectAndReturn($auth));
+	// }
+
+    if ($request == "get_instagram_accounts") {
+        $q = 'SELECT * FROM sb_my_accounts WHERE Type='.$INSTAGRAM_TYPE.' ORDER BY ID';
         $auth = $data->query($q);
         echo json_encode(fetchSelectAndReturn($auth));
-	}
+    }
 
 	if ($request == "get_tags") {
 		$id = $_POST['ID'];
